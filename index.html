@@ -66,7 +66,7 @@
   .module-btn {
     background:rgba(255,255,255,.14); color:#fff; border:none; border-radius:10px;
     padding:9px 18px; font-family:inherit; font-size:13.5px; font-weight:700; cursor:pointer;
-    opacity:.8; display:flex; align-items:center; gap:6px;
+    opacity:.8; display:flex; align-items:center; gap:6px; transition:background .18s ease, opacity .18s ease, color .18s ease;
   }
   .module-btn.active { background:#fff; color:var(--brand-dark); opacity:1; }
   .module-btn:hover { opacity:1; }
@@ -74,15 +74,34 @@
   .tab-btn {
     background:rgba(255,255,255,.12); color:#fff; border:none; border-radius:10px 10px 0 0;
     padding:10px 18px; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
-    opacity:.75; display:flex; align-items:center; gap:6px;
+    opacity:.75; display:flex; align-items:center; gap:6px; transition:background .18s ease, opacity .18s ease, color .18s ease;
   }
   .tab-btn.active { background:var(--bg); color:var(--brand-dark); opacity:1; }
   .tab-btn.disabled { cursor:not-allowed; opacity:.55; }
   .soon-badge { background:#fff3cd; color:#8a6d00; font-size:10px; font-weight:700; padding:2px 6px; border-radius:8px; }
 
+  /* ===== ค้นหาข้ามทุกเมนู ===== */
+  .global-search-wrap { position:relative; margin:10px 0 4px; max-width:420px; }
+  .global-search-input {
+    width:100%; padding:10px 14px; border-radius:10px; border:none; font-family:inherit; font-size:13.5px;
+    background:rgba(255,255,255,.92); color:var(--text); box-sizing:border-box;
+  }
+  .global-search-results {
+    position:absolute; top:calc(100% + 6px); left:0; right:0; background:var(--card); border:1px solid var(--border);
+    border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,.18); max-height:360px; overflow-y:auto; z-index:500;
+  }
+  .global-search-item { display:flex; flex-direction:column; gap:2px; padding:10px 14px; cursor:pointer; border-bottom:1px solid var(--border); }
+  .global-search-item:last-child { border-bottom:none; }
+  .global-search-item:hover { background:var(--brand-light); }
+  .global-search-item .gs-title { font-size:13.5px; font-weight:600; color:var(--text); }
+  .global-search-item .gs-sub { font-size:11.5px; color:var(--muted); }
+  .global-search-item .gs-tag { display:inline-block; font-size:10.5px; font-weight:700; padding:1px 8px; border-radius:10px; background:var(--brand-light); color:var(--brand-dark); width:fit-content; margin-bottom:2px; }
+  .global-search-empty { padding:14px; font-size:12.5px; color:var(--muted); text-align:center; }
+
   .container { padding:22px 28px 60px; max-width:1800px; width:96%; margin:0 auto; }
   .tab-content { display:none; }
-  .tab-content.active { display:block; }
+  @keyframes tabFadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  .tab-content.active { display:block; animation:tabFadeIn .28s ease; }
 
   /* config box */
   .config-box { background:#fffdf3; border:1px solid #edd888; border-radius:10px; padding:16px 18px; margin-bottom:20px; font-size:14px; }
@@ -119,7 +138,9 @@
   .kpi-card {
     background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px;
     box-shadow:0 1px 3px rgba(0,0,0,.04); position:relative; overflow:hidden;
+    transition:transform .18s ease, box-shadow .18s ease;
   }
+  .kpi-card:hover { transform:translateY(-3px); box-shadow:0 10px 24px rgba(0,0,0,.1); }
   .kpi-card .kpi-label { font-size:13px; color:var(--muted); font-weight:500; }
   .kpi-card .kpi-num { font-size:30px; font-weight:700; margin-top:4px; }
   .kpi-card .kpi-sub { font-size:12px; color:var(--muted); margin-top:2px; }
@@ -128,6 +149,19 @@
   .kpi-card.no .kpi-num { color:var(--red); }
   .kpi-card.pct .kpi-num { color:#8a6d00; }
   .kpi-icon { position:absolute; right:16px; top:16px; font-size:26px; opacity:.55; }
+
+  /* การ์ด KPI ที่สำคัญที่สุดของแดชบอร์ด (เช่น % อบรมสำเร็จ / % ติดตั้งสำเร็จ) ให้เด่นกว่าใบอื่น */
+  .kpi-card.hero {
+    grid-column: span 2; background:linear-gradient(135deg,var(--brand-dark),var(--brand)); color:#fff;
+    border-color:transparent;
+  }
+  .kpi-card.hero .kpi-label { color:rgba(255,255,255,.85); }
+  .kpi-card.hero .kpi-num { color:#fff; font-size:38px; }
+  .kpi-card.hero .kpi-sub { color:rgba(255,255,255,.85); }
+  .kpi-card.hero .kpi-icon { opacity:.35; font-size:30px; }
+  .kpi-card.hero:hover { box-shadow:0 12px 28px rgba(44,127,104,.35); }
+  .kpi-sparkline-wrap { margin-top:8px; height:28px; }
+  .kpi-sparkline { width:100%; height:28px; display:block; }
 
   /* sections */
   .section { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px 22px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
@@ -151,14 +185,16 @@
   .filters { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px; align-items:flex-end; }
   .filters div { display:flex; flex-direction:column; font-size:12px; color:var(--muted); }
   select, input[type=text] { padding:9px 10px; border:1px solid #ccc; border-radius:8px; min-width:160px; font-family:inherit; font-size:13.5px; }
-  .btn { padding:9px 18px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-family:inherit; font-size:13.5px; }
+  .btn { padding:9px 18px; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-family:inherit; font-size:13.5px; transition:background .18s ease, box-shadow .18s ease, transform .1s ease; }
+  .btn:active { transform:translateY(1px); }
   .btn-brand { background:var(--brand); color:#fff; }
-  .btn-brand:hover { background:var(--brand-dark); }
+  .btn-brand:hover { background:var(--brand-dark); box-shadow:0 2px 10px rgba(44,127,104,.25); }
   .btn-outline { background:#fff; border:1px solid var(--border); color:var(--text); }
+  .btn-outline:hover { background:var(--brand-light); border-color:var(--brand); }
 
   table.detail-table { width:100%; border-collapse:collapse; font-size:13px; }
   table.detail-table th, table.detail-table td { padding:8px 10px; border-bottom:1px solid var(--border); text-align:left; white-space:nowrap; }
-  table.detail-table th { background:#f5f8f6; position:sticky; top:0; }
+  table.detail-table th { background:#f5f8f6; position:sticky; top:0; box-shadow:0 1px 0 var(--border); }
   table.detail-table tbody tr:hover { background:#f7faf7; }
   table.detail-table tbody tr.row-highlight { background:#fff3cd; }
   .tag { padding:2px 9px; border-radius:10px; font-size:12px; font-weight:700; }
@@ -167,6 +203,9 @@
   .table-wrap { overflow:auto; max-height:60vh; border-radius:10px; border:1px solid var(--border); }
 
   #status { font-size:12.5px; color:var(--muted); margin-bottom:12px; }
+  .empty-state-cell { text-align:center; padding:34px 20px !important; color:var(--muted); }
+  .empty-state-cell .empty-icon { display:block; font-size:30px; margin-bottom:8px; opacity:.7; }
+  .empty-state-cell .empty-text { font-size:13px; line-height:1.6; }
   .toggle-detail { display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
   .chevron { transition:transform .2s; }
   .chevron.open { transform:rotate(90deg); }
@@ -230,6 +269,13 @@
     max-width:60%; text-align:right;
   }
   .map-loading { font-size:12.5px; color:var(--muted); text-align:center; padding:20px; }
+  .spinner-inline {
+    display:inline-block; width:13px; height:13px; margin-right:7px; vertical-align:middle;
+    border:2px solid rgba(0,0,0,.15); border-top-color:var(--brand); border-radius:50%;
+    animation:spinInline .7s linear infinite;
+  }
+  [data-theme="dark"] .spinner-inline { border-color:rgba(255,255,255,.15); border-top-color:var(--brand); }
+  @keyframes spinInline { to { transform:rotate(360deg); } }
   .map-caption { font-size:11.5px; color:var(--muted); text-align:center; margin-top:6px; }
   .map-legend { display:flex; gap:20px; align-items:center; margin-top:10px; font-size:12.5px; color:var(--muted); flex-wrap:wrap; justify-content:center; }
   .legend-dot { width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:4px; vertical-align:middle; }
@@ -324,6 +370,7 @@
 
   .plan-map-input { margin-bottom:4px; }
   .plan-map-actions { display:flex; align-items:center; gap:10px; font-size:11px; }
+  .plan-meta-line { font-size:10.5px; color:var(--muted); margin-top:4px; white-space:normal; }
   .plan-map-link { color:var(--brand-dark); text-decoration:none; font-weight:600; white-space:nowrap; }
   .plan-map-link:hover { text-decoration:underline; }
   .btn-linklike { background:none; border:none; padding:0; margin:0; color:var(--muted); text-decoration:underline; cursor:pointer; font-size:11px; font-family:inherit; white-space:nowrap; }
@@ -440,6 +487,25 @@
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
   }
+
+/* ===== ปรับสำหรับมือถือ/จอแคบ ===== */
+@media (max-width: 700px) {
+  header.topbar { padding:14px 14px 0; }
+  header.topbar h1 { font-size:16.5px; }
+  header.topbar p { font-size:12px; }
+  .brand-logo { width:36px; height:36px; }
+  .header-top-row { flex-wrap:wrap; }
+  .container { padding:14px 10px 40px; }
+  .module-switcher { flex-wrap:wrap; }
+  .module-btn { padding:8px 14px; font-size:12.5px; }
+  .global-search-wrap { max-width:100%; }
+  .tabbar { overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch; padding-bottom:2px; }
+  .tab-btn { flex-shrink:0; padding:9px 14px; font-size:13px; }
+  .kpi-card .kpi-num { font-size:24px; }
+  .filters { gap:8px; }
+  .filters div { flex:1 1 100%; }
+  .filters select, .filters input[type=text] { min-width:0; width:100%; }
+}
 </style>
 </head>
 <body>
@@ -507,6 +573,10 @@
     <button class="module-btn active" data-module="training" onclick="switchModule('training')">🌱 ข้อมูลอบรม</button>
     <button class="module-btn" data-module="iot" onclick="switchModule('iot')">📡 ข้อมูลติดตั้ง IoT</button>
   </div>
+  <div class="global-search-wrap">
+    <input id="globalSearchInput" type="text" class="global-search-input" placeholder="🔍 ค้นหาชื่อ / เลขบัตรประชาชน / เบอร์ ในทุกระบบ..." oninput="onGlobalSearchInput(this.value)" onfocus="onGlobalSearchInput(this.value)">
+    <div id="globalSearchResults" class="global-search-results" style="display:none;"></div>
+  </div>
   <nav class="tabbar" id="tabbarTraining">
     <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">📊 แดชบอร์ด</button>
     <button class="tab-btn" data-tab="map" onclick="switchTab('map')">🗺️ แผนที่</button>
@@ -537,7 +607,7 @@
 
     <div class="kpi-grid">
       <div class="kpi-card total"><div class="kpi-icon">👥</div><div class="kpi-label">เกษตรกรทั้งหมด</div><div class="kpi-num" id="kpiTotal">-</div><div class="kpi-sub" id="kpiProvinces">- จังหวัด</div></div>
-      <div class="kpi-card yes"><div class="kpi-icon">✅</div><div class="kpi-label">อบรมแล้ว (Y)</div><div class="kpi-num" id="kpiY">-</div><div class="kpi-sub" id="kpiYPct">-</div></div>
+      <div class="kpi-card yes hero"><div class="kpi-icon">✅</div><div class="kpi-label">อบรมแล้ว (Y)</div><div class="kpi-num" id="kpiY">-</div><div class="kpi-sub" id="kpiYPct">-</div><div class="kpi-sparkline-wrap" id="kpiYSparkline"></div></div>
       <div class="kpi-card no"><div class="kpi-icon">⛔</div><div class="kpi-label">ยังไม่ผ่าน (N)</div><div class="kpi-num" id="kpiN">-</div><div class="kpi-sub" id="kpiNPct">-</div></div>
       <div class="kpi-card pct"><div class="kpi-icon">📊</div><div class="kpi-label">จังหวัดที่อบรมครบ 100%</div><div class="kpi-num" id="kpiFullProvinces">-</div><div class="kpi-sub">จากทั้งหมด</div></div>
     </div>
@@ -638,7 +708,7 @@
       <div class="map-layout">
         <div>
           <div class="thailand-map-wrap">
-            <div class="map-loading" id="mapLoading">กำลังโหลดข้อมูลแผนที่ (ไฟล์ค่อนข้างใหญ่ อาจใช้เวลาสักครู่)...</div>
+            <div class="map-loading" id="mapLoading"><span class="spinner-inline"></span>กำลังโหลดข้อมูลแผนที่ (ไฟล์ค่อนข้างใหญ่ อาจใช้เวลาสักครู่)...</div>
             <button class="map-back-overlay" id="mapBackBtn" onclick="backOneLevel()">← กลับ</button>
             <div class="map-title-overlay" id="mapTitleOverlay" style="display:none;"></div>
             <svg id="thailandSvg" viewBox="0 0 460 620" xmlns="http://www.w3.org/2000/svg" style="display:none;">
@@ -677,7 +747,7 @@
 
     <div class="kpi-grid">
       <div class="kpi-card total"><div class="kpi-icon">👥</div><div class="kpi-label">เกษตรกรทั้งหมด</div><div class="kpi-num" id="iotKpiTotal">-</div><div class="kpi-sub" id="iotKpiProvinces">- จังหวัด</div></div>
-      <div class="kpi-card yes"><div class="kpi-icon">✅</div><div class="kpi-label">ติดตั้งแล้ว</div><div class="kpi-num" id="iotKpiY">-</div><div class="kpi-sub" id="iotKpiYPct">-</div></div>
+      <div class="kpi-card yes hero"><div class="kpi-icon">✅</div><div class="kpi-label">ติดตั้งแล้ว</div><div class="kpi-num" id="iotKpiY">-</div><div class="kpi-sub" id="iotKpiYPct">-</div><div class="kpi-sparkline-wrap" id="iotKpiYSparkline"></div></div>
       <div class="kpi-card no"><div class="kpi-icon">⛔</div><div class="kpi-label">ยังไม่ติดตั้ง</div><div class="kpi-num" id="iotKpiN">-</div><div class="kpi-sub" id="iotKpiNPct">-</div></div>
       <div class="kpi-card pct"><div class="kpi-icon">📊</div><div class="kpi-label">จังหวัดที่ติดตั้งครบ 100%</div><div class="kpi-num" id="iotKpiFullProvinces">-</div><div class="kpi-sub">จากทั้งหมด</div></div>
       <div class="kpi-card yes"><div class="kpi-icon">📱</div><div class="kpi-label">เชื่อมต่อแอปแล้ว</div><div class="kpi-num" id="iotKpiAppConnected">-</div><div class="kpi-sub" id="iotKpiAppConnectedPct">-</div></div>
@@ -794,7 +864,7 @@
       <div class="map-layout">
         <div>
           <div class="thailand-map-wrap">
-            <div class="map-loading" id="iotMapLoading">กำลังโหลดข้อมูลแผนที่/ข้อมูล IoT...</div>
+            <div class="map-loading" id="iotMapLoading"><span class="spinner-inline"></span>กำลังโหลดข้อมูลแผนที่/ข้อมูล IoT...</div>
             <button class="map-back-overlay" id="iotMapBackBtn" onclick="backOneIotLevel()">← กลับ</button>
             <div class="map-title-overlay" id="iotMapTitleOverlay" style="display:none;"></div>
             <svg id="iotSvg" viewBox="0 0 460 620" xmlns="http://www.w3.org/2000/svg" style="display:none;">
@@ -1210,7 +1280,7 @@
           <table class="detail-table">
             <thead>
               <tr>
-                <th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
+                <th>ลำดับ</th><th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
                 <th>เบอร์มือถือ</th><th>SN ตู้ (จากแอป)</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>สถานะในระบบ OTOD</th>
               </tr>
             </thead>
@@ -1230,7 +1300,7 @@
           <table class="detail-table">
             <thead>
               <tr>
-                <th>SN ตู้</th><th>รหัสผู้ใช้แอป</th><th>ชื่อ (จากแอป)</th><th>นามสกุล (จากแอป)</th>
+                <th>ลำดับ</th><th>SN ตู้</th><th>รหัสผู้ใช้แอป</th><th>ชื่อ (จากแอป)</th><th>นามสกุล (จากแอป)</th>
                 <th>เลขบัตรประชาชน (จากแอป)</th><th>เบอร์มือถือ (จากแอป)</th>
               </tr>
             </thead>
@@ -1250,7 +1320,7 @@
           <table class="detail-table">
             <thead>
               <tr>
-                <th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
+                <th>ลำดับ</th><th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
                 <th>เบอร์มือถือ</th><th>SN ตู้ (จากแอป)</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th>
               </tr>
             </thead>
@@ -1270,7 +1340,7 @@
           <table class="detail-table">
             <thead>
               <tr>
-                <th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
+                <th>ลำดับ</th><th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
                 <th>เบอร์มือถือ</th><th>SN ตู้ (จากแอป)</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>สถานะในระบบ OTOD</th>
               </tr>
             </thead>
@@ -1412,6 +1482,8 @@ function toggleTheme() {
 }
 
 let currentModule = 'training';
+let currentUserEmail = ''; // อีเมลผู้ใช้ที่ล็อกอินอยู่ตอนนี้ (ใช้บันทึกว่าใครแก้ไขข้อมูลล่าสุด)
+let currentUserName = '';  // ชื่อที่ใช้แสดง (จากตาราง allowed_users ถ้ามี ไม่งั้นใช้ส่วนหน้า @ ของอีเมล)
 
 function switchModule(module) {
   currentModule = module;
@@ -1489,6 +1561,168 @@ function switchTab(tab) {
     }
   }
 }
+
+// ===== ค้นหาข้ามทุกเมนู (แผนอบรม / แผนติดตั้ง IoT / เชื่อมต่อแอป / ข้อมูล OTOD) =====
+let globalSearchDebounceTimer = null;
+
+function onGlobalSearchInput(value) {
+  clearTimeout(globalSearchDebounceTimer);
+  globalSearchDebounceTimer = setTimeout(() => renderGlobalSearchResults(value), 150);
+}
+
+function searchGlobalAll(query) {
+  const q = (query || '').trim().toLowerCase();
+  if (!q) return [];
+  const results = [];
+
+  trainingPlan.forEach(p => {
+    const hay = `${p.name || ''} ${p.nationalId || ''} ${p.phone || ''}`.toLowerCase();
+    if (hay.includes(q)) {
+      results.push({
+        tag: '📅 แผนอบรม',
+        title: p.name || p.nationalId || '(ไม่มีชื่อ)',
+        sub: [p.nationalId, p.phone].filter(Boolean).join(' · '),
+        action: () => jumpToPlanEntry(p),
+      });
+    }
+  });
+
+  iotInstallPlan.forEach(p => {
+    const hay = `${p.name || ''} ${p.nationalId || ''} ${p.phone || ''}`.toLowerCase();
+    if (hay.includes(q)) {
+      results.push({
+        tag: '📡 แผนติดตั้ง IoT',
+        title: p.name || p.nationalId || '(ไม่มีชื่อ)',
+        sub: [p.nationalId, p.phone].filter(Boolean).join(' · '),
+        action: () => jumpToIotPlanEntry(p),
+      });
+    }
+  });
+
+  appConnections.forEach(c => {
+    const name = `${c.first_name || ''} ${c.last_name || ''}`.trim();
+    const hay = `${name} ${c.national_id || ''} ${c.phone || ''} ${c.app_iot_id || ''}`.toLowerCase();
+    if (hay.includes(q)) {
+      results.push({
+        tag: '🔗 เชื่อมต่อแอป',
+        title: name || c.national_id || '(ไม่มีชื่อ)',
+        sub: [c.app_iot_id ? 'SN: ' + c.app_iot_id : '', c.national_id].filter(Boolean).join(' · '),
+        action: () => { switchModule('iot'); switchTab('iot-app-match'); closeGlobalSearch(); },
+      });
+    }
+  });
+
+  const seenOtod = new Set();
+  allRows.forEach(r => {
+    const hay = `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''} ${r.national_id || ''}`.toLowerCase();
+    if (hay.includes(q)) {
+      const key = 'train:' + r.national_id;
+      if (seenOtod.has(key)) return;
+      seenOtod.add(key);
+      results.push({
+        tag: '🌱 ข้อมูลอบรม (OTOD)',
+        title: `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''}`.trim(),
+        sub: [r.national_id, r.province, r.district].filter(Boolean).join(' · '),
+        action: () => jumpToOtodMap(r),
+      });
+    }
+  });
+
+  allIotRows.forEach(r => {
+    const hay = `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''} ${r.national_id || ''}`.toLowerCase();
+    if (hay.includes(q)) {
+      const key = 'iot:' + r.national_id;
+      if (seenOtod.has(key)) return;
+      seenOtod.add(key);
+      results.push({
+        tag: '📡 ข้อมูล IoT (OTOD)',
+        title: `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''}`.trim(),
+        sub: [r.national_id, r[IOT_FIELDS.province], r[IOT_FIELDS.district]].filter(Boolean).join(' · '),
+        action: () => jumpToIotMap(r),
+      });
+    }
+  });
+
+  return results.slice(0, 25);
+}
+
+function renderGlobalSearchResults(query) {
+  const box = document.getElementById('globalSearchResults');
+  if (!box) return;
+  const q = (query || '').trim();
+  if (!q) { box.style.display = 'none'; box.innerHTML = ''; return; }
+
+  const results = searchGlobalAll(q);
+  if (!results.length) {
+    box.innerHTML = `<div class="global-search-empty">ไม่พบข้อมูลที่ตรงกับ "${q}"</div>`;
+  } else {
+    box.innerHTML = results.map((r, i) => `
+      <div class="global-search-item" onclick="runGlobalSearchAction(${i})">
+        <span class="gs-tag">${r.tag}</span>
+        <span class="gs-title">${r.title}</span>
+        <span class="gs-sub">${r.sub}</span>
+      </div>
+    `).join('');
+  }
+  box.style.display = 'block';
+  window.__globalSearchResults = results;
+}
+
+function runGlobalSearchAction(i) {
+  const results = window.__globalSearchResults || [];
+  const r = results[i];
+  if (r && r.action) r.action();
+}
+
+function closeGlobalSearch() {
+  const box = document.getElementById('globalSearchResults');
+  if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+  const input = document.getElementById('globalSearchInput');
+  if (input) input.value = '';
+}
+
+function jumpToPlanEntry(p) {
+  switchModule('training');
+  switchTab('plan');
+  const el = document.getElementById('planFilterSearch');
+  if (el) { el.value = p.name || p.nationalId || ''; applyPlanFilters(); }
+  closeGlobalSearch();
+}
+
+function jumpToIotPlanEntry(p) {
+  switchModule('iot');
+  switchTab('iot-plan');
+  const el = document.getElementById('iotPlanFilterSearch');
+  if (el) { el.value = p.name || p.nationalId || ''; applyIotPlanFilters(); }
+  closeGlobalSearch();
+}
+
+function jumpToOtodMap(r) {
+  switchModule('training');
+  switchTab('map');
+  const el = document.getElementById('mapPersonSearch');
+  if (el) el.value = `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''}`.trim();
+  closeGlobalSearch();
+  setTimeout(() => searchAndZoomPerson(), 400);
+}
+
+function jumpToIotMap(r) {
+  switchModule('iot');
+  switchTab('iot-map');
+  const el = document.getElementById('iotPersonSearch');
+  if (el) el.value = `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''}`.trim();
+  closeGlobalSearch();
+  setTimeout(() => searchAndZoomIotPerson(), 400);
+}
+
+document.addEventListener('click', (e) => {
+  const wrap = document.getElementById('globalSearchInput');
+  const box = document.getElementById('globalSearchResults');
+  if (!wrap || !box) return;
+  if (e.target !== wrap && !box.contains(e.target)) {
+    box.style.display = 'none';
+  }
+});
 
 function appendQaMessage(text, who, logId) {
   const log = document.getElementById(logId || 'qaLog');
@@ -1727,7 +1961,7 @@ async function handleAuthSession(session) {
   // เช็คว่าอีเมลนี้อยู่ในรายชื่อที่อนุญาต (allowed_users) ไหม
   const { data: allowedRow, error } = await supabaseClient
     .from('allowed_users')
-    .select('email')
+    .select('email, name')
     .eq('email', email)
     .maybeSingle();
 
@@ -1742,11 +1976,15 @@ async function handleAuthSession(session) {
   const label = document.getElementById('authUserEmailLabel');
   if (label) label.textContent = email;
 
+  currentUserEmail = email;
+  currentUserName = (allowedRow.name || '').trim() || email.split('@')[0];
+
   loadData();
-  syncPlanFromSupabase();
-  syncIotPlanFromSupabase();
+  await syncPlanFromSupabase();
+  await syncIotPlanFromSupabase();
   setupPlanRealtimeSync();
   setupIotPlanRealtimeSync();
+  showAppointmentReminder();
 }
 
 async function handleLogin() {
@@ -1793,6 +2031,8 @@ async function handleSignup() {
 async function handleLogout() {
   if (supabaseClient) { await supabaseClient.auth.signOut(); }
   teardownRealtimeSync();
+  currentUserEmail = '';
+  currentUserName = '';
   document.getElementById('appShell').style.display = 'none';
   document.getElementById('authGate').style.display = 'flex';
   showAuthView('login');
@@ -1832,9 +2072,70 @@ function animateNumber(el, target, duration) {
   requestAnimationFrame(step);
 }
 
+// ----- เทรนด์ย้อนหลัง (sparkline) บนการ์ด KPI หลัก -----
+// อ่านจากตาราง progress_snapshots ที่สคริปต์ sync รายวันบันทึกไว้วันละ 1 แถว
+// (ถ้ายังไม่มีประวัติสะสมพอ จะซ่อนกราฟไว้ก่อน ไม่ใช่บัค แค่ข้อมูลยังไม่พอวาด)
+let progressSnapshots = [];
+
+async function loadProgressSnapshots() {
+  if (!supabaseClient) return;
+  try {
+    const { data, error } = await supabaseClient
+      .from('progress_snapshots')
+      .select('*')
+      .order('snapshot_date', { ascending: true })
+      .limit(30);
+    if (error) throw error;
+    progressSnapshots = data || [];
+  } catch (e) {
+    console.warn('โหลดข้อมูลเทรนด์ย้อนหลังไม่สำเร็จ (จะซ่อนกราฟเทรนด์ไว้ก่อน):', e.message);
+    progressSnapshots = [];
+  }
+  renderKpiSparklines();
+}
+
+function buildSparklinePath(values, width, height) {
+  if (!values.length) return '';
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = (max - min) || 1;
+  const stepX = values.length > 1 ? width / (values.length - 1) : 0;
+  return values.map((v, i) => {
+    const x = i * stepX;
+    const y = height - ((v - min) / range) * height;
+    return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+}
+
+function renderSparklineSvg(values) {
+  const width = 100, height = 28;
+  if (values.length < 3) return ''; // ข้อมูลน้อยเกินไป ยังไม่คุ้มโชว์กราฟ
+  const path = buildSparklinePath(values, width, height);
+  return `<svg class="kpi-sparkline" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+    <path d="${path}" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+function renderKpiSparklines() {
+  const trainEl = document.getElementById('kpiYSparkline');
+  if (trainEl) {
+    const pctValues = progressSnapshots
+      .filter(s => s.training_total > 0)
+      .map(s => Math.round((s.training_passed / s.training_total) * 100));
+    trainEl.innerHTML = renderSparklineSvg(pctValues);
+  }
+  const iotEl = document.getElementById('iotKpiYSparkline');
+  if (iotEl) {
+    const pctValues = progressSnapshots
+      .filter(s => s.iot_total > 0)
+      .map(s => Math.round((s.iot_installed / s.iot_total) * 100));
+    iotEl.innerHTML = renderSparklineSvg(pctValues);
+  }
+}
+
 async function loadData() {
   if (!supabaseClient) initClient();
-  document.getElementById('status').textContent = 'กำลังโหลดข้อมูล...';
+  document.getElementById('status').innerHTML = '<span class="spinner-inline"></span>กำลังโหลดข้อมูล...';
 
   let rows = [];
   let from = 0;
@@ -1875,6 +2176,7 @@ async function loadData() {
   populateProvinceFilter(rows);
   renderKpis(rows);
   renderProvinceBreakdown(rows);
+  loadProgressSnapshots();
   applyFilters();
   renderScoreboard(rows);
   renderLeaderboard(rows);
@@ -1925,11 +2227,11 @@ function renderKpis(rows) {
   const byProvince = aggregateByProvince(rows);
   const fullProvinces = byProvince.filter(p => p.pct === 100).length;
 
-  document.getElementById('kpiTotal').textContent = total.toLocaleString();
+  animateNumber(document.getElementById('kpiTotal'), total, 700);
   document.getElementById('kpiProvinces').textContent = provinces + ' จังหวัด';
-  document.getElementById('kpiY').textContent = y.toLocaleString();
+  animateNumber(document.getElementById('kpiY'), y, 700);
   document.getElementById('kpiYPct').textContent = total ? Math.round((y / total) * 100) + '% ของทั้งหมด' : '-';
-  document.getElementById('kpiN').textContent = n.toLocaleString();
+  animateNumber(document.getElementById('kpiN'), n, 700);
   document.getElementById('kpiNPct').textContent = total ? Math.round((n / total) * 100) + '% ของทั้งหมด' : '-';
   document.getElementById('kpiFullProvinces').textContent = fullProvinces + ' / ' + byProvince.length;
 }
@@ -2682,16 +2984,16 @@ function renderIotKpis(rows) {
   const byProvince = aggregateByProvince(rows, IOT_FIELDS.province, IOT_FIELDS.status, IOT_FIELDS.done, IOT_FIELDS.notDone);
   const fullProvinces = byProvince.filter(p => p.pct === 100).length;
 
-  document.getElementById('iotKpiTotal').textContent = total.toLocaleString();
+  animateNumber(document.getElementById('iotKpiTotal'), total, 700);
   document.getElementById('iotKpiProvinces').textContent = provinces + ' จังหวัด';
-  document.getElementById('iotKpiY').textContent = y.toLocaleString();
+  animateNumber(document.getElementById('iotKpiY'), y, 700);
   document.getElementById('iotKpiYPct').textContent = total ? Math.round((y / total) * 100) + '% ของทั้งหมด' : '-';
-  document.getElementById('iotKpiN').textContent = n.toLocaleString();
+  animateNumber(document.getElementById('iotKpiN'), n, 700);
   document.getElementById('iotKpiNPct').textContent = total ? Math.round((n / total) * 100) + '% ของทั้งหมด' : '-';
   document.getElementById('iotKpiFullProvinces').textContent = fullProvinces + ' / ' + byProvince.length;
 
   const appConnectedCount = rows.filter(r => r.app_connected).length;
-  document.getElementById('iotKpiAppConnected').textContent = appConnectedCount.toLocaleString();
+  animateNumber(document.getElementById('iotKpiAppConnected'), appConnectedCount, 700);
   document.getElementById('iotKpiAppConnectedPct').textContent = total ? Math.round((appConnectedCount / total) * 100) + '% ของทั้งหมด' : '-';
 }
 
@@ -3427,6 +3729,7 @@ function planEntryToSupabaseRow(entry) {
     note: entry.note || null,
     status: entry.status || 'pending',
     sort_order: entry.sortOrder || 0,
+    updated_by: currentUserName || null,
     updated_at: new Date().toISOString()
   };
 }
@@ -3490,7 +3793,9 @@ async function syncPlanFromSupabase(opts) {
         mapLink: row.map_link || '',
         note: row.note || '',
         status: row.status || 'pending',
-        sortOrder: row.sort_order || 0
+        sortOrder: row.sort_order || 0,
+        updatedBy: row.updated_by || '',
+        updatedAt: row.updated_at || ''
       }));
       savePlanToStorage();
       renderPlanTable();
@@ -3535,7 +3840,11 @@ function addPersonToPlanByNid(nid) {
   if (currentPeoplePanelProvince && currentPeoplePanelDistrict) {
     showDistrictPeople(currentPeoplePanelProvince, currentPeoplePanelDistrict);
   }
-  if (entry) syncPlanEntriesToSupabase([entry]);
+  if (entry) {
+    syncPlanEntriesToSupabase([entry]);
+  } else {
+    showToast(`${p.prefix || ''}${p.first_name || ''} ${p.last_name || ''} อยู่ในแผนอบรมอยู่แล้วครับ`, 'info');
+  }
 }
 
 function addAllDistrictUntrainedToPlan() {
@@ -3622,7 +3931,10 @@ function planRowHtml(p, i) {
           <button type="button" class="btn-linklike" onclick="applyMapLinkToSubdistrict('${p.id}')">ใช้ทั้งตำบล</button>
         </div>
       </td>
-      <td><input class="plan-note-input" type="text" value="${(p.note||'').replace(/"/g,'&quot;')}" placeholder="หมายเหตุ" oninput="updatePlanField('${p.id}','note',this.value)"></td>
+      <td>
+        <input class="plan-note-input" type="text" value="${(p.note||'').replace(/"/g,'&quot;')}" placeholder="หมายเหตุ" oninput="updatePlanField('${p.id}','note',this.value)">
+        ${p.updatedBy ? `<div class="plan-meta-line" title="แก้ไขล่าสุดโดย ${p.updatedBy}${p.updatedAt ? ' · ' + formatDateTimeThai(p.updatedAt) : ''}">✏️ ${p.updatedBy}${p.updatedAt ? ' · ' + formatRelativeTime(p.updatedAt) : ''}</div>` : ''}
+      </td>
       <td><button class="plan-remove-btn" onclick="removePlanEntry('${p.id}')" title="ลบ">✕</button></td>
     </tr>
   `;
@@ -3734,9 +4046,9 @@ function applyPlanFilters() {
   if (filtered.length) {
     tbody.innerHTML = filtered.map((p, i) => planRowHtml(p, i)).join('');
   } else if (trainingPlan.length) {
-    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; opacity:.6; padding:20px;">ไม่พบรายการที่ตรงกับตัวกรอง</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="13" class="empty-state-cell"><span class="empty-icon">🔍</span><span class="empty-text">ไม่พบรายการที่ตรงกับตัวกรอง<br>ลองปรับตัวกรองดูใหม่นะครับ</span></td></tr>`;
   } else {
-    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center; opacity:.6; padding:20px;">ยังไม่มีรายการในแผน — ไปที่แท็บ 🗺️ แผนที่ เพื่อเพิ่มคน</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="13" class="empty-state-cell"><span class="empty-icon">📭</span><span class="empty-text">ยังไม่มีรายการในแผนอบรมเลย<br>ไปที่แท็บ 🗺️ แผนที่ เพื่อเพิ่มคนเข้าแผนได้เลยครับ</span></td></tr>`;
   }
 
   const countInfo = document.getElementById('planFilterCountInfo');
@@ -3809,11 +4121,21 @@ function scheduleRealtimePlanRefresh() {
   }, 1200);
 }
 
+// แจ้งเตือนถ้าเป็นการเปลี่ยนแปลงจาก "คนอื่น" (ไม่ใช่ตัวเอง) เพื่อให้รู้ตัวว่ามีคนแก้ไขข้อมูลชุดเดียวกันอยู่
+function notifyRealtimeChange(payload, label) {
+  const row = (payload.new && Object.keys(payload.new).length) ? payload.new : payload.old;
+  const who = row && row.updated_by;
+  if (!who || who === currentUserName) return; // ไม่ต้องแจ้งเตือนการแก้ไขของตัวเอง
+  const action = payload.eventType === 'DELETE' ? 'ลบรายการ' : (payload.eventType === 'INSERT' ? 'เพิ่มรายการใหม่' : 'แก้ไขรายการ');
+  showToast(`🔔 ${who} ${action}ใน${label}`, 'info');
+}
+
 function setupPlanRealtimeSync() {
   if (!supabaseClient || planRealtimeChannel) return;
   planRealtimeChannel = supabaseClient
     .channel('training_plan_changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'training_plan' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'training_plan' }, (payload) => {
+      notifyRealtimeChange(payload, 'แผนอบรม');
       scheduleRealtimePlanRefresh();
     })
     .subscribe();
@@ -3846,7 +4168,12 @@ function updatePlanField(id, field, value) {
   schedulePlanEntrySync(entry, field === 'visitDate' || field === 'status');
 }
 
-function removePlanEntry(id) {
+async function removePlanEntry(id) {
+  const entry = trainingPlan.find(p => p.id === id);
+  if (entry && entry.visitDate && entry.visitDate >= todayDateStr()) {
+    const confirmed = await showConfirmModal(`${entry.name || 'คนนี้'} มีนัดอบรมวันที่ ${formatThaiDate(entry.visitDate)} อยู่ ต้องการลบออกจากแผนหรือไม่?`);
+    if (!confirmed) return;
+  }
   trainingPlan = trainingPlan.filter(p => p.id !== id);
   savePlanToStorage();
   renderPlanTable();
@@ -4223,6 +4550,48 @@ function todayDateStr() {
   return toDateStr(new Date());
 }
 
+function formatDateTimeThai(iso) {
+  if (!iso) return '';
+  const dt = new Date(iso);
+  if (isNaN(dt.getTime())) return '';
+  return dt.toLocaleString('th-TH', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function formatRelativeTime(iso) {
+  if (!iso) return '';
+  const dt = new Date(iso);
+  if (isNaN(dt.getTime())) return '';
+  const diffMin = Math.round((Date.now() - dt.getTime()) / 60000);
+  if (diffMin < 1) return 'เมื่อสักครู่';
+  if (diffMin < 60) return `${diffMin} นาทีที่แล้ว`;
+  const diffHr = Math.round(diffMin / 60);
+  if (diffHr < 24) return `${diffHr} ชม.ที่แล้ว`;
+  const diffDay = Math.round(diffHr / 24);
+  if (diffDay < 7) return `${diffDay} วันที่แล้ว`;
+  return formatDateTimeThai(iso);
+}
+
+// แจ้งเตือนสรุปนัดหมายวันนี้/พรุ่งนี้ทันทีหลังล็อกอิน ไม่ต้องเข้าไปเช็คปฏิทินเอง
+function showAppointmentReminder() {
+  const todayStr = todayDateStr();
+  const tomorrowStr = addDaysToDateStr(todayStr, 1);
+
+  const trainToday = trainingPlan.filter(p => p.visitDate === todayStr).length;
+  const trainTomorrow = trainingPlan.filter(p => p.visitDate === tomorrowStr).length;
+  const iotToday = iotInstallPlan.filter(p => p.installDate === todayStr).length;
+  const iotTomorrow = iotInstallPlan.filter(p => p.installDate === tomorrowStr).length;
+
+  const parts = [];
+  if (trainToday) parts.push(`อบรมวันนี้ ${trainToday} ราย`);
+  if (iotToday) parts.push(`ติดตั้ง IoT วันนี้ ${iotToday} ราย`);
+  if (trainTomorrow) parts.push(`อบรมพรุ่งนี้ ${trainTomorrow} ราย`);
+  if (iotTomorrow) parts.push(`ติดตั้ง IoT พรุ่งนี้ ${iotTomorrow} ราย`);
+
+  if (parts.length) {
+    showToast('🔔 นัดหมาย: ' + parts.join(' · '), 'info', 8000);
+  }
+}
+
 function addDaysToDateStr(dateStr, delta) {
   const [y, m, d] = dateStr.split('-').map(Number);
   const dt = new Date(y, m - 1, d);
@@ -4415,6 +4784,7 @@ function iotPlanEntryToSupabaseRow(entry) {
     note: entry.note || null,
     status: entry.status || 'pending',
     sort_order: entry.sortOrder || 0,
+    updated_by: currentUserName || null,
     updated_at: new Date().toISOString()
   };
 }
@@ -4479,7 +4849,9 @@ async function syncIotPlanFromSupabase(opts) {
         mapLink: row.map_link || '',
         note: row.note || '',
         status: row.status || 'pending',
-        sortOrder: row.sort_order || 0
+        sortOrder: row.sort_order || 0,
+        updatedBy: row.updated_by || '',
+        updatedAt: row.updated_at || ''
       }));
       saveIotPlanToStorage();
       renderIotPlanTable();
@@ -4526,7 +4898,11 @@ function addPersonToIotPlanByNid(nid) {
   if (currentIotPeoplePanelProvince && currentIotPeoplePanelDistrict) {
     showIotDistrictPeople(currentIotPeoplePanelProvince, currentIotPeoplePanelDistrict);
   }
-  if (entry) syncIotPlanEntriesToSupabase([entry]);
+  if (entry) {
+    syncIotPlanEntriesToSupabase([entry]);
+  } else {
+    showToast(`${p.prefix || ''}${p.first_name || ''} ${p.last_name || ''} อยู่ในแผนติดตั้ง IoT อยู่แล้วครับ`, 'info');
+  }
 }
 
 function addAllDistrictNotInstalledToIotPlan() {
@@ -4626,7 +5002,10 @@ function iotPlanRowHtml(p, i) {
         <input class="plan-note-input plan-map-input" type="text" value="${mapLinkSafe}" placeholder="วางลิงก์ Google Maps" oninput="updateIotPlanField('${p.id}','mapLink',this.value)">
         ${p.mapLink ? `<div class="plan-map-actions"><a href="${mapLinkSafe}" target="_blank" rel="noopener" class="plan-map-link">📍 เปิดแผนที่</a></div>` : ''}
       </td>
-      <td><input class="plan-note-input" type="text" value="${(p.note||'').replace(/"/g,'&quot;')}" placeholder="หมายเหตุ" oninput="updateIotPlanField('${p.id}','note',this.value)"></td>
+      <td>
+        <input class="plan-note-input" type="text" value="${(p.note||'').replace(/"/g,'&quot;')}" placeholder="หมายเหตุ" oninput="updateIotPlanField('${p.id}','note',this.value)">
+        ${p.updatedBy ? `<div class="plan-meta-line" title="แก้ไขล่าสุดโดย ${p.updatedBy}${p.updatedAt ? ' · ' + formatDateTimeThai(p.updatedAt) : ''}">✏️ ${p.updatedBy}${p.updatedAt ? ' · ' + formatRelativeTime(p.updatedAt) : ''}</div>` : ''}
+      </td>
       <td><button class="plan-remove-btn" onclick="removeIotPlanEntry('${p.id}')" title="ลบ">✕</button></td>
     </tr>
   `;
@@ -4728,9 +5107,9 @@ function applyIotPlanFilters() {
   if (filtered.length) {
     tbody.innerHTML = filtered.map((p, i) => iotPlanRowHtml(p, i)).join('');
   } else if (iotInstallPlan.length) {
-    tbody.innerHTML = `<tr><td colspan="15" style="text-align:center; opacity:.6; padding:20px;">ไม่พบรายการที่ตรงกับตัวกรอง</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="15" class="empty-state-cell"><span class="empty-icon">🔍</span><span class="empty-text">ไม่พบรายการที่ตรงกับตัวกรอง<br>ลองปรับตัวกรองดูใหม่นะครับ</span></td></tr>`;
   } else {
-    tbody.innerHTML = `<tr><td colspan="15" style="text-align:center; opacity:.6; padding:20px;">ยังไม่มีรายการในแผน — ไปที่แท็บ 🗺️ แผนที่ เพื่อเพิ่มคน</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="15" class="empty-state-cell"><span class="empty-icon">📭</span><span class="empty-text">ยังไม่มีรายการในแผนติดตั้ง IoT เลย<br>ไปที่แท็บ 🗺️ แผนที่ เพื่อเพิ่มคนเข้าแผนได้เลยครับ</span></td></tr>`;
   }
 
   const countInfo = document.getElementById('iotPlanFilterCountInfo');
@@ -4792,7 +5171,8 @@ function setupIotPlanRealtimeSync() {
   if (!supabaseClient || iotPlanRealtimeChannel) return;
   iotPlanRealtimeChannel = supabaseClient
     .channel('iot_install_plan_changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'iot_install_plan' }, () => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'iot_install_plan' }, (payload) => {
+      notifyRealtimeChange(payload, 'แผนติดตั้ง IoT');
       scheduleRealtimeIotPlanRefresh();
     })
     .subscribe();
@@ -4824,7 +5204,12 @@ function updateIotPlanField(id, field, value) {
   scheduleIotPlanEntrySync(entry, field === 'installDate' || field === 'status');
 }
 
-function removeIotPlanEntry(id) {
+async function removeIotPlanEntry(id) {
+  const entry = iotInstallPlan.find(p => p.id === id);
+  if (entry && entry.installDate && entry.installDate >= todayDateStr()) {
+    const confirmed = await showConfirmModal(`${entry.name || 'คนนี้'} มีนัดติดตั้ง IoT วันที่ ${formatThaiDate(entry.installDate)} อยู่ ต้องการลบออกจากแผนหรือไม่?`);
+    if (!confirmed) return;
+  }
   iotInstallPlan = iotInstallPlan.filter(p => p.id !== id);
   saveIotPlanToStorage();
   renderIotPlanTable();
@@ -5233,12 +5618,13 @@ function getAppMatchCategories() {
 }
 
 function renderIotFarmerMatchRows(rows, includeStatus) {
-  const colCount = includeStatus ? 10 : 9;
+  const colCount = includeStatus ? 11 : 10;
   if (!rows.length) {
-    return `<tr><td colspan="${colCount}" style="text-align:center; opacity:.6; padding:16px;">ไม่มีรายการในหมวดนี้</td></tr>`;
+    return `<tr><td colspan="${colCount}" class="empty-state-cell"><span class="empty-icon">✨</span><span class="empty-text">ไม่มีรายการในหมวดนี้</span></td></tr>`;
   }
-  return rows.map(r => `
+  return rows.map((r, i) => `
     <tr>
+      <td>${i + 1}</td>
       <td>${r.prefix || ''}</td>
       <td>${r.first_name || ''}</td>
       <td>${r.last_name || ''}</td>
@@ -5276,8 +5662,9 @@ function renderIotAppMatchDashboard() {
 
   document.getElementById('iotMatchAppOnlyCountBadge').textContent = appOnly.length.toLocaleString() + ' รายการ';
   document.getElementById('iotMatchAppOnlyTbody').innerHTML = appOnly.length
-    ? appOnly.map(c => `
+    ? appOnly.map((c, i) => `
         <tr>
+          <td>${i + 1}</td>
           <td>${c.app_iot_id || ''}</td>
           <td>${c.app_farmer_id || ''}</td>
           <td>${c.first_name || ''}</td>
@@ -5286,7 +5673,7 @@ function renderIotAppMatchDashboard() {
           <td>${c.phone || ''}</td>
         </tr>
       `).join('')
-    : '<tr><td colspan="6" style="text-align:center; opacity:.6; padding:16px;">ไม่มีรายการในหมวดนี้</td></tr>';
+    : '<tr><td colspan="7" class="empty-state-cell"><span class="empty-icon">✨</span><span class="empty-text">ไม่มีรายการในหมวดนี้</span></td></tr>';
 }
 
 function setIotPlanLookback(days) {
