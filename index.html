@@ -1745,6 +1745,8 @@ async function handleAuthSession(session) {
   loadData();
   syncPlanFromSupabase();
   syncIotPlanFromSupabase();
+  setupPlanRealtimeSync();
+  setupIotPlanRealtimeSync();
 }
 
 async function handleLogin() {
@@ -1790,9 +1792,17 @@ async function handleSignup() {
 
 async function handleLogout() {
   if (supabaseClient) { await supabaseClient.auth.signOut(); }
+  teardownRealtimeSync();
   document.getElementById('appShell').style.display = 'none';
   document.getElementById('authGate').style.display = 'flex';
   showAuthView('login');
+}
+
+function teardownRealtimeSync() {
+  if (planRealtimeChannel) { supabaseClient.removeChannel(planRealtimeChannel); planRealtimeChannel = null; }
+  if (iotPlanRealtimeChannel) { supabaseClient.removeChannel(iotPlanRealtimeChannel); iotPlanRealtimeChannel = null; }
+  if (planRealtimeRefreshTimer) { clearTimeout(planRealtimeRefreshTimer); planRealtimeRefreshTimer = null; }
+  if (iotPlanRealtimeRefreshTimer) { clearTimeout(iotPlanRealtimeRefreshTimer); iotPlanRealtimeRefreshTimer = null; }
 }
 
 function initClient() {
@@ -3768,6 +3778,47 @@ function renderPlanTable() {
 
 let planSyncDebounceTimers = {};
 
+// ---- ซิงก์แบบเรียลไทม์ (แผนอบรม): เมื่อคนอื่นแก้ไขข้อมูลในตาราง training_plan บน Supabase
+// หน้าจอของทุกคนที่เปิดอยู่จะดึงข้อมูลใหม่มาแสดงอัตโนมัติ ไม่ต้องกดรีเฟรช/ซิงก์เอง
+let planRealtimeChannel = null;
+let planRealtimeRefreshTimer = null;
+
+// เช็คว่ากำลังมีคนพิมพ์/แก้ไขช่องข้อมูลอยู่ในตาราง/ปฏิทินแผนอบรมหรือไม่
+// ถ้าใช่ ต้องเลื่อนการรีเฟรชออกไปก่อน ไม่งั้นข้อมูลที่กำลังพิมพ์ค้างอยู่จะหายไปทันทีที่รีเฟรช
+function isEditingInContainer(containerIds) {
+  const active = document.activeElement;
+  if (!active) return false;
+  const tag = active.tagName;
+  if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') return false;
+  return containerIds.some(id => {
+    const el = document.getElementById(id);
+    return el && el.contains(active);
+  });
+}
+
+function scheduleRealtimePlanRefresh() {
+  if (planRealtimeRefreshTimer) clearTimeout(planRealtimeRefreshTimer);
+  planRealtimeRefreshTimer = setTimeout(() => {
+    planRealtimeRefreshTimer = null;
+    if (isEditingInContainer(['planTbody', 'planCalendarView'])) {
+      // มีคนกำลังพิมพ์อยู่ในตารางนี้ รอสักครู่แล้วลองใหม่ ไม่ให้ข้อมูลที่พิมพ์ค้างอยู่หาย
+      scheduleRealtimePlanRefresh();
+      return;
+    }
+    syncPlanFromSupabase();
+  }, 1200);
+}
+
+function setupPlanRealtimeSync() {
+  if (!supabaseClient || planRealtimeChannel) return;
+  planRealtimeChannel = supabaseClient
+    .channel('training_plan_changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'training_plan' }, () => {
+      scheduleRealtimePlanRefresh();
+    })
+    .subscribe();
+}
+
 function schedulePlanEntrySync(entry, immediate) {
   const key = entry.id;
   if (planSyncDebounceTimers[key]) clearTimeout(planSyncDebounceTimers[key]);
@@ -4720,6 +4771,32 @@ function renderIotPlanTable() {
 }
 
 let iotPlanSyncDebounceTimers = {};
+
+// ---- ซิงก์แบบเรียลไทม์ (แผนติดตั้ง IoT): เหมือนแผนอบรม แต่สำหรับตาราง iot_install_plan
+let iotPlanRealtimeChannel = null;
+let iotPlanRealtimeRefreshTimer = null;
+
+function scheduleRealtimeIotPlanRefresh() {
+  if (iotPlanRealtimeRefreshTimer) clearTimeout(iotPlanRealtimeRefreshTimer);
+  iotPlanRealtimeRefreshTimer = setTimeout(() => {
+    iotPlanRealtimeRefreshTimer = null;
+    if (isEditingInContainer(['iotPlanTbody', 'iotPlanCalendarView'])) {
+      scheduleRealtimeIotPlanRefresh();
+      return;
+    }
+    syncIotPlanFromSupabase();
+  }, 1200);
+}
+
+function setupIotPlanRealtimeSync() {
+  if (!supabaseClient || iotPlanRealtimeChannel) return;
+  iotPlanRealtimeChannel = supabaseClient
+    .channel('iot_install_plan_changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'iot_install_plan' }, () => {
+      scheduleRealtimeIotPlanRefresh();
+    })
+    .subscribe();
+}
 
 function scheduleIotPlanEntrySync(entry, immediate) {
   const key = entry.id;
