@@ -527,22 +527,6 @@
 
 <div class="container">
 
-  <div class="config-box" id="configBox">
-    <strong>ตั้งค่าการเชื่อมต่อ Supabase (ทำครั้งเดียว)</strong>
-    <div class="config-row">
-      <div class="field">
-        <label>Project URL</label>
-        <input id="cfgUrl" type="text" placeholder="https://xxxxx.supabase.co">
-      </div>
-      <div class="field">
-        <label>Publishable / Anon public key</label>
-        <input id="cfgKey" type="text" placeholder="sb_publishable_... หรือ eyJhbGciOi...">
-      </div>
-      <button onclick="saveConfig()">บันทึกและโหลดข้อมูล</button>
-    </div>
-    <div class="config-hint">หาได้จาก Supabase Dashboard &gt; Project Settings &gt; Data API (ค่าจะถูกจำไว้ในเบราว์เซอร์นี้เท่านั้น)</div>
-  </div>
-
   <div id="status">ยังไม่ได้เชื่อมต่อ Supabase</div>
   <div style="margin:-4px 0 16px;">
     <button class="btn btn-outline" onclick="triggerManualSync(this)">🔄 ดึงข้อมูลตอนนี้เลย (ไม่ต้องรอรอบเช้า)</button>
@@ -1313,6 +1297,12 @@
 </div>
 
 <script>
+// ค่าเชื่อมต่อ Supabase: URL + anon/publishable key ฝังไว้ตรงนี้ได้อย่างปลอดภัย
+// (key นี้ไม่ใช่ความลับ - Supabase ออกแบบให้ฝังในโค้ดฝั่งเว็บได้ตั้งแต่ต้น
+// ความปลอดภัยจริงอยู่ที่ RLS policy + ระบบล็อกอิน ที่ตั้งไว้แล้วในทุกตารางข้อมูลจริง)
+const SUPABASE_URL = 'https://xdqpiwrbrznlrgdxdlod.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_dEO4brXE9vXkxyiwn17abQ_C2sZQpRs';
+
 let supabaseClient = null;
 let allRows = [];
 const PLAN_STORAGE_KEY = 'otod_training_plan_v1';
@@ -1677,16 +1667,6 @@ function showComingSoon() {
   showToast('ฟีเจอร์เพิ่ม/แก้ไขข้อมูลเกษตรกรจะเปิดให้ใช้งานในเวอร์ชันถัดไปครับ', 'info');
 }
 
-function saveConfig() {
-  const url = document.getElementById('cfgUrl').value.trim();
-  const key = document.getElementById('cfgKey').value.trim();
-  if (!url || !key) { showToast('กรอก URL และ key ให้ครบก่อน', 'warn'); return; }
-  localStorage.setItem('otod_supabase_url', url);
-  localStorage.setItem('otod_supabase_key', key);
-  initClient();
-  checkAuthAndBoot();
-}
-
 // ===================== ระบบล็อกอิน (Supabase Auth) =====================
 // เว็บนี้ต้องล็อกอินก่อนถึงจะเห็นข้อมูลได้ และต้องเป็นอีเมลที่อยู่ในตาราง allowed_users
 // (ผู้ดูแลระบบเป็นคนเพิ่มอีเมลเข้ารายชื่อผ่าน Supabase SQL Editor) สมัครสมาชิกได้อิสระ
@@ -1816,13 +1796,9 @@ async function handleLogout() {
 }
 
 function initClient() {
-  const url = localStorage.getItem('otod_supabase_url');
-  const key = localStorage.getItem('otod_supabase_key');
-  if (!url || !key) return false;
-  document.getElementById('cfgUrl').value = url;
-  document.getElementById('cfgKey').value = key;
-  supabaseClient = supabase.createClient(url, key);
-  document.getElementById('configBox').classList.add('hidden');
+  if (!supabaseClient) {
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
   return true;
 }
 
@@ -1847,13 +1823,7 @@ function animateNumber(el, target, duration) {
 }
 
 async function loadData() {
-  if (!supabaseClient) {
-    if (!initClient()) {
-      document.getElementById('configBox').classList.remove('hidden');
-      document.getElementById('status').textContent = 'กรุณากรอกค่า Supabase URL/Key ด้านบนก่อน';
-      return;
-    }
-  }
+  if (!supabaseClient) initClient();
   document.getElementById('status').textContent = 'กำลังโหลดข้อมูล...';
 
   let rows = [];
@@ -1867,7 +1837,6 @@ async function loadData() {
       .order('province', { ascending: true });
     if (error) {
       document.getElementById('status').textContent = 'เกิดข้อผิดพลาด: ' + error.message;
-      document.getElementById('configBox').classList.remove('hidden');
       return;
     }
     rows = rows.concat(data);
@@ -5514,12 +5483,8 @@ loadIotPlanFromStorage();
 if (document.documentElement.getAttribute('data-theme') === 'dark') {
   document.getElementById('themeToggleBtn').textContent = '☀️';
 }
-if (initClient()) {
-  checkAuthAndBoot();
-} else {
-  // ยังไม่เคยตั้งค่าการเชื่อมต่อ Supabase ในเบราว์เซอร์นี้เลย -> โชว์กล่องตั้งค่าให้กรอกก่อน (ยังไม่ต้องล็อกอิน)
-  document.getElementById('appShell').style.display = 'block';
-}
+initClient();
+checkAuthAndBoot();
 </script>
 
 </body>
