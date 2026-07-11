@@ -96,6 +96,24 @@
   .config-box button:hover { background:var(--brand-dark); }
   .config-hint { margin-top:8px; color:var(--muted); font-size:12px; }
 
+  /* ===== Auth gate (หน้าล็อกอิน/สมัครสมาชิก/รออนุมัติ) ===== */
+  .auth-gate { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; box-sizing:border-box; }
+  .auth-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:32px 28px; max-width:380px; width:100%; box-shadow:0 10px 40px rgba(0,0,0,.12); box-sizing:border-box; }
+  .auth-card .auth-logo { height:40px; margin-bottom:14px; }
+  .auth-card h1 { font-size:19px; margin:0 0 4px; color:var(--text); }
+  .auth-card .auth-sub { font-size:13px; color:var(--muted); margin:0 0 20px; line-height:1.5; }
+  .auth-field { margin-bottom:14px; }
+  .auth-field label { display:block; font-size:12px; color:var(--muted); margin-bottom:4px; }
+  .auth-field input { width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-family:inherit; font-size:14px; background:var(--bg); color:var(--text); box-sizing:border-box; }
+  .auth-error { color:var(--red); font-size:13px; margin:-6px 0 14px; display:none; line-height:1.4; }
+  .auth-error.show { display:block; }
+  .auth-submit-btn { width:100%; padding:11px; background:var(--brand); color:#fff; border:none; border-radius:8px; font-weight:600; font-size:14px; cursor:pointer; font-family:inherit; }
+  .auth-submit-btn:hover { background:var(--brand-dark); }
+  .auth-submit-btn:disabled { opacity:.6; cursor:not-allowed; }
+  .auth-toggle-link { text-align:center; margin-top:16px; font-size:13px; color:var(--muted); }
+  .auth-toggle-link a { color:var(--brand-dark); cursor:pointer; text-decoration:underline; }
+  .auth-pending-icon { font-size:40px; text-align:center; margin-bottom:12px; }
+
   /* KPI cards */
   .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:22px; }
   .kpi-card {
@@ -426,6 +444,50 @@
 </head>
 <body>
 
+<div id="authGate" class="auth-gate">
+  <div class="auth-card" id="authCardLogin">
+    <img src="Kasetkorn-logo-removebg-preview.png" alt="Kasetkorn" class="auth-logo">
+    <h1>เข้าสู่ระบบ</h1>
+    <p class="auth-sub">Dashboard เกษตรกร — สถานะอบรม (OTOD)</p>
+    <div class="auth-error" id="authLoginError"></div>
+    <div class="auth-field">
+      <label>อีเมล</label>
+      <input id="authLoginEmail" type="email" placeholder="you@example.com" autocomplete="username">
+    </div>
+    <div class="auth-field">
+      <label>รหัสผ่าน</label>
+      <input id="authLoginPassword" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="auth-submit-btn" id="authLoginBtn" onclick="handleLogin()">เข้าสู่ระบบ</button>
+    <div class="auth-toggle-link">ยังไม่มีบัญชี? <a onclick="showAuthView('signup')">สมัครสมาชิก</a></div>
+  </div>
+
+  <div class="auth-card" id="authCardSignup" style="display:none;">
+    <img src="Kasetkorn-logo-removebg-preview.png" alt="Kasetkorn" class="auth-logo">
+    <h1>สมัครสมาชิก</h1>
+    <p class="auth-sub">สร้างบัญชีใหม่ได้เลย แต่ต้องรอผู้ดูแลระบบอนุมัติสิทธิ์ก่อน ถึงจะเห็นข้อมูลในระบบได้</p>
+    <div class="auth-error" id="authSignupError"></div>
+    <div class="auth-field">
+      <label>อีเมล</label>
+      <input id="authSignupEmail" type="email" placeholder="you@example.com" autocomplete="username">
+    </div>
+    <div class="auth-field">
+      <label>รหัสผ่าน (อย่างน้อย 6 ตัวอักษร)</label>
+      <input id="authSignupPassword" type="password" placeholder="••••••••" autocomplete="new-password">
+    </div>
+    <button class="auth-submit-btn" id="authSignupBtn" onclick="handleSignup()">สมัครสมาชิก</button>
+    <div class="auth-toggle-link">มีบัญชีอยู่แล้ว? <a onclick="showAuthView('login')">เข้าสู่ระบบ</a></div>
+  </div>
+
+  <div class="auth-card" id="authCardPending" style="display:none;">
+    <div class="auth-pending-icon">⏳</div>
+    <h1 style="text-align:center;">รอการอนุมัติสิทธิ์เข้าถึง</h1>
+    <p class="auth-sub" style="text-align:center;">บัญชี <b id="authPendingEmail"></b> เข้าสู่ระบบสำเร็จแล้ว แต่ยังไม่ได้รับสิทธิ์เข้าถึงข้อมูล กรุณาติดต่อผู้ดูแลระบบให้เพิ่มอีเมลนี้เข้ารายชื่อที่อนุญาตก่อนครับ</p>
+    <button class="auth-submit-btn" onclick="handleLogout()">ออกจากระบบ</button>
+  </div>
+</div>
+
+<div id="appShell" style="display:none;">
 <header class="topbar">
   <div class="header-top-row">
     <div class="header-brand">
@@ -435,7 +497,11 @@
         <p id="headerSub">เชื่อมต่อฐานข้อมูล Supabase แบบเรียลไทม์</p>
       </div>
     </div>
-    <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="สลับโหมดมืด/สว่าง">🌙</button>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span id="authUserEmailLabel" style="font-size:12px; color:var(--muted);"></span>
+      <button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="handleLogout()">ออกจากระบบ</button>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="สลับโหมดมืด/สว่าง">🌙</button>
+    </div>
   </div>
   <div class="module-switcher">
     <button class="module-btn active" data-module="training" onclick="switchModule('training')">🌱 ข้อมูลอบรม</button>
@@ -454,6 +520,7 @@
     <button class="tab-btn" data-tab="iot-qa" onclick="switchTab('iot-qa')">💬 ถาม-ตอบ</button>
     <button class="tab-btn" data-tab="iot-plan" onclick="switchTab('iot-plan')">📅 แผนติดตั้ง IoT</button>
     <button class="tab-btn" data-tab="iot-box" onclick="switchTab('iot-box')">🏭 ทีมผลิตตู้</button>
+    <button class="tab-btn" data-tab="iot-app-match" onclick="switchTab('iot-app-match')">🔗 ตรวจสอบเชื่อมต่อแอป</button>
     <button class="tab-btn disabled" onclick="showComingSoon()">✏️ อัปเดตข้อมูล <span class="soon-badge">เร็วๆ นี้</span></button>
   </nav>
 </header>
@@ -629,6 +696,7 @@
       <div class="kpi-card yes"><div class="kpi-icon">✅</div><div class="kpi-label">ติดตั้งแล้ว</div><div class="kpi-num" id="iotKpiY">-</div><div class="kpi-sub" id="iotKpiYPct">-</div></div>
       <div class="kpi-card no"><div class="kpi-icon">⛔</div><div class="kpi-label">ยังไม่ติดตั้ง</div><div class="kpi-num" id="iotKpiN">-</div><div class="kpi-sub" id="iotKpiNPct">-</div></div>
       <div class="kpi-card pct"><div class="kpi-icon">📊</div><div class="kpi-label">จังหวัดที่ติดตั้งครบ 100%</div><div class="kpi-num" id="iotKpiFullProvinces">-</div><div class="kpi-sub">จากทั้งหมด</div></div>
+      <div class="kpi-card yes"><div class="kpi-icon">📱</div><div class="kpi-label">เชื่อมต่อแอปแล้ว</div><div class="kpi-num" id="iotKpiAppConnected">-</div><div class="kpi-sub" id="iotKpiAppConnectedPct">-</div></div>
     </div>
 
     <div class="section">
@@ -666,6 +734,14 @@
               <option value="N">ยังไม่ติดตั้ง</option>
             </select>
           </div>
+          <div>
+            <label>เชื่อมต่อแอป</label>
+            <select id="iotFilterAppConnected">
+              <option value="">ทั้งหมด</option>
+              <option value="Y">เชื่อมต่อแล้ว</option>
+              <option value="N">ยังไม่เชื่อมต่อ</option>
+            </select>
+          </div>
           <div style="flex:1;">
             <label>ค้นหาชื่อ / นามสกุล / เลขบัตร</label>
             <input id="iotFilterSearch" type="text" placeholder="พิมพ์เพื่อค้นหา...">
@@ -680,7 +756,7 @@
               <tr>
                 <th>รหัสอ้างอิง</th><th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th>
                 <th>เลขบัตรประชาชน</th><th>เบอร์มือถือ</th><th>จังหวัด</th><th>อำเภอ</th>
-                <th>ตำบล</th><th>สถานะ</th><th>รอบการอนุมัติ</th>
+                <th>ตำบล</th><th>สถานะ</th><th>เชื่อมต่อแอป</th><th>SN ตู้ (จากแอป)</th><th>รอบการอนุมัติ</th>
               </tr>
             </thead>
             <tbody id="iotTbody"></tbody>
@@ -1124,6 +1200,104 @@
     </div>
   </div>
 
+  <div class="tab-content" id="tab-iot-app-match">
+    <div class="section">
+      <h2>🔗 ตรวจสอบเชื่อมต่อแอป</h2>
+      <p style="font-size:13px; color:var(--muted); margin-top:-6px;">
+        เทียบคนที่เชื่อมต่อกล่อง IoT ผ่านแอป Kasetkorn แล้ว กับข้อมูลในระบบ OTOD (จับคู่ด้วยเลขบัตรประชาชนหรือเบอร์โทร) เพื่อดูว่าใครใช้งานแล้วแต่ระบบยังไม่อัปเดต หรือข้อมูลไม่ตรงกัน
+      </p>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card total"><div class="kpi-icon">📱</div><div class="kpi-label">เชื่อมต่อแอปทั้งหมด</div><div class="kpi-num" id="iotMatchKpiTotalApp">-</div><div class="kpi-sub">รายชื่อจากแอป</div></div>
+      <div class="kpi-card yes"><div class="kpi-icon">✅</div><div class="kpi-label">ตรงกันแล้ว</div><div class="kpi-num" id="iotMatchKpiInSync">-</div><div class="kpi-sub">เชื่อมต่อแอป + OTOD อัปเดตแล้ว</div></div>
+      <div class="kpi-card no"><div class="kpi-icon">⚠️</div><div class="kpi-label">เชื่อมต่อแล้ว รอระบบอัปเดต</div><div class="kpi-num" id="iotMatchKpiPending">-</div><div class="kpi-sub">ต้องตามอัปเดตในระบบ OTOD</div></div>
+      <div class="kpi-card pct"><div class="kpi-icon">❓</div><div class="kpi-label">เชื่อมต่อแอป แต่ไม่พบใน OTOD</div><div class="kpi-num" id="iotMatchKpiAppOnly">-</div><div class="kpi-sub">เลขบัตร/เบอร์ไม่ตรงกับใครเลย</div></div>
+      <div class="kpi-card no"><div class="kpi-icon">⛔</div><div class="kpi-label">OTOD ติดตั้งแล้ว แต่ยังไม่เชื่อมต่อแอป</div><div class="kpi-num" id="iotMatchKpiOtodOnly">-</div><div class="kpi-sub">ต้องตามให้เชื่อมต่อแอป</div></div>
+    </div>
+
+    <div class="section">
+      <div class="toggle-detail" onclick="toggleDetail('iotMatchPendingBody','iotMatchPendingChevron')">
+        <h2 style="margin:0;">⚠️ เชื่อมต่อแอปแล้ว แต่ระบบ OTOD ยังไม่อัปเดตว่าติดตั้ง <span class="badge" id="iotMatchPendingCountBadge">0 รายการ</span></h2>
+        <span class="chevron open" id="iotMatchPendingChevron">▶</span>
+      </div>
+      <div id="iotMatchPendingBody" style="margin-top:16px;">
+        <div class="table-wrap">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
+                <th>เบอร์มือถือ</th><th>SN ตู้ (จากแอป)</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>สถานะในระบบ OTOD</th>
+              </tr>
+            </thead>
+            <tbody id="iotMatchPendingTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="toggle-detail" onclick="toggleDetail('iotMatchAppOnlyBody','iotMatchAppOnlyChevron')">
+        <h2 style="margin:0;">❓ เชื่อมต่อแอปแล้ว แต่ไม่พบข้อมูลในระบบ OTOD <span class="badge" id="iotMatchAppOnlyCountBadge">0 รายการ</span></h2>
+        <span class="chevron" id="iotMatchAppOnlyChevron">▶</span>
+      </div>
+      <div id="iotMatchAppOnlyBody" style="display:none; margin-top:16px;">
+        <div class="table-wrap">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>SN ตู้</th><th>รหัสผู้ใช้แอป</th><th>ชื่อ (จากแอป)</th><th>นามสกุล (จากแอป)</th>
+                <th>เลขบัตรประชาชน (จากแอป)</th><th>เบอร์มือถือ (จากแอป)</th>
+              </tr>
+            </thead>
+            <tbody id="iotMatchAppOnlyTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="toggle-detail" onclick="toggleDetail('iotMatchOtodOnlyBody','iotMatchOtodOnlyChevron')">
+        <h2 style="margin:0;">⛔ OTOD บอกว่าติดตั้งแล้ว แต่ยังไม่เชื่อมต่อแอป <span class="badge" id="iotMatchOtodOnlyCountBadge">0 รายการ</span></h2>
+        <span class="chevron" id="iotMatchOtodOnlyChevron">▶</span>
+      </div>
+      <div id="iotMatchOtodOnlyBody" style="display:none; margin-top:16px;">
+        <div class="table-wrap">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
+                <th>เบอร์มือถือ</th><th>SN ตู้ (จากแอป)</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th>
+              </tr>
+            </thead>
+            <tbody id="iotMatchOtodOnlyTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="toggle-detail" onclick="toggleDetail('iotMatchInSyncBody','iotMatchInSyncChevron')">
+        <h2 style="margin:0;">✅ ตรงกันแล้ว (เชื่อมต่อแอป + OTOD อัปเดตแล้ว) <span class="badge" id="iotMatchInSyncCountBadge">0 รายการ</span></h2>
+        <span class="chevron" id="iotMatchInSyncChevron">▶</span>
+      </div>
+      <div id="iotMatchInSyncBody" style="display:none; margin-top:16px;">
+        <div class="table-wrap">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
+                <th>เบอร์มือถือ</th><th>SN ตู้ (จากแอป)</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>สถานะในระบบ OTOD</th>
+              </tr>
+            </thead>
+            <tbody id="iotMatchInSyncTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
 </div>
 
 <div id="toastContainer" class="toast-container"></div>
@@ -1317,6 +1491,13 @@ function switchTab(tab) {
   if (tab === 'iot-box') {
     renderIotBoxTeamDashboard();
   }
+  if (tab === 'iot-app-match') {
+    if (!iotDataLoaded) {
+      loadIotData().then(renderIotAppMatchDashboard);
+    } else {
+      renderIotAppMatchDashboard();
+    }
+  }
 }
 
 function appendQaMessage(text, who, logId) {
@@ -1503,9 +1684,135 @@ function saveConfig() {
   localStorage.setItem('otod_supabase_url', url);
   localStorage.setItem('otod_supabase_key', key);
   initClient();
+  checkAuthAndBoot();
+}
+
+// ===================== ระบบล็อกอิน (Supabase Auth) =====================
+// เว็บนี้ต้องล็อกอินก่อนถึงจะเห็นข้อมูลได้ และต้องเป็นอีเมลที่อยู่ในตาราง allowed_users
+// (ผู้ดูแลระบบเป็นคนเพิ่มอีเมลเข้ารายชื่อผ่าน Supabase SQL Editor) สมัครสมาชิกได้อิสระ
+// แต่จะเห็นข้อมูลจริงก็ต่อเมื่ออีเมลได้รับอนุมัติแล้วเท่านั้น
+let authStateListenerWired = false;
+
+function showAuthView(view) {
+  const cards = { login: 'authCardLogin', signup: 'authCardSignup', pending: 'authCardPending' };
+  Object.keys(cards).forEach(key => {
+    const el = document.getElementById(cards[key]);
+    if (el) el.style.display = key === view ? 'block' : 'none';
+  });
+}
+
+function showAuthError(elId, message) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.textContent = message;
+  el.classList.add('show');
+}
+
+function clearAuthError(elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.textContent = '';
+  el.classList.remove('show');
+}
+
+async function checkAuthAndBoot() {
+  if (!supabaseClient) return;
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('authGate').style.display = 'flex';
+
+  if (!authStateListenerWired) {
+    authStateListenerWired = true;
+    supabaseClient.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        document.getElementById('appShell').style.display = 'none';
+        document.getElementById('authGate').style.display = 'flex';
+        showAuthView('login');
+      }
+    });
+  }
+
+  const { data } = await supabaseClient.auth.getSession();
+  const session = data ? data.session : null;
+  if (session && session.user) {
+    await handleAuthSession(session);
+  } else {
+    showAuthView('login');
+  }
+}
+
+async function handleAuthSession(session) {
+  if (!session || !session.user) { showAuthView('login'); return; }
+  const email = session.user.email;
+
+  // เช็คว่าอีเมลนี้อยู่ในรายชื่อที่อนุญาต (allowed_users) ไหม
+  const { data: allowedRow, error } = await supabaseClient
+    .from('allowed_users')
+    .select('email')
+    .eq('email', email)
+    .maybeSingle();
+
+  if (error || !allowedRow) {
+    document.getElementById('authPendingEmail').textContent = email;
+    showAuthView('pending');
+    return;
+  }
+
+  document.getElementById('authGate').style.display = 'none';
+  document.getElementById('appShell').style.display = 'block';
+  const label = document.getElementById('authUserEmailLabel');
+  if (label) label.textContent = email;
+
   loadData();
   syncPlanFromSupabase();
   syncIotPlanFromSupabase();
+}
+
+async function handleLogin() {
+  clearAuthError('authLoginError');
+  const email = document.getElementById('authLoginEmail').value.trim();
+  const password = document.getElementById('authLoginPassword').value;
+  if (!email || !password) { showAuthError('authLoginError', 'กรอกอีเมลและรหัสผ่านให้ครบ'); return; }
+  if (!supabaseClient) { showAuthError('authLoginError', 'ระบบยังไม่ได้ตั้งค่าการเชื่อมต่อ Supabase (ติดต่อผู้ดูแลระบบ)'); return; }
+
+  const btn = document.getElementById('authLoginBtn');
+  const originalText = btn.textContent;
+  btn.disabled = true; btn.textContent = 'กำลังเข้าสู่ระบบ...';
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  btn.disabled = false; btn.textContent = originalText;
+
+  if (error) { showAuthError('authLoginError', 'เข้าสู่ระบบไม่สำเร็จ: ' + error.message); return; }
+  await handleAuthSession(data.session);
+}
+
+async function handleSignup() {
+  clearAuthError('authSignupError');
+  const email = document.getElementById('authSignupEmail').value.trim();
+  const password = document.getElementById('authSignupPassword').value;
+  if (!email || !password) { showAuthError('authSignupError', 'กรอกอีเมลและรหัสผ่านให้ครบ'); return; }
+  if (password.length < 6) { showAuthError('authSignupError', 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร'); return; }
+  if (!supabaseClient) { showAuthError('authSignupError', 'ระบบยังไม่ได้ตั้งค่าการเชื่อมต่อ Supabase (ติดต่อผู้ดูแลระบบ)'); return; }
+
+  const btn = document.getElementById('authSignupBtn');
+  const originalText = btn.textContent;
+  btn.disabled = true; btn.textContent = 'กำลังสมัคร...';
+  const { data, error } = await supabaseClient.auth.signUp({ email, password });
+  btn.disabled = false; btn.textContent = originalText;
+
+  if (error) { showAuthError('authSignupError', 'สมัครไม่สำเร็จ: ' + error.message); return; }
+
+  if (data.session) {
+    await handleAuthSession(data.session);
+  } else {
+    showToast('สมัครสมาชิกสำเร็จ กรุณายืนยันอีเมลตามลิงก์ที่ส่งไปให้ก่อน แล้วค่อยกลับมาเข้าสู่ระบบ', 'info');
+    showAuthView('login');
+  }
+}
+
+async function handleLogout() {
+  if (supabaseClient) { await supabaseClient.auth.signOut(); }
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('authGate').style.display = 'flex';
+  showAuthView('login');
 }
 
 function initClient() {
@@ -2238,6 +2545,73 @@ const IOT_FIELDS = { province: 'farm_province', district: 'farm_district', statu
 
 let iotProjectFilter = '';
 
+// ===== ข้อมูล "เชื่อมต่อแอปแล้ว" (จาก API แอป Kasetkorn เทียบกับตาราง OTOD ด้วยเลขบัตร/เบอร์โทร/ชื่อ-นามสกุล) =====
+// เก็บเป็นระดับ "ตู้ 1 เครื่อง" (SN ขึ้นต้นด้วย KS) เพราะเกษตรกร 1 คน อาจมีหลายตู้ได้
+let appConnections = [];
+let appConnByNationalId = new Map(); // national_id -> [records]
+let appConnByPhone = new Map();      // phone -> [records]
+let appConnByName = new Map();       // "ชื่อ|นามสกุล" (normalize แล้ว) -> [records]
+
+function buildNameKey(first, last) {
+  const f = normName(first);
+  const l = normName(last);
+  if (!f || !l) return ''; // ต้องมีทั้งชื่อและนามสกุลถึงจะใช้จับคู่ด้วยชื่อ (กันชื่อซ้ำมั่ว)
+  return f + '|' + l;
+}
+
+function addToMultiMap(map, key, record) {
+  if (!key) return;
+  if (!map.has(key)) map.set(key, []);
+  map.get(key).push(record);
+}
+
+async function loadAppConnections() {
+  if (!supabaseClient) return;
+  let rows = [];
+  let from = 0;
+  const pageSize = 1000;
+  while (true) {
+    const { data, error } = await supabaseClient
+      .from('app_connections')
+      .select('*')
+      .range(from, from + pageSize - 1);
+    if (error) {
+      console.warn('โหลดข้อมูลเชื่อมต่อแอปไม่สำเร็จ:', error.message);
+      return;
+    }
+    rows = rows.concat(data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+  appConnections = rows;
+  appConnByNationalId = new Map();
+  appConnByPhone = new Map();
+  appConnByName = new Map();
+  rows.forEach(c => {
+    if (c.national_id) addToMultiMap(appConnByNationalId, c.national_id, c);
+    if (c.phone) addToMultiMap(appConnByPhone, c.phone, c);
+    const nameKey = buildNameKey(c.first_name, c.last_name);
+    if (nameKey) addToMultiMap(appConnByName, nameKey, c);
+  });
+}
+
+// คืนรายการ record ของแอป (ตู้/SN) ที่จับคู่ได้กับเกษตรกรคนนี้ (ตัดรายการซ้ำด้วย app_iot_id)
+function getMatchedAppRecords(r) {
+  const nid = (r.national_id || '').trim();
+  const phone = (r.phone || '').trim();
+  const nameKey = buildNameKey(r.first_name, r.last_name);
+
+  const found = new Map(); // app_iot_id -> record (กันซ้ำ)
+  (appConnByNationalId.get(nid) || []).forEach(rec => found.set(rec.app_iot_id, rec));
+  (appConnByPhone.get(phone) || []).forEach(rec => found.set(rec.app_iot_id, rec));
+  (appConnByName.get(nameKey) || []).forEach(rec => found.set(rec.app_iot_id, rec));
+  return [...found.values()];
+}
+
+function isAppFarmerConnected(r) {
+  return getMatchedAppRecords(r).length > 0;
+}
+
 function getIotVisibleRows() {
   if (!iotProjectFilter) return allIotRows;
   return allIotRows.filter(r => (r[IOT_FIELDS.project] || 'ไม่ระบุโครงการ') === iotProjectFilter);
@@ -2283,6 +2657,7 @@ function applyIotProjectFilter(value) {
 
 async function loadIotData() {
   if (!supabaseClient) return;
+  await loadAppConnections();
   let rows = [];
   let from = 0;
   const pageSize = 1000;
@@ -2300,6 +2675,11 @@ async function loadIotData() {
     if (data.length < pageSize) break;
     from += pageSize;
   }
+  rows.forEach(r => {
+    const matched = getMatchedAppRecords(r);
+    r.app_connected = matched.length > 0;
+    r.matched_sn = matched.map(rec => rec.app_iot_id).filter(Boolean).join(', ');
+  });
   allIotRows = rows;
   iotDataLoaded = true;
   populateIotProjectFilter(allIotRows);
@@ -2330,6 +2710,10 @@ function renderIotKpis(rows) {
   document.getElementById('iotKpiN').textContent = n.toLocaleString();
   document.getElementById('iotKpiNPct').textContent = total ? Math.round((n / total) * 100) + '% ของทั้งหมด' : '-';
   document.getElementById('iotKpiFullProvinces').textContent = fullProvinces + ' / ' + byProvince.length;
+
+  const appConnectedCount = rows.filter(r => r.app_connected).length;
+  document.getElementById('iotKpiAppConnected').textContent = appConnectedCount.toLocaleString();
+  document.getElementById('iotKpiAppConnectedPct').textContent = total ? Math.round((appConnectedCount / total) * 100) + '% ของทั้งหมด' : '-';
 }
 
 function renderIotProvinceBreakdown(rows) {
@@ -2392,11 +2776,14 @@ function populateIotProvinceFilter(rows) {
 function getIotFiltered() {
   const province = document.getElementById('iotFilterProvince').value;
   const status = document.getElementById('iotFilterStatus').value;
+  const appConn = document.getElementById('iotFilterAppConnected').value;
   const search = document.getElementById('iotFilterSearch').value.trim().toLowerCase();
 
   return getIotVisibleRows().filter(r => {
     if (province && r[IOT_FIELDS.province] !== province) return false;
     if (status && r[IOT_FIELDS.status] !== status) return false;
+    if (appConn === 'Y' && !r.app_connected) return false;
+    if (appConn === 'N' && r.app_connected) return false;
     if (search) {
       const hay = `${r.first_name||''} ${r.last_name||''} ${r.national_id||''}`.toLowerCase();
       if (!hay.includes(search)) return false;
@@ -2422,6 +2809,8 @@ function applyIotFilters() {
       <td>${r.farm_district||''}</td>
       <td>${r.farm_subdistrict||''}</td>
       <td>${r.status||''}</td>
+      <td>${r.app_connected ? '✅ เชื่อมต่อแล้ว' : '⛔ ยังไม่เชื่อมต่อ'}</td>
+      <td>${r.matched_sn||''}</td>
       <td>${r.approval_round||''}</td>
     </tr>
   `).join('');
@@ -2429,8 +2818,8 @@ function applyIotFilters() {
 
 function exportIotCsv() {
   const filtered = getIotFiltered();
-  const headers = ['รหัสอ้างอิง','คำนำหน้า','ชื่อ','นามสกุล','เลขบัตรประชาชน','เบอร์มือถือ','จังหวัด','อำเภอ','ตำบล','สถานะ','รอบการอนุมัติ'];
-  const rows = filtered.map(r => [r.reference_id,r.prefix,r.first_name,r.last_name,r.national_id,r.phone,r.farm_province,r.farm_district,r.farm_subdistrict,r.status,r.approval_round]);
+  const headers = ['รหัสอ้างอิง','คำนำหน้า','ชื่อ','นามสกุล','เลขบัตรประชาชน','เบอร์มือถือ','จังหวัด','อำเภอ','ตำบล','สถานะ','เชื่อมต่อแอป','SN ตู้ (จากแอป)','รอบการอนุมัติ'];
+  const rows = filtered.map(r => [r.reference_id,r.prefix,r.first_name,r.last_name,r.national_id,r.phone,r.farm_province,r.farm_district,r.farm_subdistrict,r.status,(r.app_connected ? 'เชื่อมต่อแล้ว' : 'ยังไม่เชื่อมต่อ'),r.matched_sn,r.approval_round]);
   const csv = [headers, ...rows].map(row => row.map(v => `"${(v??'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
@@ -4763,6 +5152,97 @@ function exportIotBoxReportPdf() {
   });
 }
 
+// ===== ตรวจสอบเชื่อมต่อแอป: เทียบคนเชื่อมต่อแอปแล้ว กับข้อมูลในระบบ OTOD =====
+
+// รวบรวม app_iot_id (SN ตู้) ทุกตัวที่จับคู่เจอกับใครสักคนใน iot_farmers (ใช้ allIotRows ทั้งหมด ไม่ใช้ตัวกรองโครงการ
+// เพราะเราต้องรู้ว่า "จับคู่เจอไหม" โดยไม่ขึ้นกับตัวกรองที่ผู้ใช้เลือกดูอยู่)
+function buildMatchedAppIotIds() {
+  const matched = new Set();
+  allIotRows.forEach(r => {
+    getMatchedAppRecords(r).forEach(rec => { if (rec.app_iot_id) matched.add(rec.app_iot_id); });
+  });
+  return matched;
+}
+
+// แบ่ง 4 หมวด: ตรงกันแล้ว / เชื่อมต่อแล้วรอระบบอัปเดต / OTOD ติดตั้งแล้วแต่ยังไม่เชื่อมต่อ / เชื่อมต่อแอปแต่ไม่พบใน OTOD
+function getAppMatchCategories() {
+  const rows = getIotVisibleRows();
+  const inSync = [];
+  const pendingUpdate = [];
+  const otodOnly = [];
+
+  rows.forEach(r => {
+    if (r.app_connected) {
+      if (r[IOT_FIELDS.status] === IOT_FIELDS.done) inSync.push(r);
+      else pendingUpdate.push(r);
+    } else if (r[IOT_FIELDS.status] === IOT_FIELDS.done) {
+      otodOnly.push(r);
+    }
+  });
+
+  const matchedIds = buildMatchedAppIotIds();
+  const appOnly = appConnections.filter(c => !matchedIds.has(c.app_iot_id));
+
+  return { inSync, pendingUpdate, otodOnly, appOnly };
+}
+
+function renderIotFarmerMatchRows(rows, includeStatus) {
+  const colCount = includeStatus ? 10 : 9;
+  if (!rows.length) {
+    return `<tr><td colspan="${colCount}" style="text-align:center; opacity:.6; padding:16px;">ไม่มีรายการในหมวดนี้</td></tr>`;
+  }
+  return rows.map(r => `
+    <tr>
+      <td>${r.prefix || ''}</td>
+      <td>${r.first_name || ''}</td>
+      <td>${r.last_name || ''}</td>
+      <td>${r.national_id || ''}</td>
+      <td>${r.phone || ''}</td>
+      <td>${r.matched_sn || ''}</td>
+      <td>${r.farm_province || ''}</td>
+      <td>${r.farm_district || ''}</td>
+      <td>${r.farm_subdistrict || ''}</td>
+      ${includeStatus ? `<td>${r.status || ''}</td>` : ''}
+    </tr>
+  `).join('');
+}
+
+function renderIotAppMatchDashboard() {
+  const totalEl = document.getElementById('iotMatchKpiTotalApp');
+  if (!totalEl) return; // แท็บยังไม่ถูกโหลด
+
+  const { inSync, pendingUpdate, otodOnly, appOnly } = getAppMatchCategories();
+
+  document.getElementById('iotMatchKpiTotalApp').textContent = appConnections.length.toLocaleString();
+  document.getElementById('iotMatchKpiInSync').textContent = inSync.length.toLocaleString();
+  document.getElementById('iotMatchKpiPending').textContent = pendingUpdate.length.toLocaleString();
+  document.getElementById('iotMatchKpiAppOnly').textContent = appOnly.length.toLocaleString();
+  document.getElementById('iotMatchKpiOtodOnly').textContent = otodOnly.length.toLocaleString();
+
+  document.getElementById('iotMatchPendingCountBadge').textContent = pendingUpdate.length.toLocaleString() + ' รายการ';
+  document.getElementById('iotMatchPendingTbody').innerHTML = renderIotFarmerMatchRows(pendingUpdate, true);
+
+  document.getElementById('iotMatchOtodOnlyCountBadge').textContent = otodOnly.length.toLocaleString() + ' รายการ';
+  document.getElementById('iotMatchOtodOnlyTbody').innerHTML = renderIotFarmerMatchRows(otodOnly, false);
+
+  document.getElementById('iotMatchInSyncCountBadge').textContent = inSync.length.toLocaleString() + ' รายการ';
+  document.getElementById('iotMatchInSyncTbody').innerHTML = renderIotFarmerMatchRows(inSync, true);
+
+  document.getElementById('iotMatchAppOnlyCountBadge').textContent = appOnly.length.toLocaleString() + ' รายการ';
+  document.getElementById('iotMatchAppOnlyTbody').innerHTML = appOnly.length
+    ? appOnly.map(c => `
+        <tr>
+          <td>${c.app_iot_id || ''}</td>
+          <td>${c.app_farmer_id || ''}</td>
+          <td>${c.first_name || ''}</td>
+          <td>${c.last_name || ''}</td>
+          <td>${c.national_id || ''}</td>
+          <td>${c.phone || ''}</td>
+        </tr>
+      `).join('')
+    : '<tr><td colspan="6" style="text-align:center; opacity:.6; padding:16px;">ไม่มีรายการในหมวดนี้</td></tr>';
+}
+
 function setIotPlanLookback(days) {
   iotPlanLookbackDays = days;
   renderIotPlanDashboard();
@@ -5009,6 +5489,7 @@ document.getElementById('filterSearch').addEventListener('input', applyFilters);
 
 document.getElementById('iotFilterProvince').addEventListener('change', applyIotFilters);
 document.getElementById('iotFilterStatus').addEventListener('change', applyIotFilters);
+document.getElementById('iotFilterAppConnected').addEventListener('change', applyIotFilters);
 document.getElementById('iotFilterSearch').addEventListener('input', applyIotFilters);
 
 document.getElementById('planFilterProvince').addEventListener('change', onPlanFilterProvinceChange);
@@ -5033,7 +5514,12 @@ loadIotPlanFromStorage();
 if (document.documentElement.getAttribute('data-theme') === 'dark') {
   document.getElementById('themeToggleBtn').textContent = '☀️';
 }
-if (initClient()) { loadData(); syncPlanFromSupabase(); syncIotPlanFromSupabase(); }
+if (initClient()) {
+  checkAuthAndBoot();
+} else {
+  // ยังไม่เคยตั้งค่าการเชื่อมต่อ Supabase ในเบราว์เซอร์นี้เลย -> โชว์กล่องตั้งค่าให้กรอกก่อน (ยังไม่ต้องล็อกอิน)
+  document.getElementById('appShell').style.display = 'block';
+}
 </script>
 
 </body>
