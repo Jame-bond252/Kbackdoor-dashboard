@@ -412,6 +412,9 @@
   .plan-sched-badge { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; font-size:14px; font-weight:800; line-height:1; }
   .plan-sched-badge.sched-yes { background:var(--brand-light); color:var(--brand-dark); border:2px solid var(--brand); }
   .plan-sched-badge.sched-no { background:var(--red-light); color:var(--red); border:2px solid var(--red); }
+  .app-confirm-badge { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:700; white-space:nowrap; line-height:1.3; }
+  .app-confirm-badge.confirm-yes { background:var(--brand-light); color:var(--brand-dark); border:1px solid var(--brand); }
+  .app-confirm-badge.confirm-no { background:var(--card); color:var(--muted); border:1px solid var(--border); }
   .plan-status-select.status-pending { background:var(--card); color:var(--muted); }
   .plan-status-select.status-done { background:var(--brand-light); color:var(--brand-dark); }
   .plan-status-select.status-cancelled { background:var(--red-light); color:var(--red); }
@@ -1064,8 +1067,13 @@
       <p style="font-size:13px; color:var(--muted); margin-top:-6px;">
         ไปที่แท็บ 🗺️ แผนที่ → คลิกจังหวัด → คลิกอำเภอ แล้วในรายชื่อ "ยังไม่ติดตั้ง" กดเพิ่มทั้งอำเภอ, เลือกหลายคนพร้อมกัน, หรือกดเพิ่มทีละคนก็ได้ รายชื่อที่เพิ่มจะมาโผล่ในตารางด้านล่างนี้ — โทรนัดหมายเกษตรกรแล้วอย่าลืมใส่ "วันที่ติดตั้ง" ในตารางเพื่อให้แดชบอร์ดด้านล่างสรุปให้อัตโนมัติ และให้ทีมหน้างานพิมพ์รายงานไปดูว่าต้องไปที่ไหนบ้าง
       </p>
+      <div class="plan-view-toggle" style="margin:12px 0 0;">
+        <button class="view-toggle-btn active" data-subtab="table" onclick="switchIotPlanSubTab('table')">📋 แผนติดตั้ง</button>
+        <button class="view-toggle-btn" data-subtab="appmatch" onclick="switchIotPlanSubTab('appmatch')">📶 เชื่อมต่อแอป</button>
+      </div>
     </div>
 
+    <div id="iotPlanSubtabTable">
     <div class="section">
       <h2>📊 สรุปแผนติดตั้ง IoT</h2>
 
@@ -1201,6 +1209,72 @@
       <p style="font-size:12px; color:var(--muted); margin-top:10px;">
         หมายเหตุ: ถ้าตั้งค่า Supabase ไว้แล้ว รายการในแผนจะซิงก์ขึ้นอัตโนมัติให้ทีมงานคนอื่นเห็นแผนเดียวกันได้ (กด "🔄 ซิงก์ล่าสุด" เพื่อดึงการเปลี่ยนแปลงจากคนอื่น) ถ้ายังไม่ได้ตั้งค่า Supabase ระบบจะเก็บไว้ในเบราว์เซอร์นี้เท่านั้น กดส่งออก Excel เพื่อแชร์แผนให้คนอื่นได้เสมอ แต่ละพื้นที่ติดตั้งไม่เหมือนกัน จึงไม่มีปุ่ม "ใช้ทั้งตำบล" เหมือนแผนอบรม
       </p>
+    </div>
+    </div>
+
+    <div id="iotPlanSubtabAppMatch" style="display:none;">
+      <div class="section">
+        <h2>📶 เชื่อมต่อแอป — แผนติดตั้ง IoT เทียบกับข้อมูลเชื่อมต่อแอป</h2>
+        <p style="font-size:13px; color:var(--muted); margin-top:-6px;">
+          เทียบรายชื่อในแผนติดตั้ง IoT กับข้อมูลเชื่อมต่อแอป เพื่อดูว่าใครในแผนได้รับตู้และเชื่อมต่อแอปแล้วบ้าง — เป็นข้อมูลอ้างอิงเบื้องต้นเท่านั้น สถานะทางการของ OTOD ยังต้องรอแอดมินอัปเดตหลังได้รับเอกสารลายเซ็นยืนยันจากเกษตรกร
+        </p>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card total"><div class="kpi-icon">📋</div><div class="kpi-label">รายชื่อในแผนทั้งหมด</div><div class="kpi-num" id="iotPlanMatchKpiTotal">-</div><div class="kpi-sub">ไม่รวมรายการที่ยกเลิก</div></div>
+        <div class="kpi-card yes"><div class="kpi-icon">📶</div><div class="kpi-label">ยืนยันได้รับตู้แล้ว (จากแอป)</div><div class="kpi-num" id="iotPlanMatchKpiConfirmed">-</div><div class="kpi-sub">รอแอดมินอัปเดต OTOD อย่างเป็นทางการ</div></div>
+        <div class="kpi-card no"><div class="kpi-icon">❔</div><div class="kpi-label">ยังไม่พบการเชื่อมต่อแอป</div><div class="kpi-num" id="iotPlanMatchKpiUnconfirmed">-</div><div class="kpi-sub">ยังไม่พบชื่อ/เบอร์/เลขบัตรตรงกัน</div></div>
+      </div>
+
+      <div class="section">
+        <h3 style="margin-bottom:8px;">สรุปยืนยันแยกทีมติดตั้ง</h3>
+        <table class="summary-table">
+          <thead>
+            <tr><th>ทีมติดตั้ง</th><th class="num">ยืนยันแล้ว</th><th class="num">รอยืนยัน</th><th class="num">รวม</th></tr>
+          </thead>
+          <tbody id="iotPlanAppConfirmTeamTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <div class="toggle-detail" onclick="toggleDetail('iotPlanMatchConfirmedBody','iotPlanMatchConfirmedChevron')">
+          <h2 style="margin:0;">📶 ในแผน + ยืนยันได้รับตู้แล้ว (จากแอป) <span class="badge" id="iotPlanMatchConfirmedCountBadge">0 รายการ</span></h2>
+          <span class="chevron open" id="iotPlanMatchConfirmedChevron">▶</span>
+        </div>
+        <div id="iotPlanMatchConfirmedBody" style="margin-top:16px;">
+          <div class="table-wrap">
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th>ลำดับ</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์ติดต่อ</th>
+                  <th>ทีมติดตั้ง</th><th>วันที่ติดตั้ง (แผน)</th><th>สถานะแผน</th><th>ยืนยันจากแอปตั้งแต่</th>
+                </tr>
+              </thead>
+              <tbody id="iotPlanMatchConfirmedTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="toggle-detail" onclick="toggleDetail('iotPlanMatchUnconfirmedBody','iotPlanMatchUnconfirmedChevron')">
+          <h2 style="margin:0;">❔ ในแผน + ยังไม่พบการเชื่อมต่อแอป <span class="badge" id="iotPlanMatchUnconfirmedCountBadge">0 รายการ</span></h2>
+          <span class="chevron" id="iotPlanMatchUnconfirmedChevron">▶</span>
+        </div>
+        <div id="iotPlanMatchUnconfirmedBody" style="display:none; margin-top:16px;">
+          <div class="table-wrap">
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th>ลำดับ</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์ติดต่อ</th>
+                  <th>ทีมติดตั้ง</th><th>วันที่ติดตั้ง (แผน)</th><th>สถานะแผน</th>
+                </tr>
+              </thead>
+              <tbody id="iotPlanMatchUnconfirmedTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2943,6 +3017,15 @@ function getMatchedAppRecords(r) {
 
 function isAppFarmerConnected(r) {
   return getMatchedAppRecords(r).length > 0;
+}
+
+// ใช้ในแท็บ "แผนติดตั้ง IoT" เพื่อโชว์ว่ารายชื่อในแผนนี้ เชื่อมต่อแอปแล้วหรือยัง (จับคู่ด้วยเลขบัตร/เบอร์เดียวกับแท็บตรวจสอบเชื่อมต่อแอป)
+// เป็นข้อมูลแสดงผลอ้างอิงเท่านั้น ไม่ไปเปลี่ยนสถานะ "ติดตั้งแล้ว" ในแผนเองเด็ดขาด เพราะแอดมินต้องรอเอกสารลายเซ็นเกษตรกรยืนยันก่อนเสมอ
+function getAppConfirmForPlanEntry(p) {
+  const matched = getMatchedAppRecords({ national_id: p.nationalId, phone: p.phone });
+  if (!matched.length) return null;
+  const dates = matched.map(rec => rec.first_seen_at).filter(Boolean).sort();
+  return { count: matched.length, firstSeenAt: dates[0] || null };
 }
 
 function getIotVisibleRows() {
@@ -5814,6 +5897,100 @@ function renderIotPlanDashboard() {
   const countByDate = {};
   withDate.forEach(p => { countByDate[p.installDate] = (countByDate[p.installDate] || 0) + 1; });
   renderIotPlanTimelineChart(countByDate, today, pastStart, addDaysToDateStr(today, 7));
+  renderIotPlanAppMatchSection();
+}
+
+// สรุปจำนวนรายการที่ "ยืนยันได้รับตู้แล้วจากแอป" แยกตามทีมติดตั้ง (ไม่รวมรายการที่ยกเลิก) — ให้ดูภาพรวม/ประวัติได้ในตัว
+// เพราะ first_seen_at ของแต่ละคนจะคงที่ตลอดไป (ไม่ถูกเขียนทับซ้ำ) ตัวเลขนี้จึงสะสมเพิ่มขึ้นเรื่อยๆ ตามจริง
+function renderIotPlanAppConfirmTeamBreakdown() {
+  const tbody = document.getElementById('iotPlanAppConfirmTeamTbody');
+  if (!tbody) return;
+  const active = iotInstallPlan.filter(p => p.status !== 'cancelled');
+  const teams = [...IOT_INSTALL_TEAMS, 'ยังไม่ระบุทีม'];
+  const rows = teams.map(team => {
+    const rowsForTeam = active.filter(p => (p.installTeam || 'ยังไม่ระบุทีม') === team);
+    const confirmed = rowsForTeam.filter(p => getAppConfirmForPlanEntry(p)).length;
+    const total = rowsForTeam.length;
+    return { team, confirmed, pending: total - confirmed, total };
+  }).filter(r => r.total > 0);
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty-state-cell"><span class="empty-icon">📭</span><span class="empty-text">ยังไม่มีข้อมูล</span></td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.team}</td>
+      <td class="num">${r.confirmed.toLocaleString()}</td>
+      <td class="num">${r.pending.toLocaleString()}</td>
+      <td class="num">${r.total.toLocaleString()}</td>
+    </tr>
+  `).join('');
+}
+
+// แถวตารางสำหรับส่วน "แผนติดตั้ง IoT เทียบกับข้อมูลเชื่อมต่อแอป" ในแท็บ 🔗 ตรวจสอบเชื่อมต่อแอป
+function iotPlanMatchRowHtml(p, i, confirm) {
+  return `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${p.name || '-'}</td>
+      <td>${p.nationalId || ''}</td>
+      <td>${p.phone || ''}</td>
+      <td>${p.installTeam || 'ยังไม่ระบุ'}</td>
+      <td>${p.installDate || 'ยังไม่นัด'}${p.installTime ? ' ' + p.installTime : ''}</td>
+      <td><span class="pdf-status-badge status-${p.status || 'pending'}">${IOT_PLAN_STATUS_LABELS[p.status || 'pending']}</span></td>
+      ${confirm ? `<td>${formatDateTimeThai(confirm.firstSeenAt)}</td>` : ''}
+    </tr>
+  `;
+}
+
+// สรุป+เรนเดอร์ส่วน "แผนติดตั้ง IoT เทียบกับข้อมูลเชื่อมต่อแอป" ทั้งหมดในแท็บ 🔗 ตรวจสอบเชื่อมต่อแอป
+// (ย้ายมาจากแท็บ 📅 แผนติดตั้ง IoT ตามคำขอผู้ใช้ เพื่อไม่ให้แท็บวางแผนดูรกเกินไป)
+function renderIotPlanAppMatchSection() {
+  const kpiTotalEl = document.getElementById('iotPlanMatchKpiTotal');
+  if (!kpiTotalEl) return; // แท็บยังไม่ถูกโหลด
+
+  const active = iotInstallPlan.filter(p => p.status !== 'cancelled');
+  const confirmedList = [];
+  const unconfirmedList = [];
+  active.forEach(p => {
+    const c = getAppConfirmForPlanEntry(p);
+    if (c) confirmedList.push({ p, c }); else unconfirmedList.push(p);
+  });
+  confirmedList.sort((a, b) => (a.c.firstSeenAt || '').localeCompare(b.c.firstSeenAt || ''));
+
+  kpiTotalEl.textContent = active.length.toLocaleString();
+  document.getElementById('iotPlanMatchKpiConfirmed').textContent = confirmedList.length.toLocaleString();
+  document.getElementById('iotPlanMatchKpiUnconfirmed').textContent = unconfirmedList.length.toLocaleString();
+
+  document.getElementById('iotPlanMatchConfirmedCountBadge').textContent = confirmedList.length.toLocaleString() + ' รายการ';
+  document.getElementById('iotPlanMatchConfirmedTbody').innerHTML = confirmedList.length
+    ? confirmedList.map((item, i) => iotPlanMatchRowHtml(item.p, i, item.c)).join('')
+    : '<tr><td colspan="8" class="empty-state-cell"><span class="empty-icon">✨</span><span class="empty-text">ยังไม่มีรายการในหมวดนี้</span></td></tr>';
+
+  document.getElementById('iotPlanMatchUnconfirmedCountBadge').textContent = unconfirmedList.length.toLocaleString() + ' รายการ';
+  document.getElementById('iotPlanMatchUnconfirmedTbody').innerHTML = unconfirmedList.length
+    ? unconfirmedList.map((p, i) => iotPlanMatchRowHtml(p, i, null)).join('')
+    : '<tr><td colspan="7" class="empty-state-cell"><span class="empty-icon">✨</span><span class="empty-text">ยังไม่มีรายการในหมวดนี้</span></td></tr>';
+
+  renderIotPlanAppConfirmTeamBreakdown();
+}
+
+// สลับแท็บย่อยภายในแท็บ "แผนติดตั้ง IoT" — 📋 แผนติดตั้ง (ตาราง/ปฏิทินเดิม) กับ 📶 เชื่อมต่อแอป (ของใหม่)
+function switchIotPlanSubTab(sub) {
+  document.querySelectorAll('#tab-iot-plan .view-toggle-btn[data-subtab]').forEach(b => {
+    b.classList.toggle('active', b.dataset.subtab === sub);
+  });
+  const tableEl = document.getElementById('iotPlanSubtabTable');
+  const appMatchEl = document.getElementById('iotPlanSubtabAppMatch');
+  if (tableEl) tableEl.style.display = sub === 'appmatch' ? 'none' : '';
+  if (appMatchEl) appMatchEl.style.display = sub === 'appmatch' ? '' : 'none';
+  if (sub === 'appmatch') {
+    if (!iotDataLoaded) {
+      loadIotData().then(renderIotPlanAppMatchSection);
+    } else {
+      renderIotPlanAppMatchSection();
+    }
+  }
 }
 
 function exportIotPlanExcel() {
