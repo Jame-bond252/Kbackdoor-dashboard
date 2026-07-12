@@ -1760,7 +1760,7 @@ async function askQuestion() {
   }
 
   const thinkingEl = appendQaMessage('กำลังคิดคำตอบ...', 'bot');
-  const aiAnswer = await tryAiAnswer(q);
+  const aiAnswer = await tryAiAnswer(q, buildFullQaContext());
   if (thinkingEl) thinkingEl.remove();
   appendQaMessage(aiAnswer || ruleBasedAnswer, 'bot');
 }
@@ -1780,18 +1780,72 @@ function buildQaContext() {
   };
 }
 
+// ---- บริบทฉบับเต็ม (รวมทั้งฝั่งอบรมและฝั่ง IoT) ให้ AI ตอบคำถามได้ครอบคลุมทุกหัวข้อ
+// ไม่ว่าจะถามจากแท็บถาม-ตอบฝั่งไหนก็ตาม (ก่อนหน้านี้แต่ละฝั่งเห็นแค่ข้อมูลของตัวเอง)
+function buildFullQaContext() {
+  const trainByProvince = aggregateByProvince(allRows);
+  const trainByDistrict = aggregateByProvinceDistrict(allRows);
+  const trainTotal = allRows.length;
+  const trainY = allRows.filter(r => r.training_status === 'Y').length;
+
+  const iotRowsQ = getIotVisibleRows();
+  const iotByProvince = aggregateByProvince(iotRowsQ, IOT_FIELDS.province, IOT_FIELDS.status, IOT_FIELDS.done, IOT_FIELDS.notDone);
+  const iotByDistrict = aggregateByProvinceDistrict(iotRowsQ, IOT_FIELDS.province, IOT_FIELDS.district, IOT_FIELDS.status, IOT_FIELDS.done, IOT_FIELDS.notDone);
+  const iotTotal = iotRowsQ.length;
+  const iotY = iotRowsQ.filter(r => r[IOT_FIELDS.status] === IOT_FIELDS.done).length;
+  const appConnectedCount = iotRowsQ.filter(r => r.app_connected).length;
+
+  const boxByTeam = {};
+  (typeof getIotBoxTeamProvinceRows === 'function' ? getIotBoxTeamProvinceRows() : []).forEach(r => {
+    boxByTeam[r.team] = (boxByTeam[r.team] || 0) + r.count;
+  });
+
+  const todayStr = todayDateStr();
+  const upcomingTrain = trainingPlan.filter(p => p.visitDate && p.visitDate >= todayStr && p.status !== 'cancelled').length;
+  const upcomingIot = iotInstallPlan.filter(p => p.installDate && p.installDate >= todayStr && p.status !== 'cancelled').length;
+
+  return {
+    today: todayStr,
+    training: {
+      total: trainTotal,
+      trained: trainY,
+      untrained: trainTotal - trainY,
+      pct: trainTotal ? Math.round(trainY / trainTotal * 100) : 0,
+      byProvince: trainByProvince.map(p => ({ province: p.province, Y: p.Y, N: p.N, pct: p.pct })),
+      byDistrict: trainByDistrict.map(d => ({ province: d.province, district: d.district, Y: d.Y, N: d.N, pct: d.pct })),
+      planTotal: trainingPlan.length,
+      planScheduled: trainingPlan.filter(p => p.visitDate).length,
+      planDone: trainingPlan.filter(p => p.status === 'done').length,
+      planUpcoming: upcomingTrain,
+    },
+    iot: {
+      total: iotTotal,
+      installed: iotY,
+      notInstalled: iotTotal - iotY,
+      pct: iotTotal ? Math.round(iotY / iotTotal * 100) : 0,
+      appConnected: appConnectedCount,
+      byProvince: iotByProvince.map(p => ({ province: p.province, Y: p.Y, N: p.N, pct: p.pct })),
+      byDistrict: iotByDistrict.map(d => ({ province: d.province, district: d.district, Y: d.Y, N: d.N, pct: d.pct })),
+      planTotal: iotInstallPlan.length,
+      planScheduled: iotInstallPlan.filter(p => p.installDate).length,
+      planDone: iotInstallPlan.filter(p => p.status === 'done').length,
+      planUpcoming: upcomingIot,
+      boxesByTeam: boxByTeam,
+    },
+    note: 'planTotal/planScheduled/planDone/planUpcoming คือแผนงานที่ทีมงานตั้งไว้เอง (นัดหมายอบรม/ติดตั้ง) แยกต่างหากจากสถานะจริงในระบบ OTOD (trained/installed) ไม่มีข้อมูลสถานที่จัดงาน/เส้นทางจริง ใช้ความรู้ภูมิศาสตร์ทั่วไปของประเทศไทยช่วยแนะนำจัดกลุ่มพื้นที่ได้ แต่ต้องบอกผู้ใช้ว่าเป็นการประมาณคร่าวๆ',
+  };
+}
+
 async function tryAiAnswer(question, context) {
   try {
-    const url = localStorage.getItem('otod_supabase_url');
-    const key = localStorage.getItem('otod_supabase_key');
-    if (!url || !key) return null;
-    context = context || buildQaContext();
-    const res = await fetch(url.replace(/\/$/, '') + '/functions/v1/smooth-api', {
+    if (!supabaseClient) return null;
+    context = context || buildFullQaContext();
+    const res = await fetch(SUPABASE_URL.replace(/\/$/, '') + '/functions/v1/smooth-api', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + key,
-        'apikey': key,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'apikey': SUPABASE_ANON_KEY,
       },
       body: JSON.stringify({ question, context }),
     });
@@ -1869,18 +1923,16 @@ function answerQuestion(qRaw) {
 }
 
 async function triggerManualSync(btn) {
-  const url = localStorage.getItem('otod_supabase_url');
-  const key = localStorage.getItem('otod_supabase_key');
-  if (!url || !key) { showToast('กรุณาตั้งค่าการเชื่อมต่อ Supabase ก่อน', 'warn'); return; }
+  if (!supabaseClient) { showToast('ระบบยังไม่ได้ตั้งค่าการเชื่อมต่อ Supabase (ติดต่อผู้ดูแลระบบ)', 'warn'); return; }
   const originalText = btn ? btn.textContent : '';
   if (btn) { btn.disabled = true; btn.textContent = 'กำลังสั่งซิงก์...'; }
   try {
-    const res = await fetch(url.replace(/\/$/, '') + '/functions/v1/trigger-sync', {
+    const res = await fetch(SUPABASE_URL.replace(/\/$/, '') + '/functions/v1/trigger-sync', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + key,
-        'apikey': key,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'apikey': SUPABASE_ANON_KEY,
       },
       body: JSON.stringify({}),
     });
@@ -3217,7 +3269,7 @@ async function askIotQuestion() {
   }
 
   const thinkingEl = appendQaMessage('กำลังคิดคำตอบ...', 'bot', 'iotQaLog');
-  const aiAnswer = await tryAiAnswer(q, buildIotQaContext());
+  const aiAnswer = await tryAiAnswer(q, buildFullQaContext());
   if (thinkingEl) thinkingEl.remove();
   appendQaMessage(aiAnswer || ruleBasedAnswer, 'bot', 'iotQaLog');
 }
