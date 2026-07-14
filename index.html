@@ -17,12 +17,14 @@
   :root {
     --brand:#3ba68a; --brand-dark:#2c7f68; --brand-light:#e2f5ef;
     --red:#e0483e; --red-light:#fdeceb;
+    --amber:#b8860b; --amber-light:#fdf3e0;
     --bg:#f2f5f3; --card:#ffffff; --border:#e6eae8; --text:#1c2621; --muted:#6b7a72;
   }
 
   [data-theme="dark"] {
     --brand:#4fd6b0; --brand-dark:#7fe8c9; --brand-light:#173832;
     --red:#ff7a70; --red-light:#3a1f1d;
+    --amber:#e0b84a; --amber-light:#3a2f14;
     --bg:#121815; --card:#1b2420; --border:#2b3630; --text:#e8efe9; --muted:#93a39a;
   }
   [data-theme="dark"] .thailand-map-wrap { background:#1b2420; }
@@ -42,6 +44,7 @@
   [data-theme="dark"] .btn-outline:hover { background:#283630; }
   [data-theme="dark"] .people-group-title .badge { background:rgba(0,0,0,.28); }
   [data-theme="dark"] .district-row.needs-attention { background:#2e1c1a; }
+  [data-theme="dark"] header.topbar { background:linear-gradient(120deg,#0f2a22,#1a4c3d); box-shadow:0 2px 14px rgba(0,0,0,.35); }
   * { box-sizing: border-box; }
   body { font-family:"Sarabun",sans-serif; margin:0; background:var(--bg); color:var(--text); }
 
@@ -302,6 +305,7 @@
   .people-group-title { font-size:14px; font-weight:700; padding:6px 12px; border-radius:8px; margin-bottom:8px; display:inline-flex; align-items:center; gap:6px; }
   .people-group-title.group-yes { background:var(--brand-light); color:var(--brand-dark); }
   .people-group-title.group-no { background:var(--red-light); color:var(--red); }
+  .people-group-title.group-blocked { background:var(--amber-light); color:var(--amber); }
   .people-group-title .badge { background:rgba(255,255,255,.6); }
 
   .qa-presets { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
@@ -313,6 +317,33 @@
   .qa-bot { align-self:flex-start; background:var(--bg); border:1px solid var(--border); border-bottom-left-radius:2px; }
   .qa-input-row { display:flex; gap:10px; }
   .qa-input-row input { flex:1; }
+
+  .qa-bubble-btn {
+    position:fixed; bottom:24px; right:24px; width:60px; height:60px; border-radius:50%;
+    background:#fff; border:none; box-shadow:0 6px 20px rgba(0,0,0,.25); cursor:pointer;
+    z-index:9990; display:flex; align-items:center; justify-content:center; padding:6px; box-sizing:border-box;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .qa-bubble-btn:hover { transform:scale(1.06); box-shadow:0 8px 26px rgba(0,0,0,.32); }
+  .qa-bubble-btn img { width:100%; height:100%; object-fit:contain; border-radius:50%; }
+  .qa-popup-panel {
+    display:none; position:fixed; bottom:96px; right:24px; width:360px; max-width:calc(100vw - 32px);
+    max-height:min(70vh, 560px); background:var(--card); border:1px solid var(--border); border-radius:16px;
+    box-shadow:0 12px 36px rgba(0,0,0,.28); z-index:9989; flex-direction:column; overflow:hidden;
+  }
+  .qa-popup-panel.open { display:flex; }
+  .qa-popup-header {
+    display:flex; align-items:center; justify-content:space-between; gap:8px; padding:14px 16px;
+    background:linear-gradient(120deg,var(--brand-dark),var(--brand)); color:#fff; flex-shrink:0;
+  }
+  .qa-popup-header h2 { margin:0; font-size:14.5px; color:#fff; }
+  .qa-popup-close { background:rgba(255,255,255,.18); border:none; color:#fff; width:26px; height:26px; border-radius:50%; cursor:pointer; font-size:15px; line-height:1; flex-shrink:0; }
+  .qa-popup-close:hover { background:rgba(255,255,255,.3); }
+  .qa-popup-body { padding:16px; overflow-y:auto; }
+  @media (max-width:480px) {
+    .qa-popup-panel { right:16px; bottom:88px; width:calc(100vw - 32px); }
+    .qa-bubble-btn { right:16px; bottom:16px; }
+  }
   .detail-header h3 { margin:0; font-size:16px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .district-list { display:flex; flex-direction:column; gap:8px; }
   .district-row {
@@ -390,6 +421,19 @@
   .confirm-modal { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:24px 26px; max-width:380px; width:100%; box-shadow:0 10px 40px rgba(0,0,0,.3); }
   .confirm-modal p { margin:0 0 22px; font-size:14.5px; color:var(--text); line-height:1.6; }
   .confirm-modal-actions { display:flex; justify-content:flex-end; gap:10px; }
+  .doc-checklist-modal { max-width:440px; }
+  .doc-checklist-modal h3 { margin:0 0 4px; font-size:16px; }
+  .doc-checklist-modal .doc-checklist-sub { font-size:12.5px; color:var(--muted); margin:0 0 16px; }
+  .doc-checklist-items { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+  .doc-checklist-item { display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid var(--border); border-radius:8px; }
+  .doc-checklist-item input[type="checkbox"] { width:18px; height:18px; flex-shrink:0; cursor:pointer; }
+  .doc-checklist-item label { flex:1; font-size:13.5px; cursor:pointer; }
+  .doc-checklist-item .doc-checklist-source { font-size:10.5px; color:var(--muted); }
+  .doc-checklist-plot-field { margin:-8px 0 16px; }
+  .doc-checklist-plot-field label { display:block; font-size:12.5px; color:var(--muted); margin-bottom:6px; }
+  .doc-checklist-plot-row { display:flex; gap:8px; align-items:center; }
+  .doc-checklist-plot-row input { flex:1; }
+  .doc-checklist-plot-field .doc-checklist-source { font-size:10.5px; color:var(--muted); margin-top:4px; display:inline-block; }
 
   .plan-progress-wrap { margin:4px 0 20px; }
   .plan-progress-label { display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-bottom:6px; }
@@ -409,6 +453,8 @@
   .view-toggle-btn.active { background:var(--brand); color:#fff; }
 
   .plan-status-select { padding:5px 8px; border-radius:6px; border:1px solid var(--border); font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer; min-width:auto; }
+  .plan-status-select.select-compact { width:100px; max-width:100px; }
+  .plan-cell-dash { opacity:.5; font-size:12.5px; }
   .plan-sched-badge { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; font-size:14px; font-weight:800; line-height:1; }
   .plan-sched-badge.sched-yes { background:var(--brand-light); color:var(--brand-dark); border:2px solid var(--brand); }
   .plan-sched-badge.sched-no { background:var(--red-light); color:var(--red); border:2px solid var(--red); }
@@ -460,6 +506,9 @@
   .pdf-kpi-card.cancelled { border-top-color:#e0483e; }
   .pdf-kpi-num { font-size:22px; font-weight:700; color:#1c2621; }
   .pdf-kpi-label { font-size:11px; color:#6b7a72; margin-top:2px; }
+  .pdf-team-section + .pdf-team-section { page-break-before:always; padding-top:6mm; }
+  .pdf-team-heading { display:flex; align-items:center; justify-content:space-between; background:#2c7f68; color:#fff; font-weight:700; font-size:15px; padding:10px 16px; border-radius:10px; margin-bottom:14px; }
+  .pdf-team-stats { font-size:11.5px; font-weight:600; opacity:.9; }
   .pdf-date-section { margin-bottom:18px; page-break-inside:avoid; }
   .pdf-date-heading { display:flex; align-items:center; justify-content:space-between; background:#e2f5ef; color:#2c7f68; font-weight:700; font-size:13.5px; padding:8px 14px; border-radius:8px 8px 0 0; }
   .pdf-date-count { font-size:11.5px; font-weight:600; background:#2c7f68; color:#fff; padding:2px 10px; border-radius:10px; }
@@ -580,20 +629,23 @@
     <input id="globalSearchInput" type="text" class="global-search-input" placeholder="🔍 ค้นหาชื่อ / เลขบัตรประชาชน / เบอร์ ในทุกระบบ..." oninput="onGlobalSearchInput(this.value)" onfocus="onGlobalSearchInput(this.value)">
     <div id="globalSearchResults" class="global-search-results" style="display:none;"></div>
   </div>
+  <button id="qaBubbleBtn" class="qa-bubble-btn" onclick="toggleQaBubble()" title="ถาม-ตอบ">
+    <img src="Kasetkorn-logo-removebg-preview.png" alt="ถาม-ตอบ">
+  </button>
   <nav class="tabbar" id="tabbarTraining">
     <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">📊 แดชบอร์ด</button>
     <button class="tab-btn" data-tab="map" onclick="switchTab('map')">🗺️ แผนที่</button>
-    <button class="tab-btn" data-tab="qa" onclick="switchTab('qa')">💬 ถาม-ตอบ</button>
     <button class="tab-btn" data-tab="plan" onclick="switchTab('plan')">📅 แผนอบรม</button>
     <button class="tab-btn disabled" onclick="showComingSoon()">✏️ อัปเดตข้อมูล <span class="soon-badge">เร็วๆ นี้</span></button>
   </nav>
   <nav class="tabbar" id="tabbarIot" style="display:none;">
     <button class="tab-btn active" data-tab="iot-dashboard" onclick="switchTab('iot-dashboard')">📊 แดชบอร์ด</button>
     <button class="tab-btn" data-tab="iot-map" onclick="switchTab('iot-map')">🗺️ แผนที่</button>
-    <button class="tab-btn" data-tab="iot-qa" onclick="switchTab('iot-qa')">💬 ถาม-ตอบ</button>
     <button class="tab-btn" data-tab="iot-plan" onclick="switchTab('iot-plan')">📅 แผนติดตั้ง IoT</button>
     <button class="tab-btn" data-tab="iot-box" onclick="switchTab('iot-box')">🏭 ทีมผลิตตู้</button>
     <button class="tab-btn" data-tab="iot-app-match" onclick="switchTab('iot-app-match')">🔗 ตรวจสอบเชื่อมต่อแอป</button>
+    <button class="tab-btn" data-tab="iot-manual-code" onclick="switchTab('iot-manual-code')">✍️ กรอกรหัสฐานเอง</button>
+    <button class="tab-btn" data-tab="iot-blockers" onclick="switchTab('iot-blockers')">🚫 ติดตั้งไม่ได้</button>
     <button class="tab-btn disabled" onclick="showComingSoon()">✏️ อัปเดตข้อมูล <span class="soon-badge">เร็วๆ นี้</span></button>
   </nav>
 </header>
@@ -708,6 +760,20 @@
       </div>
       <div id="mapSearchStatus"></div>
 
+      <div class="preschedule-bar" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:var(--bg); border:1px dashed var(--border); border-radius:8px; padding:8px 12px; margin:0 0 12px;">
+        <label style="display:flex; align-items:center; gap:6px; font-weight:600; cursor:pointer;">
+          <input type="checkbox" id="mapPrescheduleToggle" onchange="toggleMapPreschedule(this.checked)">
+          🗓️ เลือกวันที่ก่อน แล้วค่อยเลือกคน
+        </label>
+        <span id="mapPrescheduleDates" style="display:none; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span>ตั้งแต่</span>
+          <input type="date" id="mapPrescheduleStart" onchange="updateMapPrescheduleRange()">
+          <span>ถึง</span>
+          <input type="date" id="mapPrescheduleEnd" onchange="updateMapPrescheduleRange()">
+        </span>
+        <span id="mapPrescheduleStatusText" style="font-size:12.5px; color:var(--muted);"></span>
+      </div>
+
       <div class="map-layout">
         <div>
           <div class="thailand-map-wrap">
@@ -754,6 +820,7 @@
       <div class="kpi-card no"><div class="kpi-icon">⛔</div><div class="kpi-label">ยังไม่ติดตั้ง</div><div class="kpi-num" id="iotKpiN">-</div><div class="kpi-sub" id="iotKpiNPct">-</div></div>
       <div class="kpi-card pct"><div class="kpi-icon">📊</div><div class="kpi-label">จังหวัดที่ติดตั้งครบ 100%</div><div class="kpi-num" id="iotKpiFullProvinces">-</div><div class="kpi-sub">จากทั้งหมด</div></div>
       <div class="kpi-card yes"><div class="kpi-icon">📱</div><div class="kpi-label">เชื่อมต่อแอปแล้ว</div><div class="kpi-num" id="iotKpiAppConnected">-</div><div class="kpi-sub" id="iotKpiAppConnectedPct">-</div></div>
+      <div class="kpi-card no" style="cursor:pointer;" onclick="switchTab('iot-blockers')" title="คลิกเพื่อดูรายชื่อ/เหตุผล"><div class="kpi-icon">🚫</div><div class="kpi-label">ติดตั้งไม่ได้</div><div class="kpi-num" id="iotKpiBlocked">-</div><div class="kpi-sub">คลิกเพื่อดูรายชื่อ/เหตุผล</div></div>
     </div>
 
     <div class="section">
@@ -885,6 +952,7 @@
         </div>
         <div class="map-side-panel">
           <div class="lb-title" id="iotLbTitle">อันดับจังหวัด (% ติดตั้งแล้ว)</div>
+          <button class="btn btn-brand btn-xs" id="iotLbMultiDistrictBtn" style="display:none; width:100%; margin:2px 0 10px;" title="ดูรายชื่อยังไม่ติดตั้งของทุกอำเภอรวมหน้าเดียว เลือกข้ามอำเภอได้">👥 ดูรายชื่อทุกอำเภอ (เลือกได้หลายอำเภอ)</button>
           <div class="leaderboard" id="iotLeaderboard"></div>
         </div>
       </div>
@@ -893,9 +961,12 @@
     </div>
   </div>
 
-  <div class="tab-content" id="tab-iot-qa">
-    <div class="section">
+  <div class="qa-popup-panel" id="tab-iot-qa">
+    <div class="qa-popup-header">
       <h2>💬 ถามคำถามเกี่ยวกับข้อมูลติดตั้ง IoT</h2>
+      <button type="button" class="qa-popup-close" onclick="closeQaBubble()">×</button>
+    </div>
+    <div class="qa-popup-body">
       <div class="qa-presets">
         <button class="qa-chip" onclick="askIotPreset('ภาพรวมทั้งหมด')">ภาพรวมทั้งหมด</button>
         <button class="qa-chip" onclick="askIotPreset('จังหวัดไหนติดตั้งน้อยที่สุด')">จังหวัดไหนติดตั้งน้อยที่สุด</button>
@@ -913,9 +984,12 @@
     </div>
   </div>
 
-  <div class="tab-content" id="tab-qa">
-    <div class="section">
+  <div class="qa-popup-panel" id="tab-qa">
+    <div class="qa-popup-header">
       <h2>💬 ถามคำถามเกี่ยวกับข้อมูลอบรม</h2>
+      <button type="button" class="qa-popup-close" onclick="closeQaBubble()">×</button>
+    </div>
+    <div class="qa-popup-body">
       <div class="qa-presets">
         <button class="qa-chip" onclick="askPreset('ภาพรวมทั้งหมด')">ภาพรวมทั้งหมด</button>
         <button class="qa-chip" onclick="askPreset('จังหวัดไหนอบรมน้อยที่สุด')">จังหวัดไหนอบรมน้อยที่สุด</button>
@@ -997,10 +1071,47 @@
         <button class="btn btn-outline" onclick="exportPlanPdf()" title="เปิดหน้าต่างพิมพ์ แล้วเลือก &quot;บันทึกเป็น PDF&quot; จากตัวเลือกเครื่องพิมพ์">🖨️ พิมพ์ / บันทึกเป็น PDF</button>
         <button class="btn btn-outline" onclick="clearPlan()">🗑️ ล้างทั้งหมด</button>
         <button class="btn btn-outline" onclick="optimizePlanRoute()">🧭 จัดเรียงลำดับอัตโนมัติ</button>
+        <button class="btn btn-outline" onclick="toggleDateRangeTool()">📅 ตั้งช่วงวันที่อัตโนมัติ</button>
         <div class="plan-view-toggle">
           <button class="view-toggle-btn active" data-view="table" onclick="switchPlanView('table')">📋 ตาราง</button>
           <button class="view-toggle-btn" data-view="calendar" onclick="switchPlanView('calendar')">📅 ปฏิทิน</button>
         </div>
+      </div>
+
+      <div id="dateRangeToolPanel" class="section" style="display:none; background:var(--bg); border:1px dashed var(--border); margin:0 0 14px;">
+        <h3 style="margin-top:0;">📅 ตั้งช่วงวันที่อัตโนมัติ (แบ่งตามตำบล)</h3>
+        <p style="font-size:12.5px; color:var(--muted); margin-top:-6px;">
+          เลือกจังหวัด-อำเภอ + ช่วงวันที่ที่จะไปอบรม ระบบจะแบ่งแต่ละตำบลในอำเภอนั้นให้คนละวันแบบวนรอบให้อัตโนมัติ (เฉพาะคนที่ยังไม่มีวันนัดในอำเภอนั้น) — เหมาะกับกรณีทีมงานอยู่พื้นที่หลายวัน เช่น 21-25 ก.ค.
+        </p>
+        <div class="filters">
+          <div>
+            <label>จังหวัด</label>
+            <select id="dateRangeToolProvince" onchange="onDateRangeToolProvinceChange()"><option value="">เลือกจังหวัด</option></select>
+          </div>
+          <div>
+            <label>อำเภอ</label>
+            <select id="dateRangeToolDistrict" onchange="previewDateRangeTool()"><option value="">เลือกอำเภอ</option></select>
+          </div>
+          <div>
+            <label>วันเริ่ม</label>
+            <input type="date" id="dateRangeToolStart" onchange="previewDateRangeTool()">
+          </div>
+          <div>
+            <label>วันสิ้นสุด</label>
+            <input type="date" id="dateRangeToolEnd" onchange="previewDateRangeTool()">
+          </div>
+        </div>
+        <div id="dateRangeToolPreview"></div>
+        <div class="plan-toolbar" style="margin-top:10px;">
+          <button class="btn btn-brand" onclick="confirmDateRangeTool()">✓ ยืนยันตั้งวันที่</button>
+          <button class="btn btn-outline" onclick="toggleDateRangeTool(false)">ยกเลิก</button>
+        </div>
+      </div>
+
+      <div class="plan-view-toggle" id="planScheduleTabs" style="margin:0 0 12px;">
+        <button class="view-toggle-btn active" data-schedtab="" onclick="setPlanScheduleTab('')">ทั้งหมด</button>
+        <button class="view-toggle-btn" data-schedtab="no" onclick="setPlanScheduleTab('no')">🕑 ยังไม่นัด</button>
+        <button class="view-toggle-btn" data-schedtab="yes" onclick="setPlanScheduleTab('yes')">📆 นัดแล้ว</button>
       </div>
 
       <div class="filters">
@@ -1070,6 +1181,7 @@
       <div class="plan-view-toggle" style="margin:12px 0 0;">
         <button class="view-toggle-btn active" data-subtab="table" onclick="switchIotPlanSubTab('table')">📋 แผนติดตั้ง</button>
         <button class="view-toggle-btn" data-subtab="appmatch" onclick="switchIotPlanSubTab('appmatch')">📶 เชื่อมต่อแอป</button>
+        <button class="view-toggle-btn" data-subtab="legacycheck" onclick="switchIotPlanSubTab('legacycheck')">🔍 ตรวจสอบเจ้าของตู้ (ข้อมูลเก่า)</button>
       </div>
     </div>
 
@@ -1192,11 +1304,20 @@
       <div id="iotPlanFilterCountInfo" style="font-size:12px; color:var(--muted); margin:-6px 0 4px;">แสดง 0 จาก 0 รายการ</div>
       <div id="iotPlanDateFilterChip" style="display:none;"></div>
 
+      <div id="iotPlanBulkOperatorBar" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:6px 0 4px;">
+        <span id="iotPlanBulkSelectedCount" style="font-size:12.5px; color:var(--muted);">เลือกแล้ว 0 รายการ</span>
+        <select id="iotPlanBulkOperatorSelect">
+          <option value="">— เลือกผู้ดำเนินการ —</option>
+        </select>
+        <button type="button" class="btn btn-brand" onclick="applyBulkIotPlanOperator()">ตั้งผู้ดำเนินการให้แถวที่เลือก</button>
+      </div>
+
       <div id="iotPlanTableView" class="table-wrap" style="margin-top:12px;">
         <table class="detail-table">
           <thead>
             <tr>
-              <th>ลำดับ</th><th>นัดหมาย</th><th>วันที่ / เวลาติดตั้ง</th><th>สถานะ</th><th>ทีมติดตั้ง</th><th>ตู้</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th>
+              <th><input type="checkbox" id="iotPlanBulkSelectAllHeader" onchange="toggleSelectAllIotPlanRows()" title="เลือกทั้งหมด"></th>
+              <th>ลำดับ</th><th>นัดหมาย</th><th>วันที่ / เวลาติดตั้ง</th><th>สถานะ</th><th>ทีมติดตั้ง</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>การชำระเงิน</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th>
               <th>เบอร์ติดต่อ</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>ตำแหน่ง (Google Maps)</th><th>หมายเหตุ</th><th></th>
             </tr>
           </thead>
@@ -1276,6 +1397,59 @@
         </div>
       </div>
     </div>
+
+    <div id="iotPlanSubtabLegacyCheck" style="display:none;">
+      <div class="section">
+        <h2>🔍 ตรวจสอบเจ้าของตู้ (ข้อมูลเก่าก่อนระบบอัตโนมัติ)</h2>
+        <p style="font-size:13px; color:var(--muted); margin-top:-6px;">
+          เทียบ "เจ้าของที่ตั้งใจ" (จากรายชื่อเกษตรกร IoT ชุดเก่า + ชีตติดตามตู้/SN) กับ "เจ้าของจริงที่เชื่อมต่อแอป" เพื่อดูว่ามีตู้ไหนที่คนใช้งานจริงไม่ตรงกับคนที่ควรได้รับหรือไม่ — ข้อมูลนี้มาจากชีต Google เก่าที่ทีมใช้ก่อนมีระบบนี้ (ยังไม่รวมกับข้อมูล OTOD หลัก) หน้านี้ดูอย่างเดียว แก้ไข/ลบไม่ได้
+        </p>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card total"><div class="kpi-icon">📋</div><div class="kpi-label">มีรหัสฐาน (จับคู่กับตู้ได้)</div><div class="kpi-num" id="iotLegacyKpiTotal">-</div><div class="kpi-sub">จากข้อมูลเกษตรกรชุดเก่า</div></div>
+        <div class="kpi-card yes"><div class="kpi-icon">✅</div><div class="kpi-label">ตรงกัน</div><div class="kpi-num" id="iotLegacyKpiMatch">-</div><div class="kpi-sub">เจ้าของที่ตั้งใจ = คนเชื่อมแอปจริง</div></div>
+        <div class="kpi-card no"><div class="kpi-icon">⚠️</div><div class="kpi-label">ไม่ตรงกัน (ต้องตรวจสอบ)</div><div class="kpi-num" id="iotLegacyKpiMismatch">-</div><div class="kpi-sub">เบอร์คนละคนกับที่ตั้งใจไว้</div></div>
+        <div class="kpi-card pct"><div class="kpi-icon">❔</div><div class="kpi-label">ยังไม่เชื่อมแอป</div><div class="kpi-num" id="iotLegacyKpiNoApp">-</div><div class="kpi-sub">ยังไม่พบการเชื่อมต่อแอปเลย</div></div>
+      </div>
+
+      <div class="section">
+        <div class="filters">
+          <div>
+            <label>สถานะตรวจสอบ</label>
+            <select id="iotLegacyFilterStatus" onchange="applyIotLegacyCheckFilters()">
+              <option value="">ทั้งหมด</option>
+              <option value="ตรงกัน">✅ ตรงกัน</option>
+              <option value="ไม่ตรงกัน (ตรวจสอบ)">⚠️ ไม่ตรงกัน (ตรวจสอบ)</option>
+              <option value="ยังไม่เชื่อมแอป">❔ ยังไม่เชื่อมแอป</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label>ค้นหาชื่อ / เบอร์ / SN</label>
+            <input id="iotLegacyFilterSearch" type="text" placeholder="พิมพ์เพื่อค้นหา..." oninput="applyIotLegacyCheckFilters()">
+          </div>
+          <div><button class="btn btn-brand" onclick="loadIotOwnershipCheck(true)">รีเฟรช</button></div>
+          <div><button class="btn btn-outline" onclick="exportIotLegacyCheckCsv()">ส่งออก CSV</button></div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>รหัสฐาน</th><th>เจ้าของที่ตั้งใจ</th><th>เบอร์ (ตั้งใจ)</th><th>จังหวัด (ตั้งใจ)</th>
+                <th>SN ตู้</th><th>สถานะตู้</th>
+                <th>เจ้าของจริงในแอป</th><th>เบอร์ (จริง)</th>
+                <th>ผลตรวจสอบ</th>
+              </tr>
+            </thead>
+            <tbody id="iotLegacyCheckTbody"></tbody>
+          </table>
+        </div>
+        <p style="font-size:12px; color:var(--muted); margin-top:10px;">
+          หมายเหตุ: ข้อมูลเก่าไม่มีเลขบัตรประชาชน จึงเทียบด้วยเบอร์โทรเป็นหลัก อาจคลาดเคลื่อนได้บ้างถ้าเกษตรกรเปลี่ยนเบอร์
+        </p>
+      </div>
+    </div>
   </div>
 
   <div class="tab-content" id="tab-iot-box">
@@ -1339,26 +1513,38 @@
     <div class="kpi-grid">
       <div class="kpi-card total"><div class="kpi-icon">📱</div><div class="kpi-label">เชื่อมต่อแอปทั้งหมด</div><div class="kpi-num" id="iotMatchKpiTotalApp">-</div><div class="kpi-sub">รายชื่อจากแอป</div></div>
       <div class="kpi-card yes"><div class="kpi-icon">✅</div><div class="kpi-label">ตรงกันแล้ว</div><div class="kpi-num" id="iotMatchKpiInSync">-</div><div class="kpi-sub">เชื่อมต่อแอป + OTOD อัปเดตแล้ว</div></div>
-      <div class="kpi-card no"><div class="kpi-icon">⚠️</div><div class="kpi-label">เชื่อมต่อแล้ว รอระบบอัปเดต</div><div class="kpi-num" id="iotMatchKpiPending">-</div><div class="kpi-sub">ต้องตามอัปเดตในระบบ OTOD</div></div>
       <div class="kpi-card pct"><div class="kpi-icon">❓</div><div class="kpi-label">เชื่อมต่อแอป แต่ไม่พบใน OTOD</div><div class="kpi-num" id="iotMatchKpiAppOnly">-</div><div class="kpi-sub">เลขบัตร/เบอร์ไม่ตรงกับใครเลย</div></div>
       <div class="kpi-card no"><div class="kpi-icon">⛔</div><div class="kpi-label">OTOD ติดตั้งแล้ว แต่ยังไม่เชื่อมต่อแอป</div><div class="kpi-num" id="iotMatchKpiOtodOnly">-</div><div class="kpi-sub">ต้องตามให้เชื่อมต่อแอป</div></div>
+      <div class="kpi-card yes"><div class="kpi-icon">✅</div><div class="kpi-label">ได้ตู้แล้ว ยืนยันซ้ำจากข้อมูลเก่า</div><div class="kpi-num" id="iotMatchKpiOtodConfirmed">-</div><div class="kpi-sub">OTOD ยืนยันแล้ว + มี SN จากชีตเก่าด้วย ไม่ต้องตามซ้ำ</div></div>
+      <div class="kpi-card yes"><div class="kpi-icon">🟡</div><div class="kpi-label">ได้ตู้แล้ว รอยืนยันเอกสาร</div><div class="kpi-num" id="iotMatchKpiPendingDoc">-</div><div class="kpi-sub">OTOD ยังไม่อัปเดต แต่มีหลักฐานว่าได้ตู้แล้ว</div></div>
     </div>
 
     <div class="section">
-      <div class="toggle-detail" onclick="toggleDetail('iotMatchPendingBody','iotMatchPendingChevron')">
-        <h2 style="margin:0;">⚠️ เชื่อมต่อแอปแล้ว แต่ระบบ OTOD ยังไม่อัปเดตว่าติดตั้ง <span class="badge" id="iotMatchPendingCountBadge">0 รายการ</span></h2>
-        <span class="chevron open" id="iotMatchPendingChevron">▶</span>
+      <div class="toggle-detail" onclick="toggleDetail('iotMatchPendingDocBody','iotMatchPendingDocChevron')">
+        <h2 style="margin:0;">🟡 ได้ตู้แล้ว รอยืนยันเอกสาร <span class="badge" id="iotMatchPendingDocCountBadge">0 รายการ</span></h2>
+        <span class="chevron open" id="iotMatchPendingDocChevron">▶</span>
       </div>
-      <div id="iotMatchPendingBody" style="margin-top:16px;">
+      <p style="font-size:13px; color:var(--muted); margin:6px 0 0;">
+        คนกลุ่มนี้ OTOD ยังไม่อัปเดตสถานะเป็นติดตั้งแล้วอย่างเป็นทางการ แต่มีหลักฐานว่าได้รับตู้ไปแล้วจริง (จากข้อมูลชุดเก่า หรือเชื่อมต่อแอปแล้ว) — ไม่ต้องเลือกไปติดตั้งซ้ำ แค่รอเอกสารยืนยันจาก OTOD เท่านั้น
+      </p>
+      <div id="iotMatchPendingDocBody" style="margin-top:16px;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+          <input type="text" id="iotMatchPendingDocSearch" placeholder="ค้นหาชื่อ/เบอร์/เลขบัตร/SN..." oninput="applyIotMatchPendingDocSearch()" style="flex:1; min-width:200px;">
+          <select id="iotMatchPendingDocFilter" onchange="applyIotMatchPendingDocSearch()">
+            <option value="all">แสดงทั้งหมด</option>
+            <option value="incomplete">เฉพาะที่ข้อมูลยังไม่ครบ</option>
+            <option value="complete">เฉพาะที่ครบแล้ว</option>
+          </select>
+        </div>
         <div class="table-wrap">
           <table class="detail-table">
             <thead>
               <tr>
                 <th>ลำดับ</th><th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
-                <th>เบอร์มือถือ</th><th>SN ตู้ (จากแอป)</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>สถานะในระบบ OTOD</th>
+                <th>เบอร์มือถือ</th><th>SN ตู้</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>สถานะในระบบ OTOD</th><th>เอกสาร/ภาพ/วีดีโอ</th>
               </tr>
             </thead>
-            <tbody id="iotMatchPendingTbody"></tbody>
+            <tbody id="iotMatchPendingDocTbody"></tbody>
           </table>
         </div>
       </div>
@@ -1370,6 +1556,7 @@
         <span class="chevron" id="iotMatchAppOnlyChevron">▶</span>
       </div>
       <div id="iotMatchAppOnlyBody" style="display:none; margin-top:16px;">
+        <input type="text" id="iotMatchAppOnlySearch" placeholder="ค้นหาชื่อ/เบอร์/เลขบัตร/SN..." oninput="applyIotMatchAppOnlySearch()" style="margin-bottom:10px;">
         <div class="table-wrap">
           <table class="detail-table">
             <thead>
@@ -1390,15 +1577,40 @@
         <span class="chevron" id="iotMatchOtodOnlyChevron">▶</span>
       </div>
       <div id="iotMatchOtodOnlyBody" style="display:none; margin-top:16px;">
+        <input type="text" id="iotMatchOtodOnlySearch" placeholder="ค้นหาชื่อ/เบอร์/เลขบัตร/SN..." oninput="applyIotMatchOtodOnlySearch()" style="margin-bottom:10px;">
         <div class="table-wrap">
           <table class="detail-table">
             <thead>
               <tr>
                 <th>ลำดับ</th><th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
-                <th>เบอร์มือถือ</th><th>SN ตู้ (จากแอป)</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th>
+                <th>เบอร์มือถือ</th><th>SN ตู้</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th>
               </tr>
             </thead>
             <tbody id="iotMatchOtodOnlyTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="toggle-detail" onclick="toggleDetail('iotMatchOtodConfirmedBody','iotMatchOtodConfirmedChevron')">
+        <h2 style="margin:0;">✅ ได้ตู้แล้ว ยืนยันซ้ำจากข้อมูลชุดเก่า <span class="badge" id="iotMatchOtodConfirmedCountBadge">0 รายการ</span></h2>
+        <span class="chevron" id="iotMatchOtodConfirmedChevron">▶</span>
+      </div>
+      <p style="font-size:13px; color:var(--muted); margin:6px 0 0;">
+        คนกลุ่มนี้ OTOD ยืนยันติดตั้งเสร็จอย่างเป็นทางการแล้ว (ไม่ใช่ข้อมูลที่ระบบอนุมานเอง) และมีข้อมูลจากชีตติดตามตู้/Serial Board ชุดเก่ายืนยันซ้ำอีกชั้นว่าได้ตู้ (SN) ไหนไปจริง — ยืนยันครบทั้งสองทางแล้ว ไม่ต้องตามให้เชื่อมต่อแอปด่วนเหมือนกลุ่มบน
+      </p>
+      <div id="iotMatchOtodConfirmedBody" style="display:none; margin-top:16px;">
+        <input type="text" id="iotMatchOtodConfirmedSearch" placeholder="ค้นหาชื่อ/เบอร์/เลขบัตร/SN..." oninput="applyIotMatchOtodConfirmedSearch()" style="margin-bottom:10px;">
+        <div class="table-wrap">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>ลำดับ</th><th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
+                <th>เบอร์มือถือ</th><th>SN ตู้</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th>
+              </tr>
+            </thead>
+            <tbody id="iotMatchOtodConfirmedTbody"></tbody>
           </table>
         </div>
       </div>
@@ -1410,17 +1622,97 @@
         <span class="chevron" id="iotMatchInSyncChevron">▶</span>
       </div>
       <div id="iotMatchInSyncBody" style="display:none; margin-top:16px;">
+        <input type="text" id="iotMatchInSyncSearch" placeholder="ค้นหาชื่อ/เบอร์/เลขบัตร/SN..." oninput="applyIotMatchInSyncSearch()" style="margin-bottom:10px;">
         <div class="table-wrap">
           <table class="detail-table">
             <thead>
               <tr>
                 <th>ลำดับ</th><th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
-                <th>เบอร์มือถือ</th><th>SN ตู้ (จากแอป)</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>สถานะในระบบ OTOD</th>
+                <th>เบอร์มือถือ</th><th>SN ตู้</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>สถานะในระบบ OTOD</th>
               </tr>
             </thead>
             <tbody id="iotMatchInSyncTbody"></tbody>
           </table>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: IOT MANUAL BASE CODE ENTRY ===== -->
+  <div class="tab-content" id="tab-iot-manual-code">
+    <div class="section">
+      <h2>✍️ กรอกรหัสฐานเอง <span class="badge" id="iotManualCodeCandidateBadge">0 รายการรอ</span></h2>
+      <p style="font-size:13px; color:var(--muted); margin-top:-6px;">
+        ใช้ตอนเกษตรกรได้รับตู้แล้วจริง แต่บัญชีแอปที่เชื่อมมาชื่อไม่ตรงกับคนที่ได้รับ (เช่น ยืมเบอร์คนอื่นเชื่อม) ทำให้ระบบจับคู่อัตโนมัติไม่เจอ — ด้านล่างนี้ระบบจะดึงรายชื่อคนที่น่าจะรอกรอกรหัสฐานขึ้นมาให้อัตโนมัติ (แผนบอกว่าติดตั้งแล้วแต่ระบบยังไม่อัปเดต หรือติดตั้งแล้วแต่ไม่มี SN เลย) หรือจะพิมพ์ค้นหาคนอื่นเพิ่มเติมก็ได้ — พิมพ์รหัสฐาน (เช่น AR_0008) แล้วบันทึก ระบบจะไปเทียบกับชีตรหัสตู้เพื่อดึง SN ตัวจริง แล้วเปลี่ยนสถานะเป็น "ได้ตู้แล้ว" ให้อัตโนมัติทันที
+      </p>
+      <input type="text" id="iotManualCodeSearchInput" placeholder="🔍 ค้นหาชื่อ / เลขบัตรประชาชน / เบอร์ เพื่อกรอกรหัสฐาน... (เว้นว่างไว้เพื่อดูรายชื่อที่รออยู่)" oninput="renderIotManualCodeSearchResults()" style="margin-bottom:10px;">
+      <div class="table-wrap">
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์มือถือ</th><th>สถานะปัจจุบัน</th><th>เหตุผล</th><th>รหัสฐาน</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="iotManualCodeSearchTbody">
+            <tr><td colspan="7" class="empty-state-cell"><span class="empty-text">กำลังโหลดรายชื่อ...</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📋 รายชื่อที่กรอกรหัสฐานไว้แล้ว <span class="badge" id="iotManualCodeListCountBadge">0 รายการ</span></h2>
+      <input type="text" id="iotManualCodeListSearch" placeholder="ค้นหาในรายการที่กรอกแล้ว..." oninput="renderIotManualCodeList()" style="margin-bottom:10px;">
+      <div class="table-wrap">
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์มือถือ</th><th>รหัสฐาน</th><th>SN ตู้</th><th>กรอกโดย</th><th>กรอกเมื่อ</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="iotManualCodeListTbody">
+            <tr><td colspan="8" class="empty-state-cell"><span class="empty-text">ยังไม่มีรายการที่กรอกรหัสฐานเองเลยครับ</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-iot-blockers">
+    <div class="section">
+      <h2>🚫 ทำเครื่องหมายว่าติดตั้งไม่ได้</h2>
+      <p style="font-size:13px; color:var(--muted); margin-top:-6px;">
+        ใช้เมื่อพบว่าเกษตรกรคนนี้ติดตั้งไม่ได้ด้วยเหตุผลบางอย่าง (เช่น ปั๊มเครื่องยนต์ที่ตู้ไม่รองรับ) — ไม่ว่าจะยังไม่เข้าแผนติดตั้งหรืออยู่ในแผนอยู่แล้วก็ทำเครื่องหมายได้ สถานะนี้แยกอิสระจากสถานะในแผนติดตั้ง แก้ไขเหตุผลหรือยกเลิกเครื่องหมายเมื่อไหร่ก็ได้
+      </p>
+      <input type="text" id="iotBlockerSearchInput" placeholder="🔍 ค้นหาชื่อ / เลขบัตรประชาชน / เบอร์ เพื่อทำเครื่องหมาย..." oninput="renderIotBlockerSearchResults()" style="margin-bottom:10px;">
+      <div class="table-wrap">
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์มือถือ</th><th>สถานะในระบบ OTOD</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="iotBlockerSearchTbody">
+            <tr><td colspan="5" class="empty-state-cell"><span class="empty-text">พิมพ์ชื่อ/เลขบัตร/เบอร์ด้านบนเพื่อค้นหาคนที่จะทำเครื่องหมายครับ</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>📋 รายชื่อที่ติดตั้งไม่ได้ตอนนี้ <span class="badge" id="iotBlockerListCountBadge">0 รายการ</span></h2>
+      <input type="text" id="iotBlockerListSearch" placeholder="ค้นหาในรายการนี้..." oninput="renderIotBlockerList()" style="margin-bottom:10px;">
+      <div class="table-wrap">
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์มือถือ</th><th>เหตุผล</th><th>ทำเครื่องหมายโดย</th><th>เมื่อ</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="iotBlockerListTbody">
+            <tr><td colspan="7" class="empty-state-cell"><span class="empty-text">ยังไม่มีใครติดสถานะนี้เลยครับ</span></td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -1436,6 +1728,51 @@
     <div class="confirm-modal-actions">
       <button id="confirmModalNo" type="button" class="btn btn-outline">ยกเลิก</button>
       <button id="confirmModalYes" type="button" class="btn btn-brand">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
+<div id="docChecklistModalOverlay" class="confirm-modal-overlay" onclick="if(event.target===this) closeIotDocChecklistModal()">
+  <div class="confirm-modal doc-checklist-modal">
+    <h3 id="docChecklistModalName">เช็คลิสต์เอกสาร</h3>
+    <p class="doc-checklist-sub">ติ๊กรายการที่ครบแล้ว บันทึกแล้วจะใช้ค่านี้แทนข้อมูลจากชีตเก่าตลอดไป</p>
+    <div class="doc-checklist-plot-field">
+      <label for="docChecklistModalPlotLocationInput">📍 ตำแหน่งแปลง</label>
+      <div class="doc-checklist-plot-row">
+        <input type="text" id="docChecklistModalPlotLocationInput" placeholder="วางลิงก์ Google Maps หรือพิกัด/คำอธิบายตำแหน่ง" oninput="updateIotDocChecklistPlotLink(this.value)">
+        <a id="docChecklistModalPlotLocationLink" href="#" target="_blank" rel="noopener" class="btn-linklike" style="display:none;">เปิดแผนที่</a>
+      </div>
+      <span class="doc-checklist-source" id="docChecklistModalPlotLocationSource"></span>
+    </div>
+    <div class="doc-checklist-items" id="docChecklistModalItems"></div>
+    <div class="confirm-modal-actions">
+      <button id="docChecklistModalCancel" type="button" class="btn btn-outline" onclick="closeIotDocChecklistModal()">ปิด</button>
+      <button id="docChecklistModalSave" type="button" class="btn btn-brand" onclick="saveIotDocChecklistModal()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<div id="installBlockerModalOverlay" class="confirm-modal-overlay" onclick="if(event.target===this) closeIotInstallBlockerModal()">
+  <div class="confirm-modal">
+    <h3 id="installBlockerModalName">ทำเครื่องหมายว่าติดตั้งไม่ได้</h3>
+    <p class="doc-checklist-sub">เลือกเหตุผล แล้วบันทึก — สถานะนี้แยกอิสระจากแผนติดตั้ง ยกเลิกเครื่องหมายเมื่อไหร่ก็ได้</p>
+    <div style="margin-bottom:16px;">
+      <label style="display:block; font-size:12.5px; color:var(--muted); margin-bottom:6px;">เหตุผลที่ติดตั้งไม่ได้</label>
+      <select id="installBlockerReasonSelect" onchange="onInstallBlockerReasonChange()" style="width:100%; margin-bottom:8px; box-sizing:border-box;">
+        <option value="">— เลือกเหตุผล —</option>
+        <option value="ปั๊มเครื่องยนต์ ตู้ไม่รองรับ">ปั๊มเครื่องยนต์ ตู้ไม่รองรับ</option>
+        <option value="ไฟฟ้าไม่พอ/ไม่มีไฟฟ้า">ไฟฟ้าไม่พอ/ไม่มีไฟฟ้า</option>
+        <option value="ไม่มีแหล่งน้ำ/น้ำไม่เพียงพอ">ไม่มีแหล่งน้ำ/น้ำไม่เพียงพอ</option>
+        <option value="พื้นที่ไม่เหมาะสม/เข้าถึงยาก">พื้นที่ไม่เหมาะสม/เข้าถึงยาก</option>
+        <option value="เกษตรกรไม่ต้องการติดตั้งแล้ว">เกษตรกรไม่ต้องการติดตั้งแล้ว</option>
+        <option value="__custom__">อื่นๆ (พิมพ์เอง)</option>
+      </select>
+      <input type="text" id="installBlockerReasonCustom" placeholder="พิมพ์เหตุผล" style="width:100%; display:none; box-sizing:border-box;">
+    </div>
+    <div class="confirm-modal-actions">
+      <button id="installBlockerModalRemove" type="button" class="btn btn-outline" style="color:var(--red); display:none; margin-right:auto;" onclick="removeIotInstallBlockerModal()">ยกเลิกเครื่องหมาย</button>
+      <button type="button" class="btn btn-outline" onclick="closeIotInstallBlockerModal()">ปิด</button>
+      <button type="button" class="btn btn-brand" onclick="saveIotInstallBlockerModal()">บันทึก</button>
     </div>
   </div>
 </div>
@@ -1466,6 +1803,7 @@ let iotPlanCurrentView = 'table';
 let iotPlanCalendarMonth = null; // {year, month(0-11)} ของเดือนที่กำลังแสดงในปฏิทิน
 let currentIotPeoplePanelProvince = null;
 let currentIotPeoplePanelDistrict = null;
+let currentIotPeoplePanelMode = null; // 'district' | 'province' | null — ใช้ตอน refresh พาแนลหลังเพิ่มคนเข้าแผน
 let provinceChart = null;
 
 let geoProvinces = null;
@@ -1480,6 +1818,10 @@ let currentProvinceCode = null;
 let currentDistrictName = null;
 let currentPeoplePanelProvince = null;
 let currentPeoplePanelDistrict = null;
+let currentPeoplePanelMode = null; // 'district' | 'province' | null — ใช้ตอน refresh พาแนลหลังเพิ่มคนเข้าแผน
+let hideAddedPeopleInPanel = true; // ซ่อนคนที่เพิ่มเข้าแผนแล้วออกจากรายชื่อที่เลือกได้ (ลดความรก โดยเฉพาะจังหวัดที่มีคนเยอะ)
+// โหมด "เลือกวันที่ก่อน": ตั้งช่วงวันที่ไปอบรมไว้ล่วงหน้า แล้วคนที่เพิ่มเข้าแผนระหว่างเปิดโหมดนี้จะได้วันที่ (แบ่งตามตำบล) ให้อัตโนมัติ
+let mapPreschedule = { enabled: false, start: '', end: '', subdistrictDates: {} };
 let currentViewBox = [0, 0, 460, 620];
 let viewBoxAnimId = null;
 
@@ -1561,6 +1903,7 @@ let currentUserName = '';  // ชื่อที่ใช้แสดง (จา
 
 function switchModule(module) {
   currentModule = module;
+  closeQaBubble();
   document.querySelectorAll('.module-btn').forEach(b => b.classList.remove('active'));
   const modBtn = document.querySelector('.module-btn[data-module="' + module + '"]');
   if (modBtn) modBtn.classList.add('active');
@@ -1632,6 +1975,22 @@ function switchTab(tab) {
       loadIotData().then(renderIotAppMatchDashboard);
     } else {
       renderIotAppMatchDashboard();
+    }
+  }
+  if (tab === 'iot-manual-code') {
+    const afterLoad = () => { renderIotManualCodeSearchResults(); renderIotManualCodeList(); };
+    if (!iotDataLoaded) {
+      loadIotData().then(afterLoad);
+    } else {
+      afterLoad();
+    }
+  }
+  if (tab === 'iot-blockers') {
+    const afterLoad = () => { renderIotBlockerSearchResults(); renderIotBlockerList(); };
+    if (!iotDataLoaded) {
+      loadIotData().then(afterLoad);
+    } else {
+      afterLoad();
     }
   }
 }
@@ -1797,6 +2156,44 @@ document.addEventListener('click', (e) => {
     box.style.display = 'none';
   }
 });
+
+function getQaPopupIdForModule() {
+  return currentModule === 'iot' ? 'tab-iot-qa' : 'tab-qa';
+}
+
+function openQaBubble() {
+  const targetId = getQaPopupIdForModule();
+  document.querySelectorAll('.qa-popup-panel').forEach(el => el.classList.remove('open'));
+  const panel = document.getElementById(targetId);
+  if (panel) panel.classList.add('open');
+  if (targetId === 'tab-qa') {
+    const log = document.getElementById('qaLog');
+    if (log && !log.dataset.greeted) {
+      log.dataset.greeted = '1';
+      appendQaMessage('สวัสดีครับ ถามได้เลยเช่น "จังหวัดสุโขทัยอบรมไปกี่คน" หรือกดปุ่มคำถามแนะนำด้านบนก็ได้ครับ', 'bot');
+    }
+  } else {
+    const log = document.getElementById('iotQaLog');
+    if (log && !log.dataset.greeted) {
+      log.dataset.greeted = '1';
+      appendQaMessage('สวัสดีครับ ถามได้เลยเช่น "จังหวัดเลยติดตั้งไปกี่คน" หรือกดปุ่มคำถามแนะนำด้านบนก็ได้ครับ', 'bot', 'iotQaLog');
+    }
+  }
+}
+
+function closeQaBubble() {
+  document.querySelectorAll('.qa-popup-panel').forEach(el => el.classList.remove('open'));
+}
+
+function toggleQaBubble() {
+  const targetId = getQaPopupIdForModule();
+  const panel = document.getElementById(targetId);
+  if (panel && panel.classList.contains('open')) {
+    closeQaBubble();
+  } else {
+    openQaBubble();
+  }
+}
 
 function appendQaMessage(text, who, logId) {
   const log = document.getElementById(logId || 'qaLog');
@@ -2803,6 +3200,7 @@ function showProvinceDetail(province) {
   panel.innerHTML = `
     <div class="detail-header">
       <h3>📍 ${province} <span class="badge">${totalPeople.toLocaleString()} คน · ${districts.length} อำเภอ · ${needAttention} อำเภอยังต้องติดตาม</span></h3>
+      <button class="btn btn-brand" onclick="showProvinceAllDistrictsPeople('${province.replace(/'/g, "\\'")}')" title="ดูรายชื่อยังไม่อบรมของทุกอำเภอรวมหน้าเดียว เลือกข้ามอำเภอได้">👥 ดูรายชื่อทุกอำเภอ (เลือกได้หลายอำเภอ)</button>
       <button class="btn btn-outline" onclick="closeProvinceDetail()">ปิด ✕</button>
     </div>
     <div class="district-list">
@@ -2826,15 +3224,22 @@ function renderPeopleGroup(title, icon, cls, groupRows, highlightId, opts) {
   opts = opts || {};
   const selectable = !!opts.selectable;
   const groupId = opts.groupId || '';
+  const addAllOnClick = opts.addAllOnClick || 'addAllDistrictUntrainedToPlan()';
   const colspan = selectable ? 8 : 6;
+  const totalCount = groupRows.length;
+  // ถ้าเปิด "ซ่อนคนที่เพิ่มแล้ว" ไว้ (ค่าเริ่มต้นเปิด) กรองคนที่อยู่ในแผนแล้วออกจากรายชื่อที่เลือกได้ (เฉพาะกลุ่มที่เลือกได้เท่านั้น)
+  const visibleRows = (selectable && hideAddedPeopleInPanel)
+    ? groupRows.filter(p => !trainingPlan.some(e => e.nationalId === p.national_id))
+    : groupRows;
+  const hiddenCount = totalCount - visibleRows.length;
   return `
     <div class="people-group">
-      <div class="people-group-title ${cls}">${icon} ${title} <span class="badge">${groupRows.length} คน</span></div>
-      ${selectable && groupRows.length ? `
+      <div class="people-group-title ${cls}">${icon} ${title} <span class="badge">${totalCount} คน</span>${hiddenCount ? ` <span class="badge" style="opacity:.65;" title="ซ่อนคนที่เพิ่มเข้าแผนแล้ว">ซ่อนแล้ว ${hiddenCount} คน</span>` : ''}</div>
+      ${selectable && visibleRows.length ? `
         <div class="people-group-actions">
           <button class="btn btn-outline btn-xs" onclick="toggleSelectAllPeople('${groupId}')">เลือก/ยกเลิกทั้งหมด</button>
           <button class="btn btn-brand btn-xs" onclick="addSelectedPeopleToPlan('${groupId}')">+ เพิ่มที่เลือกเข้าแผนอบรม</button>
-          <button class="btn btn-brand btn-xs" onclick="addAllDistrictUntrainedToPlan()">+ เพิ่มทั้งอำเภอเข้าแผน (${groupRows.length} คน)</button>
+          <button class="btn btn-brand btn-xs" onclick="${addAllOnClick}">+ เพิ่มทั้งอำเภอเข้าแผน (${visibleRows.length} คน)</button>
         </div>
       ` : ''}
       <div class="table-wrap" style="max-height:280px;">
@@ -2848,20 +3253,20 @@ function renderPeopleGroup(title, icon, cls, groupRows, highlightId, opts) {
             </tr>
           </thead>
           <tbody id="${groupId ? groupId + 'Tbody' : ''}">
-            ${groupRows.length ? groupRows.map(p => {
+            ${visibleRows.length ? visibleRows.map(p => {
               const inPlan = trainingPlan.some(e => e.nationalId === p.national_id);
               return `
               <tr class="${highlightId && p.national_id === highlightId ? 'row-highlight' : ''}" id="${highlightId && p.national_id === highlightId ? 'highlightedPersonRow' : ''}">
-                ${selectable ? `<td><input type="checkbox" class="plan-select-checkbox" data-nid="${p.national_id}" ${inPlan ? 'disabled' : ''}></td>` : ''}
+                ${selectable ? `<td><input type="checkbox" class="plan-select-checkbox" data-nid="${p.national_id}" ${inPlan ? 'disabled checked' : ''}></td>` : ''}
                 <td>${p.prefix || ''}${p.first_name || ''} ${p.last_name || ''}</td>
                 <td>${p.national_id || ''}</td>
                 <td>${p.phone || ''}</td>
                 <td>${p.subdistrict || ''}</td>
                 <td>${p.approval_round || ''}</td>
                 <td>${p.uploaded_at || ''}</td>
-                ${selectable ? `<td>${inPlan ? '<span class="plan-added-tag">✓ เพิ่มแล้ว</span>' : `<button class="btn btn-outline btn-xs" onclick="addPersonToPlanByNid('${p.national_id}')">+ เพิ่ม</button>`}</td>` : ''}
+                ${selectable ? `<td>${inPlan ? `<span class="plan-added-tag">✓ เพิ่มแล้ว</span> <button class="btn btn-outline btn-xs" onclick="removePersonFromPlanByNid('${p.national_id}')">ยกเลิก</button>` : `<button class="btn btn-outline btn-xs" onclick="addPersonToPlanByNid('${p.national_id}')">+ เพิ่ม</button>`}</td>` : ''}
               </tr>
-            `; }).join('') : `<tr><td colspan="${colspan}" style="text-align:center; opacity:.6;">ไม่มีข้อมูล</td></tr>`}
+            `; }).join('') : `<tr><td colspan="${colspan}" style="text-align:center; opacity:.6;">${selectable && hiddenCount ? 'ทุกคนอยู่ในแผนแล้ว (ซ่อนไว้)' : 'ไม่มีข้อมูล'}</td></tr>`}
           </tbody>
         </table>
       </div>
@@ -2872,6 +3277,7 @@ function renderPeopleGroup(title, icon, cls, groupRows, highlightId, opts) {
 function showDistrictPeople(province, district, highlightId) {
   currentPeoplePanelProvince = province;
   currentPeoplePanelDistrict = district;
+  currentPeoplePanelMode = 'district';
   const people = allRows.filter(r => normName(r.province) === normName(province) && normName(r.district) === normName(district));
   const trained = people.filter(p => p.training_status === 'Y');
   const untrained = people.filter(p => p.training_status === 'N');
@@ -2880,6 +3286,9 @@ function showDistrictPeople(province, district, highlightId) {
   panel.innerHTML = `
     <div class="detail-header">
       <h3>👥 คนในอำเภอ${district} <span class="badge">${people.length} คน</span></h3>
+      <label class="hide-added-toggle" style="display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); cursor:pointer;">
+        <input type="checkbox" ${hideAddedPeopleInPanel ? 'checked' : ''} onchange="toggleHideAddedPeople(this.checked)"> ซ่อนคนที่เพิ่มแล้ว
+      </label>
       <button class="btn btn-outline" onclick="closePeoplePanel()">ปิด ✕</button>
     </div>
     ${renderPeopleGroup('อบรมแล้ว', '✅', 'group-yes', trained, highlightId)}
@@ -2891,10 +3300,56 @@ function showDistrictPeople(province, district, highlightId) {
   }
 }
 
+// รายชื่อ "ยังไม่อบรม" ของทุกอำเภอในจังหวัดเดียวกัน รวมไว้หน้าเดียว แยกหัวข้อเป็นอำเภอๆ
+// เพื่อให้เลือกคนข้ามอำเภอได้ในทีเดียว ไม่ต้องกดเข้า-ออกทีละอำเภอเหมือนเดิม
+function showProvinceAllDistrictsPeople(province) {
+  currentPeoplePanelProvince = province;
+  currentPeoplePanelDistrict = null;
+  currentPeoplePanelMode = 'province';
+  const provinceRows = allRows.filter(r => normName(r.province) === normName(province));
+  const districts = [...new Set(provinceRows.map(r => r.district))].filter(Boolean).sort();
+  const panel = document.getElementById('peoplePanel');
+  panel.style.display = 'block';
+  panel.innerHTML = `
+    <div class="detail-header">
+      <h3>👥 คนทั้งจังหวัด${province} <span class="badge">${districts.length} อำเภอ</span></h3>
+      <label class="hide-added-toggle" style="display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); cursor:pointer;">
+        <input type="checkbox" ${hideAddedPeopleInPanel ? 'checked' : ''} onchange="toggleHideAddedPeople(this.checked)"> ซ่อนคนที่เพิ่มแล้ว
+      </label>
+      <button class="btn btn-outline" onclick="closePeoplePanel()">ปิด ✕</button>
+    </div>
+    ${districts.map(d => {
+      const untrained = provinceRows.filter(r => normName(r.district) === normName(d) && r.training_status === 'N');
+      const groupId = 'peopleUntrained_' + districts.indexOf(d);
+      const provinceJs = province.replace(/'/g, "\\'");
+      const districtJs = d.replace(/'/g, "\\'");
+      return `
+        <h4 style="margin:16px 0 4px; font-size:14px;">📍 อำเภอ${d}</h4>
+        ${renderPeopleGroup('ยังไม่อบรม', '⛔', 'group-no', untrained, null, { selectable: true, groupId, addAllOnClick: `addAllUntrainedToPlanFor('${provinceJs}','${districtJs}')` })}
+      `;
+    }).join('')}
+  `;
+}
+
+// เรียก render พาแนลปัจจุบันซ้ำ (ใช้หลังเพิ่มคนเข้าแผน) — รองรับทั้งโหมดดูทีละอำเภอ และโหมดดูทั้งจังหวัด
+function refreshPeoplePanel() {
+  if (currentPeoplePanelMode === 'province' && currentPeoplePanelProvince) {
+    showProvinceAllDistrictsPeople(currentPeoplePanelProvince);
+  } else if (currentPeoplePanelProvince && currentPeoplePanelDistrict) {
+    showDistrictPeople(currentPeoplePanelProvince, currentPeoplePanelDistrict);
+  }
+}
+
+function toggleHideAddedPeople(checked) {
+  hideAddedPeopleInPanel = !!checked;
+  refreshPeoplePanel();
+}
+
 function closePeoplePanel() {
   document.getElementById('peoplePanel').style.display = 'none';
   currentPeoplePanelProvince = null;
   currentPeoplePanelDistrict = null;
+  currentPeoplePanelMode = null;
 }
 
 function searchAndZoomPerson() {
@@ -2951,6 +3406,714 @@ let iotViewBoxAnimId = null;
 const IOT_FIELDS = { province: 'farm_province', district: 'farm_district', status: 'install_status', done: 'Y', notDone: 'N', project: 'otod_project' };
 
 let iotProjectFilter = '';
+
+// ===== สถานะ "ติดตั้งแล้ว รอยืนยันเอกสาร" จากข้อมูลเกษตรกร IoT ชุดเก่า (iot_farmers_legacy) =====
+// จับคู่เกษตรกรในตาราง iot_farmers (ปัจจุบัน) กับแถวข้อมูลชุดเก่า โดยถือเป็น "คนเดียวกัน" ถ้าตรงกันข้อใดข้อหนึ่งพอ:
+// รหัสอ้างอิงตรงกัน หรือ เบอร์โทรตรงกัน หรือ ชื่อ-นามสกุลตรงกัน (เหมือนตรรกะจับคู่ app_connections ที่ใช้อยู่แล้วใน getMatchedAppRecords)
+// กันปัญหารหัสอ้างอิงไม่ตรงฟอร์แมตระหว่างจังหวัด/ชีต หรือข้อมูลบางฟิลด์พิมพ์คลาดเคลื่อนจากแหล่งใดแหล่งหนึ่ง
+let iotLegacyByRefId = new Map();  // reference_id -> รหัสฐาน
+let iotLegacyByPhone = new Map();  // เบอร์โทร (trim) -> รหัสฐาน
+let iotLegacyByName = new Map();   // "ชื่อ|นามสกุล" (normalize แล้ว) -> รหัสฐาน
+
+async function loadIotLegacyPendingMap() {
+  if (!supabaseClient) return;
+  let rows = [];
+  let from = 0;
+  const pageSize = 1000;
+  while (true) {
+    const { data, error } = await supabaseClient
+      .from('iot_farmers_legacy')
+      .select('reference_id, base_code, base_code_no, first_name, last_name, phone, water_pump, pipe_size, payment_status, document_status, photo1_status, photo2_status, photo3_status, photo4_status, handover_video_status, plot_location')
+      .not('base_code_no', 'is', null)
+      .range(from, from + pageSize - 1);
+    if (error) {
+      console.warn('โหลดข้อมูลเกษตรกร IoT ชุดเก่าไม่สำเร็จ:', error.message);
+      return;
+    }
+    rows = rows.concat(data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+  iotLegacyByRefId = new Map();
+  iotLegacyByPhone = new Map();
+  iotLegacyByName = new Map();
+  rows.forEach(r => {
+    const rec = {
+      base_code: r.base_code || '',
+      base_code_no: (r.base_code_no === null || r.base_code_no === undefined) ? null : r.base_code_no,
+      water_pump: r.water_pump || '',
+      pipe_size: r.pipe_size || '',
+      payment_status: r.payment_status || '',
+      document_status: r.document_status || '',
+      photo1_status: r.photo1_status || '',
+      photo2_status: r.photo2_status || '',
+      photo3_status: r.photo3_status || '',
+      photo4_status: r.photo4_status || '',
+      handover_video_status: r.handover_video_status || '',
+      plot_location: r.plot_location || '',
+    };
+    if (r.reference_id) iotLegacyByRefId.set(r.reference_id, rec);
+    const phone = (r.phone || '').trim();
+    if (phone) iotLegacyByPhone.set(phone, rec);
+    const nameKey = buildNameKey(r.first_name, r.last_name);
+    if (nameKey) iotLegacyByName.set(nameKey, rec);
+  });
+}
+
+// หา record ข้อมูลเก่า (รหัสฐาน + base_code_no) ถ้าเกษตรกรคนนี้ (r = แถวจาก iot_farmers ปัจจุบัน) ตรงกับข้อมูลเก่าข้อใดข้อหนึ่ง:
+// รหัสอ้างอิง / เบอร์โทร / ชื่อ-นามสกุล — เจอข้อใดข้อหนึ่งถือว่าเป็นคนเดียวกัน คืนค่า null ถ้าไม่เจอเลย
+function findIotLegacyRecord(r) {
+  if (r.reference_id && iotLegacyByRefId.has(r.reference_id)) return iotLegacyByRefId.get(r.reference_id);
+  const phone = (r.phone || '').trim();
+  if (phone && iotLegacyByPhone.has(phone)) return iotLegacyByPhone.get(phone);
+  const nameKey = buildNameKey(r.first_name, r.last_name);
+  if (nameKey && iotLegacyByName.has(nameKey)) return iotLegacyByName.get(nameKey);
+  return null;
+}
+
+// หา "รหัสฐาน" จากข้อมูลเก่า (string) — คืนค่า null ถ้าไม่เจอเลย ใช้ในจุดที่ต้องการแค่รหัสฐาน (เช่น mutation สถานะติดตั้ง)
+function findIotLegacyBaseCode(r) {
+  const rec = findIotLegacyRecord(r);
+  return rec ? rec.base_code : null;
+}
+
+// หาข้อมูลเตรียมติดตั้งจากข้อมูลเก่า (ปั๊มน้ำ / ขนาดท่อ / การชำระเงิน) เพื่อให้ทีมติดตั้งรู้ล่วงหน้าว่าต้องเตรียมอะไรบ้าง
+// คืนค่าฟิลด์ว่าง ('') ทั้งหมดถ้าจับคู่กับข้อมูลเก่าไม่เจอเลย (ไม่ error)
+function findIotLegacyInstallInfo(r) {
+  const rec = findIotLegacyRecord(r);
+  return {
+    waterPump: rec ? (rec.water_pump || '') : '',
+    pipeSize: rec ? (rec.pipe_size || '') : '',
+    paymentStatus: rec ? (rec.payment_status || '') : '',
+  };
+}
+
+// ===== ข้อมูลตู้/Serial Board ชุดเก่า (iot_cabinet_serials) — ใช้หา "SN ตู้จากข้อมูลเก่า" ให้คนที่ยังไม่เชื่อมแอป =====
+let iotCabinetSerialByNo = new Map(); // เลขฐาน (base_code_no) -> serial_board
+
+async function loadIotCabinetSerials() {
+  if (!supabaseClient) return;
+  let rows = [];
+  let from = 0;
+  const pageSize = 1000;
+  while (true) {
+    const { data, error } = await supabaseClient
+      .from('iot_cabinet_serials')
+      .select('no, serial_board')
+      .range(from, from + pageSize - 1);
+    if (error) {
+      console.warn('โหลดข้อมูลตู้/Serial Board ชุดเก่าไม่สำเร็จ:', error.message);
+      return;
+    }
+    rows = rows.concat(data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+  iotCabinetSerialByNo = new Map();
+  rows.forEach(r => { if ((r.no !== null && r.no !== undefined) && r.serial_board) iotCabinetSerialByNo.set(r.no, r.serial_board); });
+}
+
+// หา SN ตู้จากข้อมูลเก่า (ชีตติดตามตู้/Serial Board) ผ่านรหัสฐานที่จับคู่ได้ — ใช้เป็นข้อมูลอ้างอิงเสริมสำหรับคนที่ยังไม่เชื่อมแอปจริง
+// (ยังไม่ยืนยันผ่านแอป จึงต้องแยกคอลัมน์จาก "SN ตู้ (จากแอป)" เสมอ ห้ามเอามาปนกัน)
+function findIotLegacySerial(r) {
+  const rec = findIotLegacyRecord(r);
+  if (!rec || rec.base_code_no === null) return null;
+  return iotCabinetSerialByNo.get(rec.base_code_no) || null;
+}
+
+// ===== รหัสฐานที่ admin กรอกเองด้วยมือ (iot_manual_base_codes) — ใช้เมื่อจับคู่อัตโนมัติกับข้อมูลแอปไม่เจอ =====
+// (เช่น บัญชีแอปที่เชื่อมมาชื่อไม่ตรงกับคนที่ได้รับตู้จริง) จับคู่ด้วย reference_id ตรงๆ เพราะ admin เลือกคนที่ถูกต้องเองแล้วตอนกรอก
+let iotManualBaseCodes = [];               // แถวดิบทั้งหมดจาก Supabase
+let iotManualBaseCodeByRefId = new Map();  // reference_id -> แถว
+
+async function loadIotManualBaseCodes() {
+  if (!supabaseClient) return;
+  let rows = [];
+  let from = 0;
+  const pageSize = 1000;
+  while (true) {
+    const { data, error } = await supabaseClient
+      .from('iot_manual_base_codes')
+      .select('*')
+      .range(from, from + pageSize - 1);
+    if (error) {
+      console.warn('โหลดรายการรหัสฐานที่กรอกเองไม่สำเร็จ:', error.message);
+      return;
+    }
+    rows = rows.concat(data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+  iotManualBaseCodes = rows;
+  iotManualBaseCodeByRefId = new Map();
+  rows.forEach(rec => { if (rec.reference_id) iotManualBaseCodeByRefId.set(rec.reference_id, rec); });
+}
+
+// แปลงข้อความที่ admin พิมพ์ (เช่น "AR_0008", "ar 8", "8") ให้เป็นเลขฐาน + รูปแบบมาตรฐาน "AR_0008"
+// คืนค่า null ถ้าไม่มีตัวเลขในข้อความเลย (กรอกผิด)
+function parseManualBaseCodeInput(input) {
+  const match = (input || '').match(/\d+/);
+  if (!match) return null;
+  const no = parseInt(match[0], 10);
+  if (!Number.isFinite(no)) return null;
+  return { no, formatted: 'AR_' + String(no).padStart(4, '0') };
+}
+
+function findIotManualBaseCode(r) {
+  if (!r.reference_id) return null;
+  const rec = iotManualBaseCodeByRefId.get(r.reference_id);
+  if (!rec) return null;
+  return { base_code: rec.base_code, base_code_no: rec.base_code_no };
+}
+
+// ===== เช็คลิสต์เอกสาร/ภาพ/วีดีโอ (iot_document_checklist) — ค่าที่ admin ยืนยันเองผ่านเว็บ =====
+// ตอนแรกโชว์ค่าเริ่มต้นจากชีตเก่า (document_status/photo1-4_status/handover_video_status) ให้ดูก่อนเฉยๆ
+// แต่พอ admin ติ๊ก/แก้ในเว็บนี้ครั้งแรก ค่าที่กรอกในตารางนี้จะกลายเป็นค่าหลักตลอดไป (ไม่อิงชีตเก่าอีก)
+const IOT_DOC_CHECKLIST_ITEMS = [
+  { key: 'document', label: 'เอกสาร' },
+  { key: 'photo1', label: 'ภาพ 1 คู่สวนทุเรียน' },
+  { key: 'photo2', label: 'ภาพ 2 คู่ IOT' },
+  { key: 'photo3', label: 'ภาพ 3 การอบรม (2 คน)' },
+  { key: 'photo4', label: 'ภาพ 4 ตู้ (เห็นสติ๊กเกอร์)' },
+  { key: 'video', label: 'วีดีโอส่งมอบงาน' },
+];
+
+let iotDocChecklistByRefId = new Map(); // reference_id -> แถวจาก iot_document_checklist
+
+async function loadIotDocChecklist() {
+  if (!supabaseClient) return;
+  let rows = [];
+  let from = 0;
+  const pageSize = 1000;
+  while (true) {
+    const { data, error } = await supabaseClient
+      .from('iot_document_checklist')
+      .select('*')
+      .range(from, from + pageSize - 1);
+    if (error) {
+      console.warn('โหลดเช็คลิสต์เอกสารไม่สำเร็จ:', error.message);
+      return;
+    }
+    rows = rows.concat(data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+  iotDocChecklistByRefId = new Map();
+  rows.forEach(rec => { if (rec.reference_id) iotDocChecklistByRefId.set(rec.reference_id, rec); });
+}
+
+// คืนค่าสถานะเช็คลิสต์ปัจจุบันของคนนี้ทีละรายการ (ครบ 6 อย่างเสมอ) — ใช้ค่าที่ admin กรอกเองก่อน
+// ถ้ายังไม่เคยกรอกเลยสักอย่าง (ไม่มีแถวใน iot_document_checklist) ใช้ค่าเริ่มต้นจากชีตเก่าเป็นจุดตั้งต้น
+function getIotDocChecklistState(r) {
+  const saved = r.reference_id ? iotDocChecklistByRefId.get(r.reference_id) : null;
+  const legacyRec = findIotLegacyRecord(r);
+  const legacyValueByKey = {
+    document: legacyRec ? legacyRec.document_status : '',
+    photo1: legacyRec ? legacyRec.photo1_status : '',
+    photo2: legacyRec ? legacyRec.photo2_status : '',
+    photo3: legacyRec ? legacyRec.photo3_status : '',
+    photo4: legacyRec ? legacyRec.photo4_status : '',
+    video: legacyRec ? legacyRec.handover_video_status : '',
+  };
+  return IOT_DOC_CHECKLIST_ITEMS.map(item => {
+    const savedField = saved ? saved[item.key + '_ok'] : null;
+    if (savedField !== null && savedField !== undefined) {
+      return { key: item.key, label: item.label, ok: !!savedField, source: 'admin' };
+    }
+    const legacyVal = legacyValueByKey[item.key];
+    return { key: item.key, label: item.label, ok: !!(legacyVal && legacyVal.includes('เรียบร้อย')), source: legacyVal ? 'legacy' : 'none' };
+  });
+}
+
+let iotDocChecklistModalRefId = null;
+
+// รับข้อความตำแหน่งแปลงจากชีตเก่า (อาจเป็นลิงก์เต็มอยู่แล้ว หรือแค่ข้อความพิกัด) แปลงให้เป็นลิงก์ Google Maps ที่กดได้เสมอ
+// ===== สถานะ "ติดตั้งไม่ได้" (iot_install_blockers) — ค่าที่ admin ทำเครื่องหมายเองผ่านเว็บ =====
+// แยกอิสระจากสถานะในแผนติดตั้งโดยตั้งใจ: ทำเครื่องหมายได้ทั้งก่อนเข้าแผนหรือระหว่างอยู่ในแผน และยกเลิกเครื่องหมายเมื่อไหร่ก็ได้
+let iotInstallBlockersByRefId = new Map();
+
+async function loadIotInstallBlockers() {
+  if (!supabaseClient) return;
+  let rows = [];
+  let from = 0;
+  const pageSize = 1000;
+  while (true) {
+    const { data, error } = await supabaseClient
+      .from('iot_install_blockers')
+      .select('*')
+      .range(from, from + pageSize - 1);
+    if (error) {
+      console.warn('โหลดรายชื่อติดตั้งไม่ได้ไม่สำเร็จ:', error.message);
+      return;
+    }
+    rows = rows.concat(data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+  iotInstallBlockersByRefId = new Map();
+  rows.forEach(rec => { if (rec.reference_id) iotInstallBlockersByRefId.set(rec.reference_id, rec); });
+}
+
+function getIotInstallBlockerState(r) {
+  if (!r || !r.reference_id) return null;
+  return iotInstallBlockersByRefId.get(r.reference_id) || null;
+}
+
+// ใช้จากแถวในแผนติดตั้ง ซึ่งเก็บแค่เลขบัตรประชาชน ไม่ได้เก็บ reference_id ตรงๆ เลยต้องย้อนไปหาแถวเกษตรกรก่อน
+function getIotInstallBlockerStateByNationalId(nid) {
+  if (!nid || !iotDataLoaded) return null;
+  const r = allIotRows.find(row => row.national_id === nid);
+  return r ? getIotInstallBlockerState(r) : null;
+}
+
+let iotInstallBlockerModalRefId = null;
+
+function isInstallBlockerReasonPreset(reason) {
+  const select = document.getElementById('installBlockerReasonSelect');
+  if (!select) return false;
+  return [...select.options].some(o => o.value === reason);
+}
+
+function openIotInstallBlockerModal(referenceId) {
+  const r = allIotRows.find(row => row.reference_id === referenceId);
+  if (!r) return;
+  iotInstallBlockerModalRefId = referenceId;
+  const fullName = `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''}`.trim();
+  const nameEl = document.getElementById('installBlockerModalName');
+  if (nameEl) nameEl.textContent = `ทำเครื่องหมายว่าติดตั้งไม่ได้ — ${fullName || 'ไม่ทราบชื่อ'}`;
+  const existing = getIotInstallBlockerState(r);
+  const select = document.getElementById('installBlockerReasonSelect');
+  const customInput = document.getElementById('installBlockerReasonCustom');
+  if (select) {
+    const isPreset = existing && isInstallBlockerReasonPreset(existing.reason);
+    select.value = existing ? (isPreset ? existing.reason : '__custom__') : '';
+    if (customInput) {
+      customInput.style.display = (select.value === '__custom__') ? '' : 'none';
+      customInput.value = (existing && !isPreset) ? (existing.reason || '') : '';
+    }
+  }
+  const removeBtn = document.getElementById('installBlockerModalRemove');
+  if (removeBtn) removeBtn.style.display = existing ? '' : 'none';
+  const overlay = document.getElementById('installBlockerModalOverlay');
+  if (overlay) overlay.style.display = 'flex';
+}
+
+// เปิดโมดัลจากแถวในแผนติดตั้ง (มีแค่เลขบัตรประชาชน ไม่มี reference_id ตรงๆ)
+function openIotInstallBlockerModalByNationalId(nid) {
+  const r = allIotRows.find(row => row.national_id === nid);
+  if (!r || !r.reference_id) {
+    showToast('ไม่พบข้อมูลอ้างอิงของคนนี้ในระบบ ลองไปที่แท็บ "🚫 ติดตั้งไม่ได้" แทนครับ', 'warn');
+    return;
+  }
+  openIotInstallBlockerModal(r.reference_id);
+}
+
+function onInstallBlockerReasonChange() {
+  const select = document.getElementById('installBlockerReasonSelect');
+  const customInput = document.getElementById('installBlockerReasonCustom');
+  if (!select || !customInput) return;
+  customInput.style.display = select.value === '__custom__' ? '' : 'none';
+}
+
+function closeIotInstallBlockerModal() {
+  const overlay = document.getElementById('installBlockerModalOverlay');
+  if (overlay) overlay.style.display = 'none';
+  iotInstallBlockerModalRefId = null;
+}
+
+function refreshAfterIotInstallBlockerChange() {
+  renderIotBlockerSearchResults();
+  renderIotBlockerList();
+  if (iotDataLoaded) applyIotPlanFilters();
+}
+
+async function saveIotInstallBlockerModal() {
+  if (!iotInstallBlockerModalRefId) return;
+  if (!supabaseClient) { showToast('ยังไม่ได้เชื่อมต่อ Supabase', 'warn'); return; }
+  const referenceId = iotInstallBlockerModalRefId;
+  const r = allIotRows.find(row => row.reference_id === referenceId);
+  const select = document.getElementById('installBlockerReasonSelect');
+  const customInput = document.getElementById('installBlockerReasonCustom');
+  let reason = select ? select.value : '';
+  if (reason === '__custom__') reason = customInput ? customInput.value.trim() : '';
+  if (!reason) { showToast('กรุณาเลือกหรือพิมพ์เหตุผลก่อนครับ', 'warn'); return; }
+  const payload = { reference_id: referenceId, reason, marked_by: currentUserName || null, marked_at: new Date().toISOString() };
+  const { error } = await supabaseClient.from('iot_install_blockers').upsert(payload, { onConflict: 'reference_id' });
+  if (error) {
+    showToast('บันทึกไม่สำเร็จ: ' + error.message, 'warn');
+    return;
+  }
+  iotInstallBlockersByRefId.set(referenceId, payload);
+  closeIotInstallBlockerModal();
+  refreshAfterIotInstallBlockerChange();
+  showToast(`ทำเครื่องหมาย ${r && r.first_name ? r.first_name : 'คนนี้'} ว่าติดตั้งไม่ได้แล้วครับ`, 'success');
+}
+
+async function removeIotInstallBlockerModal() {
+  if (!iotInstallBlockerModalRefId) return;
+  if (!supabaseClient) { showToast('ยังไม่ได้เชื่อมต่อ Supabase', 'warn'); return; }
+  const referenceId = iotInstallBlockerModalRefId;
+  const r = allIotRows.find(row => row.reference_id === referenceId);
+  const { error } = await supabaseClient.from('iot_install_blockers').delete().eq('reference_id', referenceId);
+  if (error) {
+    showToast('ยกเลิกเครื่องหมายไม่สำเร็จ: ' + error.message, 'warn');
+    return;
+  }
+  iotInstallBlockersByRefId.delete(referenceId);
+  closeIotInstallBlockerModal();
+  refreshAfterIotInstallBlockerChange();
+  showToast(`ยกเลิกเครื่องหมายติดตั้งไม่ได้ให้ ${r && r.first_name ? r.first_name : 'คนนี้'} แล้วครับ`, 'success');
+}
+
+// ค้นหาใครก็ได้ในระบบ (ไม่ว่าจะติดสถานะนี้อยู่แล้วหรือไม่) เพื่อทำเครื่องหมาย/แก้ไขเหตุผล
+function renderIotBlockerSearchResults() {
+  const input = document.getElementById('iotBlockerSearchInput');
+  const tbody = document.getElementById('iotBlockerSearchTbody');
+  if (!input || !tbody) return;
+  const term = input.value.trim();
+  if (!term) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-state-cell"><span class="empty-text">พิมพ์ชื่อ/เลขบัตร/เบอร์ด้านบนเพื่อค้นหาคนที่จะทำเครื่องหมายครับ</span></td></tr>`;
+    return;
+  }
+  const rows = getIotVisibleRows().filter(r => matchesIotFarmerSearch(r, term)).slice(0, 30);
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-state-cell"><span class="empty-icon">🔍</span><span class="empty-text">ไม่พบคนที่ตรงกับคำค้นหาครับ</span></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(r => {
+    const fullName = `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''}`.trim();
+    const blocker = getIotInstallBlockerState(r);
+    const refIdSafe = (r.reference_id || '').replace(/'/g, "\\'");
+    return `
+      <tr>
+        <td>${fullName || '-'}</td>
+        <td>${r.national_id || '-'}</td>
+        <td>${r.phone || '-'}</td>
+        <td>${getIotStatusDisplayHtml(r)}</td>
+        <td style="white-space:nowrap;">
+          <button type="button" class="btn-linklike" onclick="openIotInstallBlockerModal('${refIdSafe}')" ${r.reference_id ? '' : 'disabled'}>${blocker ? '✏️ แก้ไขเหตุผล' : '🚫 ทำเครื่องหมาย'}</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// รายชื่อทุกคนที่ติดสถานะ "ติดตั้งไม่ได้" อยู่ตอนนี้ ค้นหาต่อในรายการนี้ได้
+function renderIotBlockerList() {
+  const searchEl = document.getElementById('iotBlockerListSearch');
+  const tbody = document.getElementById('iotBlockerListTbody');
+  if (!tbody) return;
+  const term = searchEl ? searchEl.value.trim() : '';
+  const countBadge = document.getElementById('iotBlockerListCountBadge');
+  if (countBadge) countBadge.textContent = `${iotInstallBlockersByRefId.size.toLocaleString()} รายการ`;
+
+  let rows = getIotVisibleRows().filter(r => getIotInstallBlockerState(r));
+  if (term) rows = rows.filter(r => matchesIotFarmerSearch(r, term));
+
+  if (!rows.length) {
+    const msg = iotInstallBlockersByRefId.size ? 'ไม่พบรายการที่ตรงกับคำค้นหา' : 'ยังไม่มีใครติดสถานะนี้เลยครับ';
+    tbody.innerHTML = `<tr><td colspan="7" class="empty-state-cell"><span class="empty-icon">✨</span><span class="empty-text">${msg}</span></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    const fullName = `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''}`.trim();
+    const blocker = getIotInstallBlockerState(r);
+    const refIdSafe = (r.reference_id || '').replace(/'/g, "\\'");
+    return `
+      <tr>
+        <td>${fullName || '-'}</td>
+        <td>${r.national_id || '-'}</td>
+        <td>${r.phone || '-'}</td>
+        <td>${blocker.reason || '-'}</td>
+        <td>${blocker.marked_by || '-'}</td>
+        <td>${blocker.marked_at ? formatRelativeTime(blocker.marked_at) : '-'}</td>
+        <td style="white-space:nowrap;">
+          <button type="button" class="btn-linklike" onclick="openIotInstallBlockerModal('${refIdSafe}')">✏️ แก้ไข</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function getIotPlotLocationLinkHtml(value) {
+  const v = (value || '').trim();
+  if (!v) return '-';
+  const url = v.startsWith('http') ? v : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v)}`;
+  const urlSafe = url.replace(/"/g, '&quot;');
+  const labelSafe = v.replace(/</g, '&lt;');
+  return `<a href="${urlSafe}" target="_blank" rel="noopener">${labelSafe}</a>`;
+}
+
+// คืนค่า "ตำแหน่งแปลง" ปัจจุบันของคนนี้ — ใช้ค่าที่ admin กรอกเองในเว็บก่อนเสมอ (แม้จะกรอกเป็นค่าว่างก็ถือว่าตั้งใจแล้ว ไม่ย้อนไปใช้ชีตเก่า)
+// ถ้ายังไม่เคยกรอกเลย (ไม่มี key นี้ในแถวที่บันทึกไว้) ใช้ค่าเริ่มต้นจากชีตเก่าเป็นจุดตั้งต้น
+function getIotPlotLocationState(r) {
+  const saved = r.reference_id ? iotDocChecklistByRefId.get(r.reference_id) : null;
+  if (saved && saved.plot_location !== null && saved.plot_location !== undefined) {
+    return { value: saved.plot_location, source: 'admin' };
+  }
+  const legacyRec = findIotLegacyRecord(r);
+  const legacyVal = legacyRec ? legacyRec.plot_location : '';
+  return { value: legacyVal || '', source: legacyVal ? 'legacy' : 'none' };
+}
+
+// อัปเดตปุ่ม "เปิดแผนที่" ในโมดัลเช็คลิสต์ให้ตรงกับค่าที่พิมพ์ล่าสุด (รองรับทั้งลิงก์เต็มและพิกัด/คำอธิบายธรรมดา)
+function updateIotDocChecklistPlotLink(value) {
+  const linkEl = document.getElementById('docChecklistModalPlotLocationLink');
+  if (!linkEl) return;
+  const v = (value || '').trim();
+  if (!v) { linkEl.style.display = 'none'; return; }
+  const url = v.startsWith('http') ? v : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v)}`;
+  linkEl.href = url;
+  linkEl.style.display = 'inline-block';
+}
+
+function openIotDocChecklistModal(referenceId) {
+  const r = allIotRows.find(row => row.reference_id === referenceId);
+  if (!r) return;
+  iotDocChecklistModalRefId = referenceId;
+  const nameEl = document.getElementById('docChecklistModalName');
+  const fullName = `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''}`.trim();
+  if (nameEl) nameEl.textContent = `เช็คลิสต์เอกสาร — ${fullName || 'ไม่ทราบชื่อ'}`;
+  const plotState = getIotPlotLocationState(r);
+  const plotInputEl = document.getElementById('docChecklistModalPlotLocationInput');
+  if (plotInputEl) plotInputEl.value = plotState.value;
+  updateIotDocChecklistPlotLink(plotState.value);
+  const plotSourceEl = document.getElementById('docChecklistModalPlotLocationSource');
+  if (plotSourceEl) plotSourceEl.textContent = plotState.source === 'admin' ? '(แก้ไขแล้ว)' : plotState.source === 'legacy' ? '(จากข้อมูลเก่า)' : '(ยังไม่มีข้อมูล)';
+  const items = getIotDocChecklistState(r);
+  const itemsEl = document.getElementById('docChecklistModalItems');
+  if (itemsEl) {
+    itemsEl.innerHTML = items.map(it => `
+      <div class="doc-checklist-item">
+        <input type="checkbox" id="docChecklistItem_${it.key}" ${it.ok ? 'checked' : ''}>
+        <label for="docChecklistItem_${it.key}">${it.label}</label>
+        <span class="doc-checklist-source">${it.source === 'admin' ? '(แก้ไขแล้ว)' : it.source === 'legacy' ? '(จากข้อมูลเก่า)' : '(ยังไม่มีข้อมูล)'}</span>
+      </div>
+    `).join('');
+  }
+  const overlay = document.getElementById('docChecklistModalOverlay');
+  if (overlay) overlay.style.display = 'flex';
+}
+
+function closeIotDocChecklistModal() {
+  const overlay = document.getElementById('docChecklistModalOverlay');
+  if (overlay) overlay.style.display = 'none';
+  iotDocChecklistModalRefId = null;
+}
+
+// บันทึกเช็คลิสต์ทั้ง 6 รายการทีเดียว (upsert ด้วย reference_id) แล้วอัปเดตแคชในหน่วยความจำ + รีเฟรชตารางทันที
+async function saveIotDocChecklistModal() {
+  if (!iotDocChecklistModalRefId) return;
+  if (!supabaseClient) { showToast('ยังไม่ได้เชื่อมต่อ Supabase', 'warn'); return; }
+  const referenceId = iotDocChecklistModalRefId;
+  const r = allIotRows.find(row => row.reference_id === referenceId);
+  const payload = { reference_id: referenceId, updated_by: currentUserName || null, updated_at: new Date().toISOString() };
+  IOT_DOC_CHECKLIST_ITEMS.forEach(item => {
+    const checkbox = document.getElementById('docChecklistItem_' + item.key);
+    payload[item.key + '_ok'] = checkbox ? checkbox.checked : false;
+  });
+  const plotInputForSave = document.getElementById('docChecklistModalPlotLocationInput');
+  payload.plot_location = plotInputForSave ? plotInputForSave.value.trim() : '';
+  const { error } = await supabaseClient.from('iot_document_checklist').upsert(payload, { onConflict: 'reference_id' });
+  if (error) {
+    showToast('บันทึกเช็คลิสต์ไม่สำเร็จ: ' + error.message, 'warn');
+    return;
+  }
+  iotDocChecklistByRefId.set(referenceId, payload);
+  closeIotDocChecklistModal();
+  applyIotMatchPendingDocSearch();
+  showToast(`บันทึกเช็คลิสต์เอกสารให้ ${r && r.first_name ? r.first_name : 'คนนี้'} แล้วครับ`, 'success');
+}
+
+// หารายชื่อ "คนที่น่าจะรอกรอกรหัสฐาน" ให้ขึ้นมาอัตโนมัติ (ไม่ต้องรู้ชื่อมาค้นหาเองก่อน) แบ่ง 2 กลุ่ม (ไม่ซ้ำคนกัน เจอกลุ่ม 1 ก่อนก็ไม่ต้องเช็คกลุ่ม 2 ซ้ำ):
+//   1) แผนติดตั้ง (iotInstallPlan) บอกว่า "ติดตั้งแล้ว" ไปแล้ว แต่ระบบ OTOD ยังไม่อัปเดตสถานะ (จับคู่ด้วยเลขบัตรประชาชน)
+//   2) ติดตั้งแล้วในระบบเรา (ไม่ว่า OTOD ยืนยันเองหรือระบบอนุมานให้จากหลักฐานอื่น) แต่ไม่มี SN เลยสักทาง (ทั้งจากแอปและชีตเก่า)
+function getIotManualCodeCandidates() {
+  if (!iotDataLoaded) return [];
+  const rows = getIotVisibleRows();
+  const donePlanNids = new Set(
+    iotInstallPlan.filter(p => p.status === 'done' && p.nationalId).map(p => p.nationalId)
+  );
+  const seen = new Set();
+  const result = [];
+
+  rows.forEach(r => {
+    if (r[IOT_FIELDS.status] === IOT_FIELDS.notDone && r.national_id && donePlanNids.has(r.national_id)) {
+      if (seen.has(r.reference_id)) return;
+      seen.add(r.reference_id);
+      result.push({ row: r, reason: 'แผนบอกว่าติดตั้งแล้ว รอระบบอัปเดต' });
+    }
+  });
+
+  rows.forEach(r => {
+    if (r[IOT_FIELDS.status] === IOT_FIELDS.done && !r.matched_sn && !r.legacySerial) {
+      if (seen.has(r.reference_id)) return;
+      seen.add(r.reference_id);
+      result.push({ row: r, reason: 'ติดตั้งแล้ว แต่ไม่มี SN' });
+    }
+  });
+
+  return result;
+}
+
+// ถ้าไม่ได้พิมพ์ค้นหา -> โชว์รายชื่อที่น่าจะรอกรอกรหัสฐาน (getIotManualCodeCandidates) ให้อัตโนมัติ
+// ถ้าพิมพ์ค้นหา -> ค้นทุกคนจาก allIotRows เหมือนเดิม (ใช้ matchesIotFarmerSearch ตัวเดียวกับตารางตรวจสอบเชื่อมต่อแอป)
+function renderIotManualCodeSearchResults() {
+  const input = document.getElementById('iotManualCodeSearchInput');
+  const tbody = document.getElementById('iotManualCodeSearchTbody');
+  if (!input || !tbody) return;
+  const term = input.value.trim();
+
+  const candidateBadge = document.getElementById('iotManualCodeCandidateBadge');
+  if (candidateBadge) candidateBadge.textContent = `${getIotManualCodeCandidates().length.toLocaleString()} รายการรอ`;
+
+  let items;
+  if (!term) {
+    items = getIotManualCodeCandidates();
+    if (!items.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="empty-state-cell"><span class="empty-icon">🎉</span><span class="empty-text">ตอนนี้ไม่มีใครรอกรอกรหัสฐานเลยครับ ถ้าอยากหาคนอื่นเพิ่มเติม พิมพ์ค้นหาชื่อ/เลขบัตร/เบอร์ด้านบนได้เลย</span></td></tr>`;
+      return;
+    }
+  } else {
+    items = getIotVisibleRows().filter(r => matchesIotFarmerSearch(r, term)).slice(0, 30).map(r => ({ row: r, reason: '' }));
+    if (!items.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="empty-state-cell"><span class="empty-icon">🔍</span><span class="empty-text">ไม่พบคนที่ตรงกับคำค้นหาครับ</span></td></tr>`;
+      return;
+    }
+  }
+
+  tbody.innerHTML = items.map(({ row: r, reason }) => {
+    const existing = r.reference_id ? iotManualBaseCodeByRefId.get(r.reference_id) : null;
+    const currentValue = existing ? existing.base_code : '';
+    const fullName = `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''}`.trim();
+    const refIdSafe = (r.reference_id || '').replace(/'/g, "\\'");
+    return `
+      <tr>
+        <td>${fullName || '-'}</td>
+        <td>${r.national_id || '-'}</td>
+        <td>${r.phone || '-'}</td>
+        <td>${getIotStatusDisplayHtml(r)}</td>
+        <td>${reason ? `<span class="badge">${reason}</span>` : '-'}</td>
+        <td>
+          <input type="text" class="plan-week-input" id="iotManualCodeInput_${r.reference_id}" value="${currentValue}" placeholder="เช่น AR_0008" style="width:120px;" ${r.reference_id ? '' : 'disabled title="คนนี้ไม่มีรหัสอ้างอิง กรอกให้ไม่ได้"'}>
+        </td>
+        <td style="white-space:nowrap;">
+          <button type="button" class="btn-linklike" onclick="saveIotManualBaseCode('${refIdSafe}')" ${r.reference_id ? '' : 'disabled'}>💾 บันทึก</button>
+          ${existing ? `<button type="button" class="btn-linklike" style="color:var(--red);" onclick="removeIotManualBaseCode('${refIdSafe}')">ลบ</button>` : ''}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// บันทึกรหัสฐานที่ admin กรอกเองขึ้น Supabase (upsert ด้วย reference_id) แล้วโหลดข้อมูล IoT ใหม่ทั้งหมด
+// (ต้องโหลดใหม่ทั้งหมด ไม่ใช่แค่แก้ค่าในหน่วยความจำ เพราะ mutation สถานะติดตั้งเป็นการคำนวณทางเดียวจากข้อมูลดิบทุกครั้งที่โหลด)
+async function saveIotManualBaseCode(referenceId) {
+  if (!supabaseClient) { showToast('ยังไม่ได้เชื่อมต่อ Supabase', 'warn'); return; }
+  const input = document.getElementById('iotManualCodeInput_' + referenceId);
+  if (!input) return;
+  const parsed = parseManualBaseCodeInput(input.value);
+  if (!parsed) {
+    showToast('กรอกรหัสฐานไม่ถูกต้อง ลองพิมพ์แบบ AR_0008 หรือแค่ตัวเลข เช่น 8 ครับ', 'warn');
+    return;
+  }
+  const r = allIotRows.find(row => row.reference_id === referenceId);
+  const farmerName = r ? `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''}`.trim() : '';
+  const payload = {
+    reference_id: referenceId,
+    national_id: r ? (r.national_id || null) : null,
+    farmer_name: farmerName || null,
+    phone: r ? (r.phone || null) : null,
+    base_code_no: parsed.no,
+    base_code: parsed.formatted,
+    created_by: currentUserName || null,
+    updated_at: new Date().toISOString(),
+  };
+  const { error } = await supabaseClient.from('iot_manual_base_codes').upsert(payload, { onConflict: 'reference_id' });
+  if (error) {
+    showToast('บันทึกรหัสฐานไม่สำเร็จ: ' + error.message, 'warn');
+    return;
+  }
+  await loadIotData();
+  renderIotManualCodeSearchResults();
+  renderIotManualCodeList();
+  showToast(`บันทึกรหัสฐาน ${parsed.formatted} ให้ ${farmerName || 'คนนี้'} แล้วครับ — อัปเดตสถานะเป็น "ได้ตู้แล้ว" ให้อัตโนมัติ`, 'success');
+}
+
+// ลบรหัสฐานที่กรอกเอง แล้วโหลดข้อมูล IoT ใหม่ทั้งหมด เพื่อคำนวณสถานะย้อนกลับให้ถูกต้อง
+async function removeIotManualBaseCode(referenceId) {
+  if (!supabaseClient) return;
+  const confirmed = await showConfirmModal('ยืนยันลบรหัสฐานที่กรอกเองของคนนี้?');
+  if (!confirmed) return;
+  const { error } = await supabaseClient.from('iot_manual_base_codes').delete().eq('reference_id', referenceId);
+  if (error) {
+    showToast('ลบไม่สำเร็จ: ' + error.message, 'warn');
+    return;
+  }
+  await loadIotData();
+  renderIotManualCodeSearchResults();
+  renderIotManualCodeList();
+  showToast('ลบรหัสฐานแล้วครับ', 'success');
+}
+
+// ตารางรายชื่อทั้งหมดที่กรอกรหัสฐานเองไว้แล้ว (ไว้ตรวจสอบ/ค้นหา/ลบทีหลัง)
+function renderIotManualCodeList() {
+  const tbody = document.getElementById('iotManualCodeListTbody');
+  const badge = document.getElementById('iotManualCodeListCountBadge');
+  if (!tbody) return;
+  if (badge) badge.textContent = `${iotManualBaseCodes.length.toLocaleString()} รายการ`;
+
+  const searchInput = document.getElementById('iotManualCodeListSearch');
+  const term = searchInput ? searchInput.value.trim().toLowerCase() : '';
+  const filtered = iotManualBaseCodes.filter(rec => {
+    if (!term) return true;
+    const hay = [rec.farmer_name, rec.national_id, rec.phone, rec.base_code].map(v => (v || '').toString().toLowerCase()).join(' ');
+    return hay.includes(term);
+  }).sort((a, b) => (b.updated_at || b.created_at || '').localeCompare(a.updated_at || a.created_at || ''));
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="8" class="empty-state-cell"><span class="empty-text">${iotManualBaseCodes.length ? 'ไม่พบรายการที่ตรงกับคำค้นหา' : 'ยังไม่มีรายการที่กรอกรหัสฐานเองเลยครับ'}</span></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(rec => {
+    const sn = iotCabinetSerialByNo.get(rec.base_code_no) || '-';
+    const when = rec.updated_at || rec.created_at;
+    const whenLabel = when ? formatThaiDate(when.slice(0, 10)) : '-';
+    const refIdSafe = (rec.reference_id || '').replace(/'/g, "\\'");
+    return `
+      <tr>
+        <td>${rec.farmer_name || '-'}</td>
+        <td>${rec.national_id || '-'}</td>
+        <td>${rec.phone || '-'}</td>
+        <td>${rec.base_code}</td>
+        <td>${sn}</td>
+        <td>${rec.created_by || '-'}</td>
+        <td>${whenLabel}</td>
+        <td><button type="button" class="btn-linklike" style="color:var(--red);" onclick="removeIotManualBaseCode('${refIdSafe}')">ลบ</button></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ต่อท้ายข้อความสถานะ (r.status ข้อความไทยจาก Durian) ด้วยป้าย "รอยืนยันเอกสาร" ถ้าแถวนี้ถูกมาร์คว่า
+// ติดตั้งแล้วจากข้อมูลเก่า (isLegacyPending) แต่ระบบ OTOD ปัจจุบันยังไม่อัปเดตอย่างเป็นทางการ
+function getIotStatusDisplayHtml(r) {
+  const base = r.status || '';
+  if (!r.isLegacyPending) return base;
+  let title;
+  if (r.legacyBaseCode) {
+    const snPart = r.legacySerial ? ` รหัสตู้ ${r.legacySerial}` : '';
+    const sourceLabel = r.manualBaseCodeEntry ? ' (admin กรอกยืนยันเอง)' : ' (จากข้อมูลเก่า)';
+    title = `ได้รับตู้แล้ว รหัสฐาน ${r.legacyBaseCode}${snPart}${sourceLabel} รอเอกสารยืนยันจาก OTOD`;
+  } else if (r.legacyPendingViaApp) {
+    title = `เชื่อมต่อแอปแล้ว (SN ${r.matched_sn || '-'}) รอเอกสารยืนยันจาก OTOD`;
+  } else {
+    title = 'มีตู้แล้ว รอเอกสารยืนยันจาก OTOD';
+  }
+  return `${base} <span class="pdf-status-badge status-pending" title="${title}">🟡 รอยืนยันเอกสาร</span>`;
+}
 
 // ===== ข้อมูล "เชื่อมต่อแอปแล้ว" (จาก API แอป Kasetkorn เทียบกับตาราง OTOD ด้วยเลขบัตร/เบอร์โทร/ชื่อ-นามสกุล) =====
 // เก็บเป็นระดับ "ตู้ 1 เครื่อง" (SN ขึ้นต้นด้วย KS) เพราะเกษตรกร 1 คน อาจมีหลายตู้ได้
@@ -3073,7 +4236,7 @@ function applyIotProjectFilter(value) {
 
 async function loadIotData() {
   if (!supabaseClient) return;
-  await loadAppConnections();
+  await Promise.all([loadAppConnections(), loadIotLegacyPendingMap(), loadIotCabinetSerials(), loadIotManualBaseCodes(), loadIotDocChecklist(), loadIotInstallBlockers()]);
   let rows = [];
   let from = 0;
   const pageSize = 1000;
@@ -3095,6 +4258,36 @@ async function loadIotData() {
     const matched = getMatchedAppRecords(r);
     r.app_connected = matched.length > 0;
     r.matched_sn = matched.map(rec => rec.app_iot_id).filter(Boolean).join(', ');
+    // รหัสฐานที่ admin กรอกเองด้วยมือ (เคสจับคู่อัตโนมัติไม่เจอ เช่น ชื่อในแอปไม่ตรงกับคนที่ได้รับจริง) ให้ความสำคัญเป็นอันดับแรก
+    // เพราะเป็นข้อมูลที่คนยืนยันเอง หนักแน่นกว่าการจับคู่อัตโนมัติจากชีตเก่าทุกกรณี
+    const manualCode = findIotManualBaseCode(r);
+    const legacyRec = findIotLegacyRecord(r);
+    const effectiveBaseCode = manualCode ? manualCode.base_code : (legacyRec ? legacyRec.base_code : null);
+    const effectiveBaseCodeNo = manualCode ? manualCode.base_code_no : (legacyRec ? legacyRec.base_code_no : null);
+    r.legacySerial = (effectiveBaseCodeNo !== null && effectiveBaseCodeNo !== undefined) ? (iotCabinetSerialByNo.get(effectiveBaseCodeNo) || null) : null;
+    const legacyInstallInfo = findIotLegacyInstallInfo(r);
+    r.legacyWaterPump = legacyInstallInfo.waterPump;
+    r.legacyPipeSize = legacyInstallInfo.pipeSize;
+    r.legacyPaymentStatus = legacyInstallInfo.paymentStatus;
+
+    // ยังไม่ติดตั้งในระบบ OTOD ปัจจุบัน (N) แต่มีสัญญาณว่าได้รับตู้ไปแล้วจริงจาก 3 ทาง (เจอทางใดทางหนึ่งพอ):
+    //   1) admin กรอกรหัสฐานเองด้วยมือ (หนักแน่นสุด เพราะคนยืนยันเอง)
+    //   2) ข้อมูลเกษตรกร IoT ชุดเก่า (ชีต Google ก่อนมีระบบนี้) มีรหัสฐาน/ตู้แล้ว
+    //   3) เชื่อมต่อแอป Kasetkorn แล้วและมี SN ตู้จริง (หนักแน่นกว่าอีก เพราะมี SN ยืนยันชัดเจน)
+    // -> ถือว่าติดตั้งแล้วจริง (นับรวมในสถิติ/แผนที่/ตัดสิทธิ์เลือกซ้ำในแผนติดตั้งเหมือนติดตั้งแล้ว)
+    // แต่จำไว้ว่าเป็น "รอยืนยันเอกสาร" เพื่อโชว์ป้ายแยกให้ทีมเห็นว่าไม่ใช่สถานะทางการของ OTOD จริงๆ
+    if (r[IOT_FIELDS.status] === IOT_FIELDS.notDone) {
+      if (effectiveBaseCode !== null) {
+        r[IOT_FIELDS.status] = IOT_FIELDS.done;
+        r.isLegacyPending = true;
+        r.legacyBaseCode = effectiveBaseCode;
+        if (manualCode) r.manualBaseCodeEntry = true;
+      } else if (r.app_connected && r.matched_sn) {
+        r[IOT_FIELDS.status] = IOT_FIELDS.done;
+        r.isLegacyPending = true;
+        r.legacyPendingViaApp = true;
+      }
+    }
   });
   allIotRows = rows;
   iotDataLoaded = true;
@@ -3130,6 +4323,10 @@ function renderIotKpis(rows) {
   const appConnectedCount = rows.filter(r => r.app_connected).length;
   animateNumber(document.getElementById('iotKpiAppConnected'), appConnectedCount, 700);
   document.getElementById('iotKpiAppConnectedPct').textContent = total ? Math.round((appConnectedCount / total) * 100) + '% ของทั้งหมด' : '-';
+
+  const blockedCount = rows.filter(r => getIotInstallBlockerState(r)).length;
+  const blockedEl = document.getElementById('iotKpiBlocked');
+  if (blockedEl) animateNumber(blockedEl, blockedCount, 700);
 }
 
 function renderIotProvinceBreakdown(rows) {
@@ -3224,7 +4421,7 @@ function applyIotFilters() {
       <td>${r.farm_province||''}</td>
       <td>${r.farm_district||''}</td>
       <td>${r.farm_subdistrict||''}</td>
-      <td>${r.status||''}</td>
+      <td>${getIotStatusDisplayHtml(r)}</td>
       <td>${r.app_connected ? '✅ เชื่อมต่อแล้ว' : '⛔ ยังไม่เชื่อมต่อ'}</td>
       <td>${r.matched_sn||''}</td>
       <td>${r.approval_round||''}</td>
@@ -3406,6 +4603,9 @@ function renderIotDistrictLeaderboard(provName, pro_code) {
   const rankClass = (i) => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
   const el = document.getElementById('iotLeaderboard');
   document.getElementById('iotLbTitle').textContent = 'อันดับอำเภอ (% ติดตั้งแล้ว) · ' + provName;
+  const multiBtn = document.getElementById('iotLbMultiDistrictBtn');
+  multiBtn.style.display = 'block';
+  multiBtn.setAttribute('onclick', `showIotProvinceAllDistrictsPeople('${provName.replace(/'/g, "\\'")}')`);
   el.innerHTML = byDistrict.map((d, i) => `
     <div class="lb-row" onclick="zoomToIotDistrict('${pro_code}','${d.district}')">
       <div class="lb-rank ${rankClass(i)}">${i + 1}</div>
@@ -3421,6 +4621,7 @@ function renderIotDistrictLeaderboard(provName, pro_code) {
 
 function restoreIotProvinceLeaderboard() {
   document.getElementById('iotLbTitle').textContent = 'อันดับจังหวัด (% ติดตั้งแล้ว)';
+  document.getElementById('iotLbMultiDistrictBtn').style.display = 'none';
   renderIotLeaderboard(getIotVisibleRows());
 }
 
@@ -3614,7 +4815,8 @@ function renderIotPeopleGroup(title, icon, cls, groupRows, highlightId, opts) {
   opts = opts || {};
   const selectable = !!opts.selectable;
   const groupId = opts.groupId || '';
-  const colspan = selectable ? 8 : 6;
+  const addAllOnClick = opts.addAllOnClick || 'addAllDistrictNotInstalledToIotPlan()';
+  const colspan = selectable ? 9 : 7;
   return `
     <div class="people-group">
       <div class="people-group-title ${cls}">${icon} ${title} <span class="badge">${groupRows.length} คน</span></div>
@@ -3622,7 +4824,7 @@ function renderIotPeopleGroup(title, icon, cls, groupRows, highlightId, opts) {
         <div class="people-group-actions">
           <button class="btn btn-outline btn-xs" onclick="toggleSelectAllIotPeople('${groupId}')">เลือก/ยกเลิกทั้งหมด</button>
           <button class="btn btn-brand btn-xs" onclick="addSelectedIotPeopleToIotPlan('${groupId}')">+ เพิ่มที่เลือกเข้าแผนติดตั้ง</button>
-          <button class="btn btn-brand btn-xs" onclick="addAllDistrictNotInstalledToIotPlan()">+ เพิ่มทั้งอำเภอเข้าแผน (${groupRows.length} คน)</button>
+          <button class="btn btn-brand btn-xs" onclick="${addAllOnClick}">+ เพิ่มทั้งอำเภอเข้าแผน (${groupRows.length} คน)</button>
         </div>
       ` : ''}
       <div class="table-wrap" style="max-height:280px;">
@@ -3631,7 +4833,7 @@ function renderIotPeopleGroup(title, icon, cls, groupRows, highlightId, opts) {
             <tr>
               ${selectable ? '<th style="width:28px;"></th>' : ''}
               <th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์มือถือ</th><th>ตำบล</th>
-              <th>สถานะ</th><th>รอบการอนุมัติ</th>
+              <th>สถานะ</th><th>SN ตู้</th><th>รอบการอนุมัติ</th>
               ${selectable ? '<th></th>' : ''}
             </tr>
           </thead>
@@ -3640,14 +4842,15 @@ function renderIotPeopleGroup(title, icon, cls, groupRows, highlightId, opts) {
               const inPlan = iotInstallPlan.some(e => e.nationalId === p.national_id);
               return `
               <tr class="${highlightId && p.national_id === highlightId ? 'row-highlight' : ''}" id="${highlightId && p.national_id === highlightId ? 'highlightedIotPersonRow' : ''}">
-                ${selectable ? `<td><input type="checkbox" class="iot-plan-select-checkbox" data-nid="${p.national_id}" ${inPlan ? 'disabled' : ''}></td>` : ''}
+                ${selectable ? `<td><input type="checkbox" class="iot-plan-select-checkbox" data-nid="${p.national_id}" ${inPlan ? 'disabled checked' : ''}></td>` : ''}
                 <td>${p.prefix || ''}${p.first_name || ''} ${p.last_name || ''}</td>
                 <td>${p.national_id || ''}</td>
                 <td>${p.phone || ''}</td>
                 <td>${p.farm_subdistrict || ''}</td>
-                <td>${p.status || ''}</td>
+                <td>${getIotStatusDisplayHtml(p)}</td>
+                <td>${getIotSnCellHtml(p)}</td>
                 <td>${p.approval_round || ''}</td>
-                ${selectable ? `<td>${inPlan ? '<span class="plan-added-tag">✓ เพิ่มแล้ว</span>' : `<button class="btn btn-outline btn-xs" onclick="addPersonToIotPlanByNid('${p.national_id}')">+ เพิ่ม</button>`}</td>` : ''}
+                ${selectable ? `<td>${inPlan ? `<span class="plan-added-tag">✓ เพิ่มแล้ว</span> <button class="btn btn-outline btn-xs" onclick="removePersonFromIotPlanByNid('${p.national_id}')">ยกเลิก</button>` : `<button class="btn btn-outline btn-xs" onclick="addPersonToIotPlanByNid('${p.national_id}')">+ เพิ่ม</button>`}</td>` : ''}
               </tr>
             `; }).join('') : `<tr><td colspan="${colspan}" style="text-align:center; opacity:.6;">ไม่มีข้อมูล</td></tr>`}
           </tbody>
@@ -3660,9 +4863,13 @@ function renderIotPeopleGroup(title, icon, cls, groupRows, highlightId, opts) {
 function showIotDistrictPeople(province, district, highlightId) {
   currentIotPeoplePanelProvince = province;
   currentIotPeoplePanelDistrict = district;
+  currentIotPeoplePanelMode = 'district';
   const people = getIotVisibleRows().filter(r => normName(r[IOT_FIELDS.province]) === normName(province) && normName(r[IOT_FIELDS.district]) === normName(district));
   const installed = people.filter(p => p[IOT_FIELDS.status] === IOT_FIELDS.done);
-  const notInstalled = people.filter(p => p[IOT_FIELDS.status] === IOT_FIELDS.notDone);
+  // คนที่ทำเครื่องหมายว่า "ติดตั้งไม่ได้" ไว้ (แท็บ 🚫 ติดตั้งไม่ได้) แยกออกจากกลุ่ม "ยังไม่ติดตั้ง" ไปเป็นหัวข้อของตัวเอง
+  // จนกว่าจะมีการยกเลิกเครื่องหมายหรือสถานะเปลี่ยน จะได้ไม่ปนกับคนที่ยังรอวางแผนติดตั้งจริงๆ
+  const blocked = people.filter(p => p[IOT_FIELDS.status] === IOT_FIELDS.notDone && getIotInstallBlockerState(p));
+  const notInstalled = people.filter(p => p[IOT_FIELDS.status] === IOT_FIELDS.notDone && !getIotInstallBlockerState(p));
   const panel = document.getElementById('iotPeoplePanel');
   panel.style.display = 'block';
   panel.innerHTML = `
@@ -3671,6 +4878,7 @@ function showIotDistrictPeople(province, district, highlightId) {
       <button class="btn btn-outline" onclick="closeIotPeoplePanel()">ปิด ✕</button>
     </div>
     ${renderIotPeopleGroup('ติดตั้งแล้ว', '✅', 'group-yes', installed, highlightId)}
+    ${renderIotPeopleGroup('ติดตั้งไม่ได้', '🚫', 'group-blocked', blocked, highlightId)}
     ${renderIotPeopleGroup('ยังไม่ติดตั้ง', '⛔', 'group-no', notInstalled, highlightId, { selectable: true, groupId: 'iotPeopleNotInstalled' })}
   `;
   if (highlightId) {
@@ -3679,10 +4887,51 @@ function showIotDistrictPeople(province, district, highlightId) {
   }
 }
 
+// รายชื่อ "ยังไม่ติดตั้ง" ของทุกอำเภอในจังหวัดเดียวกัน รวมไว้หน้าเดียว แยกหัวข้อเป็นอำเภอๆ
+// เพื่อให้เลือกคนข้ามอำเภอได้ในทีเดียว ไม่ต้องกดเข้า-ออกทีละอำเภอเหมือนเดิม (มีประโยชน์มากตอนบางอำเภอมีคนน้อย)
+function showIotProvinceAllDistrictsPeople(province) {
+  currentIotPeoplePanelProvince = province;
+  currentIotPeoplePanelDistrict = null;
+  currentIotPeoplePanelMode = 'province';
+  const provinceRows = getIotVisibleRows().filter(r => normName(r[IOT_FIELDS.province]) === normName(province));
+  const districts = [...new Set(provinceRows.map(r => r[IOT_FIELDS.district]))].filter(Boolean).sort();
+  const panel = document.getElementById('iotPeoplePanel');
+  panel.style.display = 'block';
+  panel.innerHTML = `
+    <div class="detail-header">
+      <h3>👥 คนทั้งจังหวัด${province} <span class="badge">${districts.length} อำเภอ</span></h3>
+      <button class="btn btn-outline" onclick="closeIotPeoplePanel()">ปิด ✕</button>
+    </div>
+    ${districts.map(d => {
+      const districtRowsAll = provinceRows.filter(r => normName(r[IOT_FIELDS.district]) === normName(d) && r[IOT_FIELDS.status] === IOT_FIELDS.notDone);
+      const blocked = districtRowsAll.filter(r => getIotInstallBlockerState(r));
+      const notInstalled = districtRowsAll.filter(r => !getIotInstallBlockerState(r));
+      const groupId = 'iotPeopleNotInstalled_' + districts.indexOf(d);
+      const provinceJs = province.replace(/'/g, "\'");
+      const districtJs = d.replace(/'/g, "\'");
+      return `
+        <h4 style="margin:16px 0 4px; font-size:14px;">📍 อำเภอ${d}</h4>
+        ${renderIotPeopleGroup('ติดตั้งไม่ได้', '🚫', 'group-blocked', blocked, null)}
+        ${renderIotPeopleGroup('ยังไม่ติดตั้ง', '⛔', 'group-no', notInstalled, null, { selectable: true, groupId, addAllOnClick: `addAllNotInstalledToIotPlanFor('${provinceJs}','${districtJs}')` })}
+      `;
+    }).join('')}
+  `;
+}
+
+// เรียก render พาแนลปัจจุบันซ้ำ (ใช้หลังเพิ่มคนเข้าแผน) — รองรับทั้งโหมดดูทีละอำเภอ และโหมดดูทั้งจังหวัด
+function refreshIotPeoplePanel() {
+  if (currentIotPeoplePanelMode === 'province' && currentIotPeoplePanelProvince) {
+    showIotProvinceAllDistrictsPeople(currentIotPeoplePanelProvince);
+  } else if (currentIotPeoplePanelProvince && currentIotPeoplePanelDistrict) {
+    showIotDistrictPeople(currentIotPeoplePanelProvince, currentIotPeoplePanelDistrict);
+  }
+}
+
 function closeIotPeoplePanel() {
   document.getElementById('iotPeoplePanel').style.display = 'none';
   currentIotPeoplePanelProvince = null;
   currentIotPeoplePanelDistrict = null;
+  currentIotPeoplePanelMode = null;
 }
 
 function searchAndZoomIotPerson() {
@@ -3945,6 +5194,82 @@ async function syncPlanFromSupabase(opts) {
 }
 
 // เพิ่มคนคนเดียวเข้าแผน (คืนค่า object รายการที่เพิ่ม ถ้าเพิ่มจริง, null ถ้าซ้ำ/ไม่มีเลขบัตร)
+// คืน array ของวันที่ (YYYY-MM-DD) ทุกวันตั้งแต่ start ถึง end (รวมทั้งสองวัน)
+function enumerateDateRange(startStr, endStr) {
+  const dates = [];
+  if (!startStr || !endStr || endStr < startStr) return dates;
+  let cur = startStr;
+  let guard = 0;
+  while (cur <= endStr && guard < 366) {
+    dates.push(cur);
+    cur = addDaysToDateStr(cur, 1);
+    guard++;
+  }
+  return dates;
+}
+
+// แบ่งวันในช่วง start-end ให้แต่ละ "ตำบล" คนละวันแบบวนรอบ (ถ้าตำบลเยอะกว่าจำนวนวันในช่วง จะวนกลับมาเริ่มวันแรกใหม่)
+// คืนค่าเป็น Map: ชื่อตำบล -> วันที่ ('YYYY-MM-DD') เรียงตามลำดับตำบลที่ส่งเข้ามา (เรียงเองก่อนเรียกถ้าต้องการลำดับที่แน่นอน)
+function distributeDatesBySubdistrict(subdistricts, startStr, endStr) {
+  const dates = enumerateDateRange(startStr, endStr);
+  const map = new Map();
+  if (!dates.length) return map;
+  subdistricts.forEach((sd, i) => { map.set(sd, dates[i % dates.length]); });
+  return map;
+}
+
+// ใช้ตอนเปิดโหมด "เลือกวันที่ก่อน" ที่แผนที่ — สแตมป์วันที่ให้ entry ที่เพิ่งเพิ่มเข้าแผน ตามตำบลของเขา
+// ตำบลเดียวกันจะได้วันเดียวกันเสมอ (จำไว้ใน mapPreschedule.subdistrictDates) ตำบลใหม่จะได้วันถัดไปในช่วงแบบวนรอบ
+function applyPrescheduleDateIfActive(entry) {
+  if (!mapPreschedule.enabled || !entry) return;
+  const key = entry.subdistrict || 'ไม่ระบุตำบล';
+  if (!mapPreschedule.subdistrictDates[key]) {
+    const dates = enumerateDateRange(mapPreschedule.start, mapPreschedule.end);
+    if (!dates.length) return;
+    const nextIndex = Object.keys(mapPreschedule.subdistrictDates).length % dates.length;
+    mapPreschedule.subdistrictDates[key] = dates[nextIndex];
+  }
+  entry.visitDate = mapPreschedule.subdistrictDates[key];
+}
+
+// เปิด/ปิดโหมด "เลือกวันที่ก่อน" บนแผนที่ — ทุกคนที่ถูกเพิ่มเข้าแผนหลังจากนี้จะได้วันที่ auto ตามตำบล (ผ่าน applyPrescheduleDateIfActive)
+function toggleMapPreschedule(checked) {
+  const datesEl = document.getElementById('mapPrescheduleDates');
+  const statusEl = document.getElementById('mapPrescheduleStatusText');
+  mapPreschedule.enabled = checked;
+  if (datesEl) datesEl.style.display = checked ? 'inline-flex' : 'none';
+  if (checked) {
+    const startInput = document.getElementById('mapPrescheduleStart');
+    const endInput = document.getElementById('mapPrescheduleEnd');
+    if (startInput && !startInput.value) startInput.value = mapPreschedule.start || '';
+    if (endInput && !endInput.value) endInput.value = mapPreschedule.end || '';
+    updateMapPrescheduleRange();
+  } else {
+    mapPreschedule.subdistrictDates = {};
+    if (statusEl) statusEl.textContent = '';
+  }
+}
+
+function updateMapPrescheduleRange() {
+  const startInput = document.getElementById('mapPrescheduleStart');
+  const endInput = document.getElementById('mapPrescheduleEnd');
+  const statusEl = document.getElementById('mapPrescheduleStatusText');
+  const start = startInput ? startInput.value : '';
+  const end = endInput ? endInput.value : '';
+  if (!start || !end || end < start) {
+    mapPreschedule.enabled = false;
+    if (statusEl) statusEl.textContent = 'กรุณาเลือกวันเริ่ม-วันสิ้นสุดให้ถูกต้องครับ (วันสิ้นสุดต้องไม่ก่อนวันเริ่ม)';
+    return;
+  }
+  mapPreschedule.enabled = true;
+  mapPreschedule.start = start;
+  mapPreschedule.end = end;
+  mapPreschedule.subdistrictDates = {};
+  const dayCount = enumerateDateRange(start, end).length;
+  if (statusEl) statusEl.textContent = `เปิดใช้งานแล้ว: คนที่เพิ่มเข้าแผนต่อจากนี้จะได้วันที่อัตโนมัติตามตำบล (แบ่งวนรอบใน ${dayCount} วัน)`;
+  showToast('เปิดโหมดเลือกวันที่ก่อนแล้ว — เพิ่มคนเข้าแผนได้ตามปกติ ระบบจะใส่วันที่ให้อัตโนมัติ', 'success');
+}
+
 function addPersonToPlan(p) {
   if (!p || !p.national_id) return null;
   if (trainingPlan.some(e => e.nationalId === p.national_id)) return null;
@@ -3970,11 +5295,10 @@ function addPersonToPlanByNid(nid) {
   const p = allRows.find(r => r.national_id === nid);
   if (!p) return;
   const entry = addPersonToPlan(p);
+  if (entry) applyPrescheduleDateIfActive(entry);
   savePlanToStorage();
   renderPlanTable();
-  if (currentPeoplePanelProvince && currentPeoplePanelDistrict) {
-    showDistrictPeople(currentPeoplePanelProvince, currentPeoplePanelDistrict);
-  }
+  refreshPeoplePanel();
   if (entry) {
     syncPlanEntriesToSupabase([entry]);
   } else {
@@ -3982,20 +5306,29 @@ function addPersonToPlanByNid(nid) {
   }
 }
 
-function addAllDistrictUntrainedToPlan() {
-  if (!currentPeoplePanelProvince || !currentPeoplePanelDistrict) return;
+// เพิ่มคนที่ "ยังไม่อบรม" ทั้งอำเภอที่ระบุเข้าแผน (parametrized เพื่อใช้ได้ทั้งมุมมองทีละอำเภอ และมุมมองทั้งจังหวัด)
+function addAllUntrainedToPlanFor(province, district) {
   const people = allRows.filter(r =>
-    normName(r.province) === normName(currentPeoplePanelProvince) &&
-    normName(r.district) === normName(currentPeoplePanelDistrict) &&
+    normName(r.province) === normName(province) &&
+    normName(r.district) === normName(district) &&
     r.training_status === 'N'
   );
   const addedEntries = [];
-  people.forEach(p => { const entry = addPersonToPlan(p); if (entry) addedEntries.push(entry); });
+  people.forEach(p => {
+    const entry = addPersonToPlan(p);
+    if (entry) { applyPrescheduleDateIfActive(entry); addedEntries.push(entry); }
+  });
   savePlanToStorage();
   renderPlanTable();
-  showDistrictPeople(currentPeoplePanelProvince, currentPeoplePanelDistrict);
+  refreshPeoplePanel();
   if (addedEntries.length) syncPlanEntriesToSupabase(addedEntries);
   showToast(addedEntries.length ? `เพิ่ม ${addedEntries.length} คนเข้าแผนอบรมแล้ว` : 'ทุกคนอยู่ในแผนอบรมแล้ว', addedEntries.length ? 'success' : 'info');
+  return addedEntries;
+}
+
+function addAllDistrictUntrainedToPlan() {
+  if (!currentPeoplePanelProvince || !currentPeoplePanelDistrict) return;
+  addAllUntrainedToPlanFor(currentPeoplePanelProvince, currentPeoplePanelDistrict);
 }
 
 function addSelectedPeopleToPlan(groupId) {
@@ -4006,13 +5339,14 @@ function addSelectedPeopleToPlan(groupId) {
   checked.forEach(cb => {
     const nid = cb.getAttribute('data-nid');
     const p = allRows.find(r => r.national_id === nid);
-    if (p) { const entry = addPersonToPlan(p); if (entry) addedEntries.push(entry); }
+    if (p) {
+      const entry = addPersonToPlan(p);
+      if (entry) { applyPrescheduleDateIfActive(entry); addedEntries.push(entry); }
+    }
   });
   savePlanToStorage();
   renderPlanTable();
-  if (currentPeoplePanelProvince && currentPeoplePanelDistrict) {
-    showDistrictPeople(currentPeoplePanelProvince, currentPeoplePanelDistrict);
-  }
+  refreshPeoplePanel();
   if (addedEntries.length) syncPlanEntriesToSupabase(addedEntries);
   if (!checked.length) { showToast('กรุณาเลือกอย่างน้อย 1 คนก่อนครับ', 'warn'); return; }
   showToast(addedEntries.length ? `เพิ่ม ${addedEntries.length} คนเข้าแผนอบรมแล้ว` : 'คนที่เลือกอยู่ในแผนอบรมอยู่แล้ว', addedEntries.length ? 'success' : 'info');
@@ -4091,6 +5425,94 @@ function applyMapLinkToSubdistrict(id) {
   renderPlanTable();
   syncPlanEntriesToSupabase(changed);
   showToast(`ใช้ลิงก์นี้กับอีก ${changed.length} คนในตำบล${entry.subdistrict}แล้ว`, 'success');
+}
+
+// ----- เครื่องมือ "ตั้งช่วงวันที่อัตโนมัติ" (แบ่งตามตำบล) ในหน้าแผนอบรม -----
+function toggleDateRangeTool(forceShow) {
+  const panel = document.getElementById('dateRangeToolPanel');
+  if (!panel) return;
+  const show = forceShow !== undefined ? forceShow : panel.style.display === 'none';
+  panel.style.display = show ? '' : 'none';
+  if (show) populateDateRangeToolProvince();
+}
+
+function populateDateRangeToolProvince() {
+  const sel = document.getElementById('dateRangeToolProvince');
+  if (!sel) return;
+  const current = sel.value;
+  const provinces = [...new Set(trainingPlan.filter(p => !p.visitDate).map(p => p.province).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">เลือกจังหวัด</option>' + provinces.map(p => `<option value="${p}">${p}</option>`).join('');
+  sel.value = provinces.includes(current) ? current : '';
+  onDateRangeToolProvinceChange();
+}
+
+function onDateRangeToolProvinceChange() {
+  const provSel = document.getElementById('dateRangeToolProvince');
+  const distSel = document.getElementById('dateRangeToolDistrict');
+  if (!provSel || !distSel) return;
+  const province = provSel.value;
+  const currentDistrict = distSel.value;
+  const districts = [...new Set(
+    trainingPlan.filter(p => !p.visitDate && (!province || p.province === province)).map(p => p.district).filter(Boolean)
+  )].sort();
+  distSel.innerHTML = '<option value="">เลือกอำเภอ</option>' + districts.map(d => `<option value="${d}">${d}</option>`).join('');
+  distSel.value = districts.includes(currentDistrict) ? currentDistrict : '';
+  previewDateRangeTool();
+}
+
+// รายชื่อเป้าหมาย: อยู่ในแผนแล้ว + ยังไม่มีวันนัด + ตรงจังหวัด/อำเภอที่เลือกในเครื่องมือนี้
+function getDateRangeToolTargets() {
+  const provSel = document.getElementById('dateRangeToolProvince');
+  const distSel = document.getElementById('dateRangeToolDistrict');
+  const province = provSel ? provSel.value : '';
+  const district = distSel ? distSel.value : '';
+  if (!province || !district) return [];
+  return trainingPlan.filter(p => !p.visitDate && p.province === province && p.district === district);
+}
+
+function previewDateRangeTool() {
+  const previewEl = document.getElementById('dateRangeToolPreview');
+  if (!previewEl) return;
+  const start = document.getElementById('dateRangeToolStart').value;
+  const end = document.getElementById('dateRangeToolEnd').value;
+  const targets = getDateRangeToolTargets();
+  if (!targets.length) {
+    previewEl.innerHTML = '<p style="font-size:12.5px; color:var(--muted); margin:10px 0 0;">เลือกจังหวัด/อำเภอที่มีคนยังไม่นัด (อยู่ในแผนแล้ว) ก่อนครับ</p>';
+    return;
+  }
+  if (!start || !end || end < start) {
+    previewEl.innerHTML = '<p style="font-size:12.5px; color:var(--muted); margin:10px 0 0;">กรุณาเลือกวันเริ่มและวันสิ้นสุดให้ถูกต้อง (วันสิ้นสุดต้องไม่ก่อนวันเริ่ม)</p>';
+    return;
+  }
+  const subdistricts = [...new Set(targets.map(p => p.subdistrict || 'ไม่ระบุตำบล'))].sort();
+  const dateMap = distributeDatesBySubdistrict(subdistricts, start, end);
+  const rows = subdistricts.map(sd => {
+    const count = targets.filter(p => (p.subdistrict || 'ไม่ระบุตำบล') === sd).length;
+    return `<tr><td>${sd}</td><td class="num">${count}</td><td>${formatThaiDate(dateMap.get(sd))}</td></tr>`;
+  }).join('');
+  previewEl.innerHTML = `
+    <table class="summary-table" style="margin-top:10px;">
+      <thead><tr><th>ตำบล</th><th class="num">จำนวนคน</th><th>วันที่ได้รับ</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p style="font-size:12.5px; color:var(--muted); margin-top:6px;">รวม ${targets.length.toLocaleString()} คน ใน ${subdistricts.length} ตำบล ช่วงวันที่ที่เลือกมี ${enumerateDateRange(start, end).length} วัน</p>
+  `;
+}
+
+function confirmDateRangeTool() {
+  const start = document.getElementById('dateRangeToolStart').value;
+  const end = document.getElementById('dateRangeToolEnd').value;
+  const targets = getDateRangeToolTargets();
+  if (!targets.length) { showToast('ไม่มีรายชื่อที่ยังไม่นัดในอำเภอที่เลือกครับ', 'warn'); return; }
+  if (!start || !end || end < start) { showToast('กรุณาเลือกวันเริ่ม-วันสิ้นสุดให้ถูกต้องครับ', 'warn'); return; }
+  const subdistricts = [...new Set(targets.map(p => p.subdistrict || 'ไม่ระบุตำบล'))].sort();
+  const dateMap = distributeDatesBySubdistrict(subdistricts, start, end);
+  targets.forEach(p => { p.visitDate = dateMap.get(p.subdistrict || 'ไม่ระบุตำบล'); });
+  savePlanToStorage();
+  renderPlanTable();
+  syncPlanEntriesToSupabase(targets);
+  showToast(`ตั้งวันที่ให้ ${targets.length.toLocaleString()} คน ใน ${subdistricts.length} ตำบลแล้ว`, 'success');
+  toggleDateRangeTool(false);
 }
 
 function applyVisitDateToSubdistrict(id) {
@@ -4173,6 +5595,14 @@ function populatePlanFilterOptions() {
   }
 }
 
+// ปุ่มลัด "ทั้งหมด / ยังไม่นัด / นัดแล้ว" เหนือตาราง — แค่ตั้งค่า select เดิม (planFilterScheduled) แล้วยิงตัวกรองเหมือนเดิม
+// ไม่ต้องแก้ getFilteredPlan/updatePlanField เลย เพราะ select ตัวเดิมยังเป็นตัวจริงที่ getFilteredPlan อ่านค่าอยู่
+function setPlanScheduleTab(value) {
+  const sel = document.getElementById('planFilterScheduled');
+  if (sel) sel.value = value;
+  applyPlanFilters();
+}
+
 function applyPlanFilters() {
   const tbody = document.getElementById('planTbody');
   if (!tbody) return;
@@ -4201,6 +5631,17 @@ function applyPlanFilters() {
       chip.innerHTML = '';
     }
   }
+
+  const schedSel = document.getElementById('planFilterScheduled');
+  const schedValue = schedSel ? schedSel.value : '';
+  const noDateCount = trainingPlan.filter(p => !p.visitDate).length;
+  const yesDateCount = trainingPlan.length - noDateCount;
+  document.querySelectorAll('#planScheduleTabs .view-toggle-btn[data-schedtab]').forEach(b => {
+    b.classList.toggle('active', b.dataset.schedtab === schedValue);
+    if (b.dataset.schedtab === '') b.textContent = `ทั้งหมด (${trainingPlan.length.toLocaleString()})`;
+    if (b.dataset.schedtab === 'no') b.textContent = `🕑 ยังไม่นัด (${noDateCount.toLocaleString()})`;
+    if (b.dataset.schedtab === 'yes') b.textContent = `📆 นัดแล้ว (${yesDateCount.toLocaleString()})`;
+  });
 }
 
 function onPlanFilterProvinceChange() {
@@ -4312,10 +5753,15 @@ async function removePlanEntry(id) {
   trainingPlan = trainingPlan.filter(p => p.id !== id);
   savePlanToStorage();
   renderPlanTable();
-  if (currentPeoplePanelProvince && currentPeoplePanelDistrict) {
-    showDistrictPeople(currentPeoplePanelProvince, currentPeoplePanelDistrict);
-  }
+  refreshPeoplePanel();
   deletePlanEntryFromSupabase(id);
+}
+
+// ยกเลิกการเพิ่มคนเข้าแผนอบรม โดยหาแถวแผนจากเลขบัตรประชาชน (ใช้จากปุ่ม "ยกเลิก" ในพาแนลเลือกคน)
+async function removePersonFromPlanByNid(nationalId) {
+  const entry = trainingPlan.find(e => e.nationalId === nationalId);
+  if (!entry) return;
+  await removePlanEntry(entry.id);
 }
 
 async function clearPlan() {
@@ -4915,6 +6361,10 @@ function iotPlanEntryToSupabaseRow(entry) {
     install_time: entry.installTime || null,
     box_type: entry.boxType || null,
     install_team: entry.installTeam || null,
+    operator_name: entry.operatorName || null,
+    pump_type: entry.pumpType || null,
+    pipe_size: entry.pipeSize || null,
+    payment_status: entry.paymentStatus || null,
     map_link: entry.mapLink || null,
     note: entry.note || null,
     status: entry.status || 'pending',
@@ -4981,6 +6431,10 @@ async function syncIotPlanFromSupabase(opts) {
         installTime: row.install_time || '',
         boxType: row.box_type || '',
         installTeam: row.install_team || '',
+        operatorName: row.operator_name || '',
+        pumpType: row.pump_type || '',
+        pipeSize: row.pipe_size || '',
+        paymentStatus: row.payment_status || '',
         mapLink: row.map_link || '',
         note: row.note || '',
         status: row.status || 'pending',
@@ -5015,6 +6469,10 @@ function addPersonToIotPlan(p) {
     installTime: '',
     boxType: '',
     installTeam: '',
+    operatorName: '',
+    pumpType: '',
+    pipeSize: '',
+    paymentStatus: '',
     mapLink: '',
     note: '',
     status: 'pending',
@@ -5030,9 +6488,7 @@ function addPersonToIotPlanByNid(nid) {
   const entry = addPersonToIotPlan(p);
   saveIotPlanToStorage();
   renderIotPlanTable();
-  if (currentIotPeoplePanelProvince && currentIotPeoplePanelDistrict) {
-    showIotDistrictPeople(currentIotPeoplePanelProvince, currentIotPeoplePanelDistrict);
-  }
+  refreshIotPeoplePanel();
   if (entry) {
     syncIotPlanEntriesToSupabase([entry]);
   } else {
@@ -5040,20 +6496,28 @@ function addPersonToIotPlanByNid(nid) {
   }
 }
 
-function addAllDistrictNotInstalledToIotPlan() {
-  if (!currentIotPeoplePanelProvince || !currentIotPeoplePanelDistrict) return;
+// เพิ่มคนที่ "ยังไม่ติดตั้ง" ทั้งอำเภอที่ระบุเข้าแผน (parametrized เพื่อใช้ได้ทั้งมุมมองทีละอำเภอ และมุมมองทั้งจังหวัด)
+function addAllNotInstalledToIotPlanFor(province, district) {
+  // ไม่รวมคนที่ทำเครื่องหมายว่า "ติดตั้งไม่ได้" ไว้ ให้สอดคล้องกับพาแนลที่แยกหัวข้อคนกลุ่มนี้ออกไปแล้ว
   const people = getIotVisibleRows().filter(r =>
-    normName(r[IOT_FIELDS.province]) === normName(currentIotPeoplePanelProvince) &&
-    normName(r[IOT_FIELDS.district]) === normName(currentIotPeoplePanelDistrict) &&
-    r[IOT_FIELDS.status] === IOT_FIELDS.notDone
+    normName(r[IOT_FIELDS.province]) === normName(province) &&
+    normName(r[IOT_FIELDS.district]) === normName(district) &&
+    r[IOT_FIELDS.status] === IOT_FIELDS.notDone &&
+    !getIotInstallBlockerState(r)
   );
   const addedEntries = [];
   people.forEach(p => { const entry = addPersonToIotPlan(p); if (entry) addedEntries.push(entry); });
   saveIotPlanToStorage();
   renderIotPlanTable();
-  showIotDistrictPeople(currentIotPeoplePanelProvince, currentIotPeoplePanelDistrict);
+  refreshIotPeoplePanel();
   if (addedEntries.length) syncIotPlanEntriesToSupabase(addedEntries);
   showToast(addedEntries.length ? `เพิ่ม ${addedEntries.length} คนเข้าแผนติดตั้ง IoT แล้ว` : 'ทุกคนอยู่ในแผนติดตั้งแล้ว', addedEntries.length ? 'success' : 'info');
+  return addedEntries;
+}
+
+function addAllDistrictNotInstalledToIotPlan() {
+  if (!currentIotPeoplePanelProvince || !currentIotPeoplePanelDistrict) return;
+  addAllNotInstalledToIotPlanFor(currentIotPeoplePanelProvince, currentIotPeoplePanelDistrict);
 }
 
 function addSelectedIotPeopleToIotPlan(groupId) {
@@ -5068,9 +6532,7 @@ function addSelectedIotPeopleToIotPlan(groupId) {
   });
   saveIotPlanToStorage();
   renderIotPlanTable();
-  if (currentIotPeoplePanelProvince && currentIotPeoplePanelDistrict) {
-    showIotDistrictPeople(currentIotPeoplePanelProvince, currentIotPeoplePanelDistrict);
-  }
+  refreshIotPeoplePanel();
   if (addedEntries.length) syncIotPlanEntriesToSupabase(addedEntries);
   if (!checked.length) { showToast('กรุณาเลือกอย่างน้อย 1 คนก่อนครับ', 'warn'); return; }
   showToast(addedEntries.length ? `เพิ่ม ${addedEntries.length} คนเข้าแผนติดตั้ง IoT แล้ว` : 'คนที่เลือกอยู่ในแผนติดตั้งอยู่แล้ว', addedEntries.length ? 'success' : 'info');
@@ -5086,14 +6548,24 @@ function toggleSelectAllIotPeople(groupId) {
 
 const IOT_PLAN_STATUS_LABELS = { pending: 'รอติดตั้ง', done: 'ติดตั้งแล้ว', cancelled: 'ยกเลิก' };
 const IOT_BOX_TYPE_LABELS = { no_button: 'ตู้ไม่มีปุ่มกด', with_button: 'ตู้มีปุ่มกด' };
-const IOT_INSTALL_TEAMS = ['ทีมติดตั้ง1', 'ทีมติดตั้ง2', 'ทีมติดตั้ง3', 'ทีมติดตั้ง4', 'ทีมติดตั้ง5'];
+const IOT_INSTALL_TEAMS = ['ทีมโก้', 'ทีมนพดล', 'ทีม Aero'];
+const IOT_PUMP_TYPES = ['ไม่เกิน 5 แรงม้า', 'โซล่าเซลล์', 'เกิน 5 แรงม้า', 'เครื่องยนต์'];
+const IOT_PIPE_SIZES = ['1 นิ้ว', '2 นิ้ว', '3 นิ้ว'];
+const IOT_PAYMENT_STATUSES = ['ชำระแล้ว', 'ยังไม่ชำระ'];
+const IOT_OPERATORS = ['Admin', 'นพดล']; // รายชื่อผู้ดำเนินการสำเร็จรูป แก้/เพิ่มชื่อได้ตรงนี้
+const IOT_TIME_HOURS = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, '0'));
+const IOT_TIME_MINUTES = ['00', '15', '30', '45'];
 
 function iotPlanRowHtml(p, i) {
   const mapLinkSafe = (p.mapLink || '').replace(/"/g, '&quot;');
   const status = p.status || 'pending';
   const hasDate = !!p.installDate;
+  const [instHour, instMinute] = (p.installTime || '').split(':');
+  const planBlocker = getIotInstallBlockerStateByNationalId(p.nationalId);
+  const planBlockerNidSafe = (p.nationalId || '').replace(/'/g, "\\'");
   return `
     <tr class="plan-row-${status}">
+      <td><input type="checkbox" class="iot-plan-bulk-checkbox" data-id="${p.id}" onchange="updateIotPlanBulkSelectedCount()"></td>
       <td>${i + 1}</td>
       <td style="text-align:center;">
         ${hasDate
@@ -5102,7 +6574,17 @@ function iotPlanRowHtml(p, i) {
       </td>
       <td>
         <input class="plan-week-input" type="date" value="${p.installDate || ''}" onchange="updateIotPlanField('${p.id}','installDate',this.value)">
-        <input class="plan-week-input" type="time" value="${p.installTime || ''}" onchange="updateIotPlanField('${p.id}','installTime',this.value)" style="display:block; width:100%; box-sizing:border-box; margin-top:4px;" title="เวลานัดติดตั้ง">
+        <div style="display:flex; align-items:center; gap:4px; margin-top:4px;" title="เวลานัดติดตั้ง">
+          <select class="plan-status-select" style="width:56px; padding:5px 2px; text-align:center;" onchange="updateIotPlanTimePart('${p.id}','h',this.value)">
+            <option value="">-</option>
+            ${IOT_TIME_HOURS.map(h => `<option value="${h}" ${instHour === h ? 'selected' : ''}>${h}</option>`).join('')}
+          </select>
+          <span style="opacity:.6;">:</span>
+          <select class="plan-status-select" style="width:56px; padding:5px 2px; text-align:center;" onchange="updateIotPlanTimePart('${p.id}','m',this.value)">
+            <option value="">-</option>
+            ${IOT_TIME_MINUTES.map(m => `<option value="${m}" ${instMinute === m ? 'selected' : ''}>${m}</option>`).join('')}
+          </select>
+        </div>
         <div class="plan-map-actions">
           <button type="button" class="btn-linklike" onclick="applyInstallDateToSubdistrict('${p.id}')">ใช้ทั้งตำบล</button>
         </div>
@@ -5121,13 +6603,46 @@ function iotPlanRowHtml(p, i) {
         </select>
       </td>
       <td>
+        <select class="plan-status-select" onchange="updateIotPlanField('${p.id}','operatorName',this.value)">
+          <option value="" ${!p.operatorName ? 'selected' : ''}>ยังไม่ระบุ</option>
+          ${IOT_OPERATORS.map(t => `<option value="${t}" ${p.operatorName === t ? 'selected' : ''}>${t}</option>`).join('')}
+        </select>
+      </td>
+      <td>
         <select class="plan-status-select" onchange="updateIotPlanField('${p.id}','boxType',this.value)">
           <option value="" ${!p.boxType ? 'selected' : ''}>ยังไม่ระบุ</option>
           <option value="no_button" ${p.boxType === 'no_button' ? 'selected' : ''}>ตู้ไม่มีปุ่มกด</option>
           <option value="with_button" ${p.boxType === 'with_button' ? 'selected' : ''}>ตู้มีปุ่มกด</option>
         </select>
       </td>
-      <td>${p.name || '-'}</td>
+      <td>
+        <select class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','pumpType',this.value)">
+          <option value="" ${!p.pumpType ? 'selected' : ''}>ยังไม่ระบุ</option>
+          ${IOT_PUMP_TYPES.map(t => `<option value="${t}" ${p.pumpType === t ? 'selected' : ''}>${t}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <select class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','pipeSize',this.value)">
+          <option value="" ${!p.pipeSize ? 'selected' : ''}>ยังไม่ระบุ</option>
+          ${IOT_PIPE_SIZES.map(t => `<option value="${t}" ${p.pipeSize === t ? 'selected' : ''}>${t}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        ${p.boxType === 'no_button'
+          ? `<span class="plan-cell-dash" title="ตู้ไม่มีปุ่มกด ไม่ต้องเก็บเงิน">-</span>`
+          : `<select class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','paymentStatus',this.value)">
+              <option value="" ${!p.paymentStatus ? 'selected' : ''}>ยังไม่ระบุ</option>
+              ${IOT_PAYMENT_STATUSES.map(t => `<option value="${t}" ${p.paymentStatus === t ? 'selected' : ''}>${t}</option>`).join('')}
+            </select>`}
+      </td>
+      <td>
+        ${p.name || '-'}
+        <div class="plan-meta-line" style="${planBlocker ? 'color:var(--red);' : ''}">
+          ${planBlocker
+            ? `🚫 ติดตั้งไม่ได้ <button type="button" class="btn-linklike" onclick="openIotInstallBlockerModalByNationalId('${planBlockerNidSafe}')" title="เหตุผล: ${(planBlocker.reason || '').replace(/"/g, '&quot;')}">แก้ไข</button>`
+            : `<button type="button" class="btn-linklike" onclick="openIotInstallBlockerModalByNationalId('${planBlockerNidSafe}')">🚫 ทำเครื่องหมายว่าติดตั้งไม่ได้</button>`}
+        </div>
+      </td>
       <td>${p.nationalId || ''}</td>
       <td>${p.phone || ''}</td>
       <td>${p.province}</td>
@@ -5242,9 +6757,9 @@ function applyIotPlanFilters() {
   if (filtered.length) {
     tbody.innerHTML = filtered.map((p, i) => iotPlanRowHtml(p, i)).join('');
   } else if (iotInstallPlan.length) {
-    tbody.innerHTML = `<tr><td colspan="15" class="empty-state-cell"><span class="empty-icon">🔍</span><span class="empty-text">ไม่พบรายการที่ตรงกับตัวกรอง<br>ลองปรับตัวกรองดูใหม่นะครับ</span></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="17" class="empty-state-cell"><span class="empty-icon">🔍</span><span class="empty-text">ไม่พบรายการที่ตรงกับตัวกรอง<br>ลองปรับตัวกรองดูใหม่นะครับ</span></td></tr>`;
   } else {
-    tbody.innerHTML = `<tr><td colspan="15" class="empty-state-cell"><span class="empty-icon">📭</span><span class="empty-text">ยังไม่มีรายการในแผนติดตั้ง IoT เลย<br>ไปที่แท็บ 🗺️ แผนที่ เพื่อเพิ่มคนเข้าแผนได้เลยครับ</span></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="17" class="empty-state-cell"><span class="empty-icon">📭</span><span class="empty-text">ยังไม่มีรายการในแผนติดตั้ง IoT เลย<br>ไปที่แท็บ 🗺️ แผนที่ เพื่อเพิ่มคนเข้าแผนได้เลยครับ</span></td></tr>`;
   }
 
   const countInfo = document.getElementById('iotPlanFilterCountInfo');
@@ -5274,11 +6789,55 @@ function onIotPlanFilterDistrictChange() {
   applyIotPlanFilters();
 }
 
+// เติมตัวเลือกใน dropdown "ผู้ดำเนินการ" ของแถบ bulk-assign จาก IOT_OPERATORS (เรียกทุกครั้งที่ render ตารางแผน)
+function populateIotPlanBulkOperatorOptions() {
+  const sel = document.getElementById('iotPlanBulkOperatorSelect');
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— เลือกผู้ดำเนินการ —</option>' + IOT_OPERATORS.map(o => `<option value="${o}">${o}</option>`).join('');
+  sel.value = IOT_OPERATORS.includes(current) ? current : '';
+}
+
+// นับจำนวนแถวที่ติ๊กเลือกไว้ตอนนี้ในตารางแผน แล้วอัปเดตข้อความในแถบ bulk-assign
+function updateIotPlanBulkSelectedCount() {
+  const countEl = document.getElementById('iotPlanBulkSelectedCount');
+  if (!countEl) return;
+  const checked = document.querySelectorAll('#iotPlanTbody .iot-plan-bulk-checkbox:checked').length;
+  countEl.textContent = `เลือกแล้ว ${checked.toLocaleString()} รายการ`;
+}
+
+// ติ๊ก/ยกเลิกติ๊กทุกแถวในตารางแผนพร้อมกัน (ใช้จากช่องติ๊กหัวตาราง)
+function toggleSelectAllIotPlanRows() {
+  const boxes = document.querySelectorAll('#iotPlanTbody .iot-plan-bulk-checkbox');
+  const allChecked = boxes.length > 0 && [...boxes].every(b => b.checked);
+  boxes.forEach(b => { b.checked = !allChecked; });
+  updateIotPlanBulkSelectedCount();
+}
+
+// ตั้ง "ผู้ดำเนินการ" ให้ทุกแถวที่ติ๊กเลือกไว้พร้อมกันทีเดียว แล้วซิงก์ขึ้น Supabase ทีเดียว
+function applyBulkIotPlanOperator() {
+  const select = document.getElementById('iotPlanBulkOperatorSelect');
+  const operator = select ? select.value : '';
+  if (!operator) { showToast('กรุณาเลือกผู้ดำเนินการก่อนครับ', 'warn'); return; }
+  const checked = [...document.querySelectorAll('#iotPlanTbody .iot-plan-bulk-checkbox:checked')];
+  if (!checked.length) { showToast('กรุณาเลือกอย่างน้อย 1 แถวก่อนครับ', 'warn'); return; }
+  const changed = [];
+  checked.forEach(cb => {
+    const entry = iotInstallPlan.find(p => p.id === cb.getAttribute('data-id'));
+    if (entry) { entry.operatorName = operator; changed.push(entry); }
+  });
+  saveIotPlanToStorage();
+  renderIotPlanTable();
+  if (changed.length) syncIotPlanEntriesToSupabase(changed);
+  showToast(`ตั้งผู้ดำเนินการ "${operator}" ให้ ${changed.length.toLocaleString()} รายการแล้วครับ`, 'success');
+}
+
 function renderIotPlanTable() {
   const tbody = document.getElementById('iotPlanTbody');
   if (!tbody) return;
   document.getElementById('iotPlanCountBadge').textContent = iotInstallPlan.length.toLocaleString() + ' รายการ';
   populateIotPlanFilterOptions();
+  populateIotPlanBulkOperatorOptions();
   applyIotPlanFilters();
   renderIotPlanDashboard();
   if (iotPlanCurrentView === 'calendar') renderIotPlanCalendar();
@@ -5326,13 +6885,29 @@ function scheduleIotPlanEntrySync(entry, immediate) {
   }, 800);
 }
 
+function updateIotPlanTimePart(id, part, value) {
+  const entry = iotInstallPlan.find(p => p.id === id);
+  if (!entry) return;
+  const [curH, curM] = (entry.installTime || '').split(':');
+  const h = part === 'h' ? value : (curH || '');
+  let m = part === 'm' ? value : (curM || '');
+  if (part === 'h' && value && !m) m = '00'; // เลือกชั่วโมงก่อน ตั้งนาทีเริ่มต้นเป็น 00 ให้เลย ไม่ต้องกดนาทีซ้ำถ้าไม่สนใจนาที
+  const newTime = (h && m) ? `${h}:${m}` : '';
+  updateIotPlanField(id, 'installTime', newTime);
+}
+
 function updateIotPlanField(id, field, value) {
   const entry = iotInstallPlan.find(p => p.id === id);
   if (!entry) return;
   entry[field] = value;
+  if (field === 'boxType' && value === 'no_button') {
+    entry.paymentStatus = ''; // ตู้ไม่มีปุ่มกด ไม่ต้องเก็บเงิน เลยล้างค่าที่เคยเลือกไว้ (ถ้ามี)
+  }
   saveIotPlanToStorage();
-  if (field === 'status' || field === 'installDate') {
-    // สถานะเปลี่ยนอาจทำให้แถวนี้หลุดจากตัวกรองที่เลือกอยู่ และวันที่ติดตั้งเปลี่ยนต้องอัปเดตเครื่องหมาย ✓/− ในแถวทันที
+  if (field === 'status' || field === 'installDate' || field === 'installTime' || field === 'boxType') {
+    // สถานะ/วันที่เปลี่ยนอาจทำให้แถวนี้หลุดจากตัวกรองที่เลือกอยู่ และวันที่ติดตั้งเปลี่ยนต้องอัปเดตเครื่องหมาย ✓/− ในแถวทันที
+    // เวลาเปลี่ยนต้อง re-render เพื่อให้ select นาทีที่ตั้งอัตโนมัติ (00) แสดงค่าล่าสุดถูกต้อง
+    // ตู้เปลี่ยนต้อง re-render เพื่อให้ช่องการชำระเงินสลับเป็น "-" ทันทีเมื่อเลือกตู้ไม่มีปุ่มกด
     applyIotPlanFilters();
   }
   renderIotPlanDashboard();
@@ -5348,10 +6923,15 @@ async function removeIotPlanEntry(id) {
   iotInstallPlan = iotInstallPlan.filter(p => p.id !== id);
   saveIotPlanToStorage();
   renderIotPlanTable();
-  if (currentIotPeoplePanelProvince && currentIotPeoplePanelDistrict) {
-    showIotDistrictPeople(currentIotPeoplePanelProvince, currentIotPeoplePanelDistrict);
-  }
+  refreshIotPeoplePanel();
   deleteIotPlanEntryFromSupabase(id);
+}
+
+// ยกเลิกการเพิ่มคนเข้าแผนติดตั้ง IoT โดยหาแถวแผนจากเลขบัตรประชาชน (ใช้จากปุ่ม "ยกเลิก" ในพาแนลเลือกคน)
+async function removePersonFromIotPlanByNid(nationalId) {
+  const entry = iotInstallPlan.find(e => e.nationalId === nationalId);
+  if (!entry) return;
+  await removeIotPlanEntry(entry.id);
 }
 
 async function clearIotPlan() {
@@ -5730,14 +7310,23 @@ function buildMatchedAppIotIds() {
   return matched;
 }
 
-// แบ่ง 4 หมวด: ตรงกันแล้ว / เชื่อมต่อแล้วรอระบบอัปเดต / OTOD ติดตั้งแล้วแต่ยังไม่เชื่อมต่อ / เชื่อมต่อแอปแต่ไม่พบใน OTOD
+// แบ่งหมวด: รอยืนยันเอกสาร (isLegacyPending) / ตรงกันแล้ว / เชื่อมต่อแล้วรอระบบอัปเดต /
+// OTOD ติดตั้งแล้วแต่ยังไม่เชื่อมต่อ (แยกย่อยเป็นยืนยันซ้ำจากข้อมูลเก่าแล้ว vs ยังไม่มีอะไรยืนยัน) / เชื่อมต่อแอปแต่ไม่พบใน OTOD
 function getAppMatchCategories() {
   const rows = getIotVisibleRows();
   const inSync = [];
   const pendingUpdate = [];
   const otodOnly = [];
+  const pendingDocConfirmation = [];
 
   rows.forEach(r => {
+    // สถานะ "ติดตั้งแล้ว" ของคนกลุ่มนี้เป็นสิ่งที่ระบบอนุมานเอง (จากข้อมูลเก่า หรือจากการเชื่อมต่อแอป) ไม่ใช่ข้อมูลจริงจาก OTOD
+    // ต้องแยกไปตาราง "รอยืนยันเอกสาร" เสมอ ห้ามปนกับ 4 หมวดด้านล่างที่ต้องอิงข้อมูลจริงจาก OTOD เท่านั้น
+    // (กันสับสนระหว่าง "OTOD ยืนยันแล้วจริงๆ" กับ "ระบบอนุมานว่าน่าจะติดตั้งแล้ว แต่ยังรอ OTOD ยืนยัน" ซึ่งเป็นคนละเคสกัน)
+    if (r.isLegacyPending) {
+      pendingDocConfirmation.push(r);
+      return;
+    }
     if (r.app_connected) {
       if (r[IOT_FIELDS.status] === IOT_FIELDS.done) inSync.push(r);
       else pendingUpdate.push(r);
@@ -5749,11 +7338,33 @@ function getAppMatchCategories() {
   const matchedIds = buildMatchedAppIotIds();
   const appOnly = appConnections.filter(c => !matchedIds.has(c.app_iot_id));
 
-  return { inSync, pendingUpdate, otodOnly, appOnly };
+  // ใครในกลุ่ม otodOnly (ของจริงจาก OTOD ไม่ใช่ที่ระบบอนุมาน) ที่มี SN ยืนยันซ้ำจากข้อมูลเก่าด้วย ถือว่ายืนยันครบสองทางแล้ว
+  // ไม่ต้องตามให้เชื่อมต่อแอปด่วนเหมือนคนที่ยังไม่มีอะไรยืนยันเลย
+  const otodOnlyConfirmed = otodOnly.filter(r => r.legacySerial);
+  const otodOnlyUnconfirmed = otodOnly.filter(r => !r.legacySerial);
+
+  return { inSync, pendingUpdate, otodOnly: otodOnlyUnconfirmed, otodOnlyConfirmed, appOnly, pendingDocConfirmation };
 }
 
-function renderIotFarmerMatchRows(rows, includeStatus) {
-  const colCount = includeStatus ? 11 : 10;
+// คอลัมน์ "SN ตู้" รวมเป็นช่องเดียว: ถ้ามี SN จากการเชื่อมต่อแอปจริง (ยืนยันแล้ว) ใช้อันนั้นก่อน
+// ถ้าไม่มีแต่จับคู่ได้กับข้อมูลตู้ชุดเก่า ใช้ SN จากข้อมูลเก่าแทน พร้อมไอคอนนาฬิกา 🕓 บอกว่ายังไม่ยืนยันผ่านแอป
+function getIotSnCellHtml(r) {
+  if (r.matched_sn) return r.matched_sn;
+  if (r.legacySerial) return `<span title="ยังไม่ยืนยันผ่านแอป มาจากชีตติดตามตู้ชุดเก่า">${r.legacySerial} 🕓</span>`;
+  return '-';
+}
+
+function getIotDocChecklistCellHtml(r) {
+  const items = getIotDocChecklistState(r);
+  const doneCount = items.filter(it => it.ok).length;
+  const cls = doneCount === items.length ? 'status-done' : 'status-pending';
+  const refIdSafe = (r.reference_id || '').replace(/'/g, "\\'");
+  if (!r.reference_id) return '-';
+  return `<span class="pdf-status-badge ${cls}" style="cursor:pointer;" onclick="openIotDocChecklistModal('${refIdSafe}')" title="กดเพื่อดู/แก้ไขรายละเอียด">${doneCount}/${items.length} ครบ</span>`;
+}
+
+function renderIotFarmerMatchRows(rows, includeStatus, includeDocChecklist) {
+  const colCount = includeStatus ? (includeDocChecklist ? 12 : 11) : 10;
   if (!rows.length) {
     return `<tr><td colspan="${colCount}" class="empty-state-cell"><span class="empty-icon">✨</span><span class="empty-text">ไม่มีรายการในหมวดนี้</span></td></tr>`;
   }
@@ -5765,39 +7376,42 @@ function renderIotFarmerMatchRows(rows, includeStatus) {
       <td>${r.last_name || ''}</td>
       <td>${r.national_id || ''}</td>
       <td>${r.phone || ''}</td>
-      <td>${r.matched_sn || ''}</td>
+      <td>${getIotSnCellHtml(r)}</td>
       <td>${r.farm_province || ''}</td>
       <td>${r.farm_district || ''}</td>
       <td>${r.farm_subdistrict || ''}</td>
-      ${includeStatus ? `<td>${r.status || ''}</td>` : ''}
+      ${includeStatus ? `<td>${getIotStatusDisplayHtml(r)}</td>` : ''}
+      ${includeDocChecklist ? `<td>${getIotDocChecklistCellHtml(r)}</td>` : ''}
     </tr>
   `).join('');
 }
 
-function renderIotAppMatchDashboard() {
-  const totalEl = document.getElementById('iotMatchKpiTotalApp');
-  if (!totalEl) return; // แท็บยังไม่ถูกโหลด
+// แคชผลลัพธ์การจัดหมวดล่าสุดไว้ ให้ช่องค้นหาแต่ละตารางกรองต่อได้โดยไม่ต้องคำนวณหมวดใหม่ทุกครั้งที่พิมพ์
+let iotAppMatchCategoriesCache = null;
 
-  const { inSync, pendingUpdate, otodOnly, appOnly } = getAppMatchCategories();
+// ค้นหาในตาราง "เกษตรกร" (ชื่อ/นามสกุล/เลขบัตร/เบอร์/SN/พื้นที่) — ใช้ร่วมกันทุกตารางยกเว้น "เชื่อมต่อแอป แต่ไม่พบใน OTOD"
+function matchesIotFarmerSearch(r, term) {
+  const q = (term || '').trim().toLowerCase();
+  if (!q) return true;
+  const hay = [r.prefix, r.first_name, r.last_name, r.national_id, r.phone, r.matched_sn, r.legacySerial, r.farm_province, r.farm_district, r.farm_subdistrict]
+    .map(v => (v || '').toString().toLowerCase()).join(' ');
+  return hay.includes(q);
+}
 
-  document.getElementById('iotMatchKpiTotalApp').textContent = appConnections.length.toLocaleString();
-  document.getElementById('iotMatchKpiInSync').textContent = inSync.length.toLocaleString();
-  document.getElementById('iotMatchKpiPending').textContent = pendingUpdate.length.toLocaleString();
-  document.getElementById('iotMatchKpiAppOnly').textContent = appOnly.length.toLocaleString();
-  document.getElementById('iotMatchKpiOtodOnly').textContent = otodOnly.length.toLocaleString();
+// ค้นหาในตาราง "เชื่อมต่อแอปแล้ว แต่ไม่พบข้อมูลในระบบ OTOD" (ข้อมูลดิบจาก app_connections ไม่ใช่ iot_farmers)
+function matchesIotAppOnlySearch(c, term) {
+  const q = (term || '').trim().toLowerCase();
+  if (!q) return true;
+  const hay = [c.app_iot_id, c.app_farmer_id, c.first_name, c.last_name, c.national_id, c.phone]
+    .map(v => (v || '').toString().toLowerCase()).join(' ');
+  return hay.includes(q);
+}
 
-  document.getElementById('iotMatchPendingCountBadge').textContent = pendingUpdate.length.toLocaleString() + ' รายการ';
-  document.getElementById('iotMatchPendingTbody').innerHTML = renderIotFarmerMatchRows(pendingUpdate, true);
-
-  document.getElementById('iotMatchOtodOnlyCountBadge').textContent = otodOnly.length.toLocaleString() + ' รายการ';
-  document.getElementById('iotMatchOtodOnlyTbody').innerHTML = renderIotFarmerMatchRows(otodOnly, false);
-
-  document.getElementById('iotMatchInSyncCountBadge').textContent = inSync.length.toLocaleString() + ' รายการ';
-  document.getElementById('iotMatchInSyncTbody').innerHTML = renderIotFarmerMatchRows(inSync, true);
-
-  document.getElementById('iotMatchAppOnlyCountBadge').textContent = appOnly.length.toLocaleString() + ' รายการ';
-  document.getElementById('iotMatchAppOnlyTbody').innerHTML = appOnly.length
-    ? appOnly.map((c, i) => `
+function renderIotAppOnlyRows(rows) {
+  if (!rows.length) {
+    return '<tr><td colspan="7" class="empty-state-cell"><span class="empty-icon">✨</span><span class="empty-text">ไม่มีรายการในหมวดนี้</span></td></tr>';
+  }
+  return rows.map((c, i) => `
         <tr>
           <td>${i + 1}</td>
           <td>${c.app_iot_id || ''}</td>
@@ -5807,8 +7421,85 @@ function renderIotAppMatchDashboard() {
           <td>${c.national_id || ''}</td>
           <td>${c.phone || ''}</td>
         </tr>
-      `).join('')
-    : '<tr><td colspan="7" class="empty-state-cell"><span class="empty-icon">✨</span><span class="empty-text">ไม่มีรายการในหมวดนี้</span></td></tr>';
+      `).join('');
+}
+
+// เช็คว่าแถวนี้ตรงกับตัวกรอง "ครบ/ไม่ครบ" เอกสารที่เลือกไว้ไหม (all = ผ่านหมด ไม่กรอง)
+function matchesIotDocChecklistFilter(r, filterValue) {
+  if (!filterValue || filterValue === 'all') return true;
+  const items = getIotDocChecklistState(r);
+  const complete = items.every(it => it.ok);
+  return filterValue === 'incomplete' ? !complete : complete;
+}
+
+function applyIotMatchPendingDocSearch() {
+  if (!iotAppMatchCategoriesCache) return;
+  const term = document.getElementById('iotMatchPendingDocSearch').value;
+  const filterEl = document.getElementById('iotMatchPendingDocFilter');
+  const filterValue = filterEl ? filterEl.value : 'all';
+  const filtered = iotAppMatchCategoriesCache.pendingDocConfirmation
+    .filter(r => matchesIotFarmerSearch(r, term))
+    .filter(r => matchesIotDocChecklistFilter(r, filterValue));
+  document.getElementById('iotMatchPendingDocTbody').innerHTML = renderIotFarmerMatchRows(filtered, true, true);
+}
+
+function applyIotMatchOtodOnlySearch() {
+  if (!iotAppMatchCategoriesCache) return;
+  const term = document.getElementById('iotMatchOtodOnlySearch').value;
+  const filtered = iotAppMatchCategoriesCache.otodOnly.filter(r => matchesIotFarmerSearch(r, term));
+  document.getElementById('iotMatchOtodOnlyTbody').innerHTML = renderIotFarmerMatchRows(filtered, false);
+}
+
+function applyIotMatchOtodConfirmedSearch() {
+  if (!iotAppMatchCategoriesCache) return;
+  const term = document.getElementById('iotMatchOtodConfirmedSearch').value;
+  const filtered = iotAppMatchCategoriesCache.otodOnlyConfirmed.filter(r => matchesIotFarmerSearch(r, term));
+  document.getElementById('iotMatchOtodConfirmedTbody').innerHTML = renderIotFarmerMatchRows(filtered, false);
+}
+
+function applyIotMatchInSyncSearch() {
+  if (!iotAppMatchCategoriesCache) return;
+  const term = document.getElementById('iotMatchInSyncSearch').value;
+  const filtered = iotAppMatchCategoriesCache.inSync.filter(r => matchesIotFarmerSearch(r, term));
+  document.getElementById('iotMatchInSyncTbody').innerHTML = renderIotFarmerMatchRows(filtered, true);
+}
+
+function applyIotMatchAppOnlySearch() {
+  if (!iotAppMatchCategoriesCache) return;
+  const term = document.getElementById('iotMatchAppOnlySearch').value;
+  const filtered = iotAppMatchCategoriesCache.appOnly.filter(c => matchesIotAppOnlySearch(c, term));
+  document.getElementById('iotMatchAppOnlyTbody').innerHTML = renderIotAppOnlyRows(filtered);
+}
+
+function renderIotAppMatchDashboard() {
+  const totalEl = document.getElementById('iotMatchKpiTotalApp');
+  if (!totalEl) return; // แท็บยังไม่ถูกโหลด
+
+  const categories = getAppMatchCategories();
+  iotAppMatchCategoriesCache = categories;
+  const { inSync, pendingUpdate, otodOnly, otodOnlyConfirmed, appOnly, pendingDocConfirmation } = categories;
+
+  document.getElementById('iotMatchKpiTotalApp').textContent = appConnections.length.toLocaleString();
+  document.getElementById('iotMatchKpiInSync').textContent = inSync.length.toLocaleString();
+  document.getElementById('iotMatchKpiAppOnly').textContent = appOnly.length.toLocaleString();
+  document.getElementById('iotMatchKpiOtodOnly').textContent = otodOnly.length.toLocaleString();
+  document.getElementById('iotMatchKpiOtodConfirmed').textContent = otodOnlyConfirmed.length.toLocaleString();
+  document.getElementById('iotMatchKpiPendingDoc').textContent = pendingDocConfirmation.length.toLocaleString();
+
+  document.getElementById('iotMatchPendingDocCountBadge').textContent = pendingDocConfirmation.length.toLocaleString() + ' รายการ';
+  applyIotMatchPendingDocSearch();
+
+  document.getElementById('iotMatchOtodOnlyCountBadge').textContent = otodOnly.length.toLocaleString() + ' รายการ';
+  applyIotMatchOtodOnlySearch();
+
+  document.getElementById('iotMatchOtodConfirmedCountBadge').textContent = otodOnlyConfirmed.length.toLocaleString() + ' รายการ';
+  applyIotMatchOtodConfirmedSearch();
+
+  document.getElementById('iotMatchInSyncCountBadge').textContent = inSync.length.toLocaleString() + ' รายการ';
+  applyIotMatchInSyncSearch();
+
+  document.getElementById('iotMatchAppOnlyCountBadge').textContent = appOnly.length.toLocaleString() + ' รายการ';
+  applyIotMatchAppOnlySearch();
 }
 
 function setIotPlanLookback(days) {
@@ -5975,21 +7666,131 @@ function renderIotPlanAppMatchSection() {
   renderIotPlanAppConfirmTeamBreakdown();
 }
 
-// สลับแท็บย่อยภายในแท็บ "แผนติดตั้ง IoT" — 📋 แผนติดตั้ง (ตาราง/ปฏิทินเดิม) กับ 📶 เชื่อมต่อแอป (ของใหม่)
+// ===== ตรวจสอบเจ้าของตู้ (ข้อมูลเก่า) — อ่าน view "iot_sn_ownership_check" ที่สร้างไว้ใน Supabase =====
+// (เทียบ "เจ้าของที่ตั้งใจ" จากชีตเก่า+ชีตตู้ กับ "เจ้าของจริงที่เชื่อมต่อแอป" จากตาราง app_connections)
+let iotLegacyCheckRows = [];
+let iotLegacyCheckLoaded = false;
+
+async function loadIotOwnershipCheck(forceReload) {
+  if (!supabaseClient) return;
+  if (iotLegacyCheckLoaded && !forceReload) { renderIotLegacyCheckSection(); return; }
+  let rows = [];
+  let from = 0;
+  const pageSize = 1000;
+  while (true) {
+    const { data, error } = await supabaseClient
+      .from('iot_sn_ownership_check')
+      .select('*')
+      .range(from, from + pageSize - 1);
+    if (error) {
+      console.warn('โหลดข้อมูลตรวจสอบเจ้าของตู้ไม่สำเร็จ:', error.message);
+      showToast('โหลดข้อมูลตรวจสอบเจ้าของตู้ไม่สำเร็จ: ' + error.message, 'warn');
+      return;
+    }
+    rows = rows.concat(data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+  iotLegacyCheckRows = rows;
+  iotLegacyCheckLoaded = true;
+  renderIotLegacyCheckSection();
+}
+
+function getIotLegacyCheckFiltered() {
+  const statusSel = document.getElementById('iotLegacyFilterStatus');
+  const searchInput = document.getElementById('iotLegacyFilterSearch');
+  const statusFilter = statusSel ? statusSel.value : '';
+  const search = (searchInput ? searchInput.value : '').trim().toLowerCase();
+  return iotLegacyCheckRows.filter(r => {
+    if (statusFilter && r.match_status !== statusFilter) return false;
+    if (search) {
+      const hay = [
+        r.intended_owner_name, r.intended_owner_phone, r.serial_board,
+        r.actual_app_owner_name, r.actual_app_owner_phone, r.base_code,
+      ].map(v => (v || '').toString().toLowerCase()).join(' ');
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+}
+
+// ใช้สีป้ายเดียวกับ pdf-status-badge ที่มีอยู่แล้ว (status-done เขียว / status-cancelled แดง / status-pending เทา)
+function iotLegacyMatchStatusBadgeClass(status) {
+  if (status === 'ตรงกัน') return 'status-done';
+  if (status === 'ยังไม่เชื่อมแอป') return 'status-pending';
+  return 'status-cancelled'; // 'ไม่ตรงกัน (ตรวจสอบ)'
+}
+
+function renderIotLegacyCheckSection() {
+  const total = iotLegacyCheckRows.length;
+  const matchCount = iotLegacyCheckRows.filter(r => r.match_status === 'ตรงกัน').length;
+  const mismatchCount = iotLegacyCheckRows.filter(r => r.match_status === 'ไม่ตรงกัน (ตรวจสอบ)').length;
+  const noAppCount = iotLegacyCheckRows.filter(r => r.match_status === 'ยังไม่เชื่อมแอป').length;
+
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setText('iotLegacyKpiTotal', total.toLocaleString());
+  setText('iotLegacyKpiMatch', matchCount.toLocaleString());
+  setText('iotLegacyKpiMismatch', mismatchCount.toLocaleString());
+  setText('iotLegacyKpiNoApp', noAppCount.toLocaleString());
+
+  applyIotLegacyCheckFilters();
+}
+
+function applyIotLegacyCheckFilters() {
+  const tbody = document.getElementById('iotLegacyCheckTbody');
+  if (!tbody) return;
+  const filtered = getIotLegacyCheckFiltered();
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--muted);">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map(r => `
+    <tr>
+      <td>${r.base_code || ''}</td>
+      <td>${r.intended_owner_name || ''}</td>
+      <td>${r.intended_owner_phone || ''}</td>
+      <td>${r.intended_owner_province || ''}</td>
+      <td>${r.serial_board || ''}</td>
+      <td>${r.cabinet_status || ''}</td>
+      <td>${r.actual_app_owner_name || ''}</td>
+      <td>${r.actual_app_owner_phone || ''}</td>
+      <td><span class="pdf-status-badge ${iotLegacyMatchStatusBadgeClass(r.match_status)}">${r.match_status || ''}</span></td>
+    </tr>
+  `).join('');
+}
+
+function exportIotLegacyCheckCsv() {
+  const filtered = getIotLegacyCheckFiltered();
+  if (!filtered.length) { showToast('ไม่มีข้อมูลจะส่งออกครับ', 'warn'); return; }
+  const headers = ['รหัสฐาน','เจ้าของที่ตั้งใจ','เบอร์ (ตั้งใจ)','จังหวัด (ตั้งใจ)','SN ตู้','สถานะตู้','เจ้าของจริงในแอป','เบอร์ (จริง)','ผลตรวจสอบ'];
+  const rows = filtered.map(r => [r.base_code, r.intended_owner_name, r.intended_owner_phone, r.intended_owner_province, r.serial_board, r.cabinet_status, r.actual_app_owner_name, r.actual_app_owner_phone, r.match_status]);
+  const csv = [headers, ...rows].map(row => row.map(v => `"${(v ?? '').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'iot_legacy_ownership_check.csv';
+  link.click();
+}
+
+// สลับแท็บย่อยภายในแท็บ "แผนติดตั้ง IoT" — 📋 แผนติดตั้ง / 📶 เชื่อมต่อแอป / 🔍 ตรวจสอบเจ้าของตู้ (ข้อมูลเก่า)
 function switchIotPlanSubTab(sub) {
   document.querySelectorAll('#tab-iot-plan .view-toggle-btn[data-subtab]').forEach(b => {
     b.classList.toggle('active', b.dataset.subtab === sub);
   });
   const tableEl = document.getElementById('iotPlanSubtabTable');
   const appMatchEl = document.getElementById('iotPlanSubtabAppMatch');
-  if (tableEl) tableEl.style.display = sub === 'appmatch' ? 'none' : '';
+  const legacyCheckEl = document.getElementById('iotPlanSubtabLegacyCheck');
+  if (tableEl) tableEl.style.display = sub === 'table' ? '' : 'none';
   if (appMatchEl) appMatchEl.style.display = sub === 'appmatch' ? '' : 'none';
+  if (legacyCheckEl) legacyCheckEl.style.display = sub === 'legacycheck' ? '' : 'none';
   if (sub === 'appmatch') {
     if (!iotDataLoaded) {
       loadIotData().then(renderIotPlanAppMatchSection);
     } else {
       renderIotPlanAppMatchSection();
     }
+  } else if (sub === 'legacycheck') {
+    loadIotOwnershipCheck(false);
   }
 }
 
@@ -6005,6 +7806,9 @@ function exportIotPlanExcel() {
     'สถานะ': IOT_PLAN_STATUS_LABELS[p.status || 'pending'],
     'ทีมติดตั้ง': p.installTeam || '',
     'ประเภทตู้': p.boxType ? IOT_BOX_TYPE_LABELS[p.boxType] : '',
+    'ปั๊มน้ำ': p.pumpType || '',
+    'ขนาดท่อ': p.pipeSize || '',
+    'การชำระเงิน': p.boxType === 'no_button' ? '-' : (p.paymentStatus || ''),
     'ชื่อ-นามสกุล': p.name || '',
     'เลขบัตรประชาชน': p.nationalId || '',
     'เบอร์ติดต่อ': p.phone || '',
@@ -6016,7 +7820,7 @@ function exportIotPlanExcel() {
   }));
   const ws = XLSX.utils.json_to_sheet(data);
 
-  const mapLinkColIndex = 12;
+  const mapLinkColIndex = 15;
   sortedPlan.forEach((p, i) => {
     if (p.mapLink) {
       const cellRef = XLSX.utils.encode_cell({ r: i + 1, c: mapLinkColIndex });
@@ -6032,13 +7836,14 @@ function exportIotPlanExcel() {
 }
 
 // ----- ส่งออกรายงาน PDF แผนติดตั้ง IoT (ใช้ระบบพิมพ์ของเบราว์เซอร์เหมือนแผนอบรม เพื่อให้ตัวอักษรไทยไม่เพี้ยน) -----
-function buildIotPlanPdfHtml(dated, teamLabel) {
-  const total = dated.length;
-  const doneCount = dated.filter(p => p.status === 'done').length;
-  const cancelledCount = dated.filter(p => p.status === 'cancelled').length;
+// สร้างเซคชันของทีมเดียว (จัดกลุ่มตามวันที่ภายในทีมนั้น) — ไม่มีคอลัมน์ "ทีมติดตั้ง" ต่อแถวแล้ว เพราะหัวข้อทีมบอกอยู่แล้ว
+function buildIotPlanTeamSectionHtml(items, teamName) {
+  const total = items.length;
+  const doneCount = items.filter(p => p.status === 'done').length;
+  const cancelledCount = items.filter(p => p.status === 'cancelled').length;
   const pendingCount = total - doneCount - cancelledCount;
 
-  const groups = groupByDate(dated, 'installDate').sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+  const groups = groupByDate(items, 'installDate').sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   groups.forEach(g => g.items.sort((a, b) => {
     const timeA = a.installTime || '~'; // ยังไม่ระบุเวลา -> ให้อยู่ท้ายกลุ่มวันเดียวกันเสมอ ('~' มีค่ามากกว่าเลข/':' ทุกตัว)
     const timeB = b.installTime || '~';
@@ -6046,24 +7851,7 @@ function buildIotPlanPdfHtml(dated, teamLabel) {
     return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
   }));
 
-  const sortedDates = groups.map(g => g.date);
-  const rangeLabel = sortedDates.length === 0
-    ? ''
-    : sortedDates.length === 1
-      ? formatThaiDate(sortedDates[0])
-      : `${formatThaiDateShort(sortedDates[0])} – ${formatThaiDate(sortedDates[sortedDates.length - 1])}`;
-
-  const generatedAt = new Date().toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' });
-
-  const kpiHtml = `
-    <div class="pdf-kpi-grid">
-      <div class="pdf-kpi-card"><div class="pdf-kpi-num">${total}</div><div class="pdf-kpi-label">คนที่นัดแล้ว</div></div>
-      <div class="pdf-kpi-card"><div class="pdf-kpi-num">${groups.length}</div><div class="pdf-kpi-label">วันที่นัดหมาย</div></div>
-      <div class="pdf-kpi-card done"><div class="pdf-kpi-num">${doneCount}</div><div class="pdf-kpi-label">ติดตั้งแล้ว</div></div>
-      <div class="pdf-kpi-card pending"><div class="pdf-kpi-num">${pendingCount}</div><div class="pdf-kpi-label">รอติดตั้ง</div></div>
-      <div class="pdf-kpi-card cancelled"><div class="pdf-kpi-num">${cancelledCount}</div><div class="pdf-kpi-label">ยกเลิก</div></div>
-    </div>
-  `;
+  const statsLabel = `${total} คน • ติดตั้งแล้ว ${doneCount} • รอติดตั้ง ${pendingCount}${cancelledCount ? ' • ยกเลิก ' + cancelledCount : ''}`;
 
   const groupsHtml = groups.map(g => `
     <div class="pdf-date-section">
@@ -6073,11 +7861,12 @@ function buildIotPlanPdfHtml(dated, teamLabel) {
       </div>
       <table class="pdf-table">
         <colgroup>
-          <col style="width:3%;"><col style="width:7%;"><col style="width:14%;"><col style="width:9%;"><col style="width:14%;">
-          <col style="width:10%;"><col style="width:10%;"><col style="width:7%;"><col style="width:9%;"><col style="width:17%;">
+          <col style="width:3%;"><col style="width:6%;"><col style="width:13%;"><col style="width:9%;"><col style="width:14%;">
+          <col style="width:8%;"><col style="width:10%;"><col style="width:6%;"><col style="width:8%;"><col style="width:6%;">
+          <col style="width:7%;"><col style="width:10%;">
         </colgroup>
         <thead>
-          <tr><th>#</th><th>เวลา</th><th>ชื่อ-นามสกุล</th><th>เบอร์ติดต่อ</th><th>พื้นที่ (จังหวัด/อำเภอ/ตำบล)</th><th>ทีมติดตั้ง</th><th>ตู้</th><th>พิกัด</th><th>สถานะ</th><th>หมายเหตุ</th></tr>
+          <tr><th>#</th><th>เวลา</th><th>ชื่อ-นามสกุล</th><th>เบอร์ติดต่อ</th><th>พื้นที่ (จังหวัด/อำเภอ/ตำบล)</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>การชำระเงิน</th><th>พิกัด</th><th>สถานะ</th><th>หมายเหตุ</th></tr>
         </thead>
         <tbody>
           ${g.items.map((p, i) => `
@@ -6087,8 +7876,10 @@ function buildIotPlanPdfHtml(dated, teamLabel) {
               <td>${p.name || '-'}</td>
               <td>${p.phone || '-'}</td>
               <td>${p.province || '-'} / ${p.district || '-'} / ${p.subdistrict || '-'}</td>
-              <td>${p.installTeam || '-'}</td>
               <td>${p.boxType ? IOT_BOX_TYPE_LABELS[p.boxType] : '-'}</td>
+              <td>${p.pumpType || '-'}</td>
+              <td>${p.pipeSize || '-'}</td>
+              <td>${p.boxType === 'no_button' ? '-' : (p.paymentStatus || '-')}</td>
               <td class="pdf-loc-cell">${p.mapLink ? '<span class="pdf-loc-badge has-loc">มีพิกัด</span>' : '<span class="pdf-loc-badge no-loc">-</span>'}</td>
               <td><span class="pdf-status-badge status-${p.status || 'pending'}">${IOT_PLAN_STATUS_LABELS[p.status || 'pending']}</span></td>
               <td>${p.note || '-'}</td>
@@ -6100,6 +7891,52 @@ function buildIotPlanPdfHtml(dated, teamLabel) {
   `).join('');
 
   return `
+    <div class="pdf-team-section">
+      <div class="pdf-team-heading">
+        <span>👷 ${teamName}</span>
+        <span class="pdf-team-stats">${statsLabel}</span>
+      </div>
+      ${groupsHtml}
+    </div>
+  `;
+}
+
+function buildIotPlanPdfHtml(dated, teamLabel) {
+  const total = dated.length;
+  const doneCount = dated.filter(p => p.status === 'done').length;
+  const cancelledCount = dated.filter(p => p.status === 'cancelled').length;
+  const pendingCount = total - doneCount - cancelledCount;
+
+  const sortedDates = [...new Set(dated.map(p => p.installDate))].sort();
+  const dayCount = sortedDates.length;
+  const rangeLabel = sortedDates.length === 0
+    ? ''
+    : sortedDates.length === 1
+      ? formatThaiDate(sortedDates[0])
+      : `${formatThaiDateShort(sortedDates[0])} – ${formatThaiDate(sortedDates[sortedDates.length - 1])}`;
+
+  const generatedAt = new Date().toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' });
+
+  const kpiHtml = `
+    <div class="pdf-kpi-grid">
+      <div class="pdf-kpi-card"><div class="pdf-kpi-num">${total}</div><div class="pdf-kpi-label">คนที่นัดแล้ว</div></div>
+      <div class="pdf-kpi-card"><div class="pdf-kpi-num">${dayCount}</div><div class="pdf-kpi-label">วันที่นัดหมาย</div></div>
+      <div class="pdf-kpi-card done"><div class="pdf-kpi-num">${doneCount}</div><div class="pdf-kpi-label">ติดตั้งแล้ว</div></div>
+      <div class="pdf-kpi-card pending"><div class="pdf-kpi-num">${pendingCount}</div><div class="pdf-kpi-label">รอติดตั้ง</div></div>
+      <div class="pdf-kpi-card cancelled"><div class="pdf-kpi-num">${cancelledCount}</div><div class="pdf-kpi-label">ยกเลิก</div></div>
+    </div>
+  `;
+
+  // แยกเป็นทีม ๆ: เลือกทีมเดียวมาแล้ว (teamLabel) ก็มีทีมเดียว, ไม่ได้เลือก (ทุกทีม) แยกตามลำดับ IOT_INSTALL_TEAMS แล้วปิดท้ายด้วย "ยังไม่ระบุทีม" ถ้ามี
+  // แต่ละทีมขึ้นหน้าใหม่ (page-break) พร้อมหัวข้อชื่อทีมของตัวเอง ไม่รวมทุกทีมไว้ในตารางเดียวกันอีกต่อไป
+  const teamKeys = teamLabel ? [teamLabel] : [...IOT_INSTALL_TEAMS, ''];
+  const teamSectionsHtml = teamKeys.map(team => {
+    const items = dated.filter(p => (p.installTeam || '') === team);
+    if (!items.length) return '';
+    return buildIotPlanTeamSectionHtml(items, team || 'ยังไม่ระบุทีม');
+  }).join('');
+
+  return `
     <div class="pdf-header">
       <img src="${PDF_LOGO_DATA_URI}" class="pdf-logo" alt="Kasetkorn">
       <div class="pdf-header-text">
@@ -6109,7 +7946,7 @@ function buildIotPlanPdfHtml(dated, teamLabel) {
       <div class="pdf-header-meta">พิมพ์เมื่อ<br>${generatedAt}</div>
     </div>
     ${kpiHtml}
-    ${groupsHtml}
+    ${teamSectionsHtml}
     <div class="pdf-footer">สร้างโดย Dashboard เกษตรกร — แผนติดตั้ง IoT (OTOD)</div>
   `;
 }
