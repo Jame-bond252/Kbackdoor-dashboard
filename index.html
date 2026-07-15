@@ -1542,6 +1542,10 @@
             <option value="incomplete">เฉพาะที่ข้อมูลยังไม่ครบ</option>
             <option value="complete">เฉพาะที่ครบแล้ว</option>
           </select>
+          <select id="iotMatchPendingDocStatusFilter" onchange="applyIotMatchPendingDocSearch()">
+            <option value="all">สถานะทั้งหมด</option>
+          </select>
+          <button type="button" class="btn btn-outline" onclick="exportIotMatchPendingDocExcel()">📥 ส่งออก Excel (ตามตัวกรอง)</button>
         </div>
         <div class="table-wrap">
           <table class="detail-table">
@@ -7455,6 +7459,32 @@ function getIotDocChecklistCellHtml(r) {
   return `<span class="pdf-status-badge ${cls}" style="cursor:pointer;" onclick="openIotDocChecklistModal('${refIdSafe}')" title="กดเพื่อดู/แก้ไขรายละเอียด">${doneCount}/${items.length} ครบ</span>`;
 }
 
+// เช็คว่าแถวนี้ตรงกับตัวกรอง "สถานะในระบบ OTOD" ที่เลือกไว้ไหม (all = ผ่านหมด ไม่กรอง)
+// ใช้ '__none__' แทนคนที่ยังไม่มีสถานะเลย (ยังไม่เชื่อมต่อแอป เลยไม่มีข้อความสถานะจาก OTOD ให้โชว์)
+function matchesIotPendingDocStatusFilter(r, filterValue) {
+  if (!filterValue || filterValue === 'all') return true;
+  const status = r.status || '__none__';
+  return status === filterValue;
+}
+
+// สร้างตัวเลือกในดรอปดาวน์ "สถานะในระบบ OTOD" จากสถานะจริงที่มีอยู่ในกลุ่มนี้เท่านั้น (ไม่ฮาร์ดโค้ดลิสต์ตายตัว
+// เพราะสถานะฝั่ง Durian อาจเพิ่ม/แก้ข้อความในอนาคตได้) พยายามคงค่าที่เลือกไว้เดิมไว้ถ้ายังมีอยู่ในกลุ่มนี้
+function populateIotPendingDocStatusOptions(rows) {
+  const sel = document.getElementById('iotMatchPendingDocStatusFilter');
+  if (!sel) return;
+  const prevValue = sel.value || 'all';
+  const statusSet = new Set();
+  rows.forEach(r => statusSet.add(r.status || '__none__'));
+  const sortedStatuses = [...statusSet].sort((a, b) => a.localeCompare(b, 'th'));
+  const optionsHtml = sortedStatuses.map(s => {
+    const label = s === '__none__' ? 'ยังไม่มีสถานะ (ยังไม่เชื่อมต่อแอป)' : s;
+    const valueSafe = s.replace(/"/g, '&quot;');
+    return `<option value="${valueSafe}">${label}</option>`;
+  }).join('');
+  sel.innerHTML = '<option value="all">สถานะทั้งหมด</option>' + optionsHtml;
+  sel.value = statusSet.has(prevValue) || prevValue === 'all' ? prevValue : 'all';
+}
+
 function renderIotFarmerMatchRows(rows, includeStatus, includeDocChecklist) {
   const colCount = includeStatus ? (includeDocChecklist ? 13 : 12) : 11;
   if (!rows.length) {
@@ -7525,15 +7555,54 @@ function matchesIotDocChecklistFilter(r, filterValue) {
   return filterValue === 'incomplete' ? !complete : complete;
 }
 
-function applyIotMatchPendingDocSearch() {
-  if (!iotAppMatchCategoriesCache) return;
+// รวมตรรกะกรอง (ค้นหา + ครบ/ไม่ครบเอกสาร + สถานะ OTOD) ไว้ที่เดียว ให้ทั้งตารางแสดงผลและปุ่มส่งออก Excel ใช้ร่วมกัน
+// รับประกันว่าไฟล์ที่ส่งออกตรงกับสิ่งที่เห็นในตารางเสมอ
+function getFilteredIotPendingDoc() {
+  if (!iotAppMatchCategoriesCache) return [];
   const term = document.getElementById('iotMatchPendingDocSearch').value;
   const filterEl = document.getElementById('iotMatchPendingDocFilter');
   const filterValue = filterEl ? filterEl.value : 'all';
-  const filtered = iotAppMatchCategoriesCache.pendingDocConfirmation
+  const statusEl = document.getElementById('iotMatchPendingDocStatusFilter');
+  const statusValue = statusEl ? statusEl.value : 'all';
+  return iotAppMatchCategoriesCache.pendingDocConfirmation
     .filter(r => matchesIotFarmerSearch(r, term))
-    .filter(r => matchesIotDocChecklistFilter(r, filterValue));
+    .filter(r => matchesIotDocChecklistFilter(r, filterValue))
+    .filter(r => matchesIotPendingDocStatusFilter(r, statusValue));
+}
+
+function applyIotMatchPendingDocSearch() {
+  const filtered = getFilteredIotPendingDoc();
   document.getElementById('iotMatchPendingDocTbody').innerHTML = renderIotFarmerMatchRows(filtered, true, true);
+}
+
+// ส่งออก Excel เฉพาะรายการที่ตรงกับตัวกรองที่เลือกอยู่ตอนนี้ (ค้นหา/ครบไม่ครบ/สถานะ) ไม่ใช่ทั้งหมดเสมอไป
+function exportIotMatchPendingDocExcel() {
+  const filtered = getFilteredIotPendingDoc();
+  if (!filtered.length) { showToast('ไม่มีรายการที่ตรงกับตัวกรองตอนนี้ครับ', 'warn'); return; }
+  const data = filtered.map((r, i) => {
+    const snPlain = r.matched_sn ? r.matched_sn : (r.legacySerial ? `${r.legacySerial} (ยังไม่ยืนยันผ่านแอป)` : '-');
+    const items = getIotDocChecklistState(r);
+    const doneCount = items.filter(it => it.ok).length;
+    return {
+      'ลำดับ': i + 1,
+      'คำนำหน้า': r.prefix || '',
+      'ชื่อ': r.first_name || '',
+      'นามสกุล': r.last_name || '',
+      'เลขบัตรประชาชน': r.national_id || '',
+      'เบอร์มือถือ': r.phone || '',
+      'SN ตู้': snPlain,
+      'เลข AR': getIotArCodeDisplay(r) || '-',
+      'จังหวัด': r.farm_province || '',
+      'อำเภอ': r.farm_district || '',
+      'ตำบล': r.farm_subdistrict || '',
+      'สถานะในระบบ OTOD': r.status || 'ยังไม่มีสถานะ (ยังไม่เชื่อมต่อแอป)',
+      'เอกสาร/ภาพ/วีดีโอ': `${doneCount}/${items.length} ครบ`
+    };
+  });
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'ได้ตู้แล้ว รอยืนยันเอกสาร');
+  XLSX.writeFile(wb, 'ได้ตู้แล้ว_รอยืนยันเอกสาร.xlsx');
 }
 
 function applyIotMatchOtodOnlySearch() {
@@ -7580,6 +7649,7 @@ function renderIotAppMatchDashboard() {
   document.getElementById('iotMatchKpiPendingDoc').textContent = pendingDocConfirmation.length.toLocaleString();
 
   document.getElementById('iotMatchPendingDocCountBadge').textContent = pendingDocConfirmation.length.toLocaleString() + ' รายการ';
+  populateIotPendingDocStatusOptions(pendingDocConfirmation);
   applyIotMatchPendingDocSearch();
 
   document.getElementById('iotMatchOtodOnlyCountBadge').textContent = otodOnly.length.toLocaleString() + ' รายการ';
