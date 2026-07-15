@@ -2130,16 +2130,22 @@ function jumpToPlanEntry(p) {
   switchModule('training');
   switchTab('plan');
   const el = document.getElementById('planFilterSearch');
+  planHighlightEntryId = p.id;
   if (el) { el.value = p.name || p.nationalId || ''; applyPlanFilters(); }
   closeGlobalSearch();
+  const row = document.getElementById('highlightedPlanTableRow');
+  if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 function jumpToIotPlanEntry(p) {
   switchModule('iot');
   switchTab('iot-plan');
   const el = document.getElementById('iotPlanFilterSearch');
+  iotPlanHighlightEntryId = p.id;
   if (el) { el.value = p.name || p.nationalId || ''; applyIotPlanFilters(); }
   closeGlobalSearch();
+  const row = document.getElementById('highlightedIotPlanTableRow');
+  if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 function jumpToOtodMap(r) {
@@ -5405,12 +5411,17 @@ function toggleSelectAllPeople(groupId) {
 
 const PLAN_STATUS_LABELS = { pending: 'ยังไม่ไป', done: 'ไปแล้ว', cancelled: 'ยกเลิก' };
 
+// จำ id ของแถวที่ต้องไฮไลท์ในตารางแผนอบรม (ใช้ครั้งเดียวตอน jump มาจากช่องค้นหาทุกระบบ แล้วเคลียร์ทิ้งทันที
+// ไม่งั้นจะค้างไฮไลท์แถวเดิมซ้ำทุกครั้งที่พิมพ์ค้นหา/แก้ข้อมูลในตารางต่อจากนั้น)
+let planHighlightEntryId = null;
+
 function planRowHtml(p, i) {
   const mapLinkSafe = (p.mapLink || '').replace(/"/g, '&quot;');
   const status = p.status || 'pending';
   const hasDate = !!p.visitDate;
+  const isHighlighted = p.id === planHighlightEntryId;
   return `
-    <tr class="plan-row-${status}">
+    <tr class="plan-row-${status}${isHighlighted ? ' row-highlight' : ''}" ${isHighlighted ? 'id="highlightedPlanTableRow"' : ''}>
       <td>${i + 1}</td>
       <td style="text-align:center;">
         ${hasDate
@@ -5662,6 +5673,7 @@ function applyPlanFilters() {
   } else {
     tbody.innerHTML = `<tr><td colspan="13" class="empty-state-cell"><span class="empty-icon">📭</span><span class="empty-text">ยังไม่มีรายการในแผนอบรมเลย<br>ไปที่แท็บ 🗺️ แผนที่ เพื่อเพิ่มคนเข้าแผนได้เลยครับ</span></td></tr>`;
   }
+  planHighlightEntryId = null; // ใช้ครั้งเดียวจบ ไม่ค้างไฮไลท์ซ้ำในการ render รอบถัดไป
   if (scrollBox) scrollBox.scrollTop = prevScrollTop;
 
   const countInfo = document.getElementById('planFilterCountInfo');
@@ -6753,6 +6765,9 @@ function updateIotPlanMonthWeek(id, part, value) {
   updateIotPlanField(id, 'installDate', newDate);
 }
 
+// เหมือนกับ planHighlightEntryId แต่สำหรับตารางแผนติดตั้ง IoT
+let iotPlanHighlightEntryId = null;
+
 function iotPlanRowHtml(p, i) {
   const mapLinkSafe = (p.mapLink || '').replace(/"/g, '&quot;');
   const status = p.status || 'pending';
@@ -6761,8 +6776,9 @@ function iotPlanRowHtml(p, i) {
   const planWeek = getIotWeekOfMonthFromDate(p.installDate);
   const planBlocker = getIotInstallBlockerStateByNationalId(p.nationalId);
   const planBlockerNidSafe = (p.nationalId || '').replace(/'/g, "\\'");
+  const isHighlighted = p.id === iotPlanHighlightEntryId;
   return `
-    <tr class="plan-row-${status}">
+    <tr class="plan-row-${status}${isHighlighted ? ' row-highlight' : ''}" ${isHighlighted ? 'id="highlightedIotPlanTableRow"' : ''}>
       <td><input type="checkbox" class="iot-plan-bulk-checkbox" data-id="${p.id}" onchange="updateIotPlanBulkSelectedCount()"></td>
       <td>${i + 1}</td>
       <td style="text-align:center;">
@@ -6966,6 +6982,7 @@ function applyIotPlanFilters() {
   } else {
     tbody.innerHTML = `<tr><td colspan="17" class="empty-state-cell"><span class="empty-icon">📭</span><span class="empty-text">ยังไม่มีรายการในแผนติดตั้ง IoT เลย<br>ไปที่แท็บ 🗺️ แผนที่ เพื่อเพิ่มคนเข้าแผนได้เลยครับ</span></td></tr>`;
   }
+  iotPlanHighlightEntryId = null; // ใช้ครั้งเดียวจบ ไม่ค้างไฮไลท์ซ้ำในการ render รอบถัดไป
   if (scrollBox) scrollBox.scrollTop = prevScrollTop;
 
   const countInfo = document.getElementById('iotPlanFilterCountInfo');
@@ -8087,6 +8104,12 @@ function exportIotPlanExcel() {
   if (!sortedPlan.length) { showToast('ยังไม่มีรายการที่ตั้งวันที่ติดตั้งเลยครับ ลองตั้งวันที่ก่อนแล้วค่อยส่งออกอีกครั้ง', 'warn'); return; }
   const data = sortedPlan.map((p, i) => ({
     'ลำดับ': i + 1,
+    'ชื่อ-นามสกุล': (p.name || '') + (getIotInstallBlockerStateByNationalId(p.nationalId) ? ' (ติดตั้งไม่ได้)' : ''),
+    'เลขบัตรประชาชน': p.nationalId || '',
+    'เบอร์ติดต่อ': p.phone || '',
+    'จังหวัด': p.province,
+    'อำเภอ': p.district || '',
+    'ตำบล': p.subdistrict || '',
     'กำหนดติดตั้ง (เดือน/สัปดาห์)': formatIotPlanWeekLabel(p.installDate) || 'ยังไม่นัด',
     'สถานะ': IOT_PLAN_STATUS_LABELS[p.status || 'pending'],
     'ทีมติดตั้ง': p.installTeam || '',
@@ -8095,12 +8118,6 @@ function exportIotPlanExcel() {
     'ปั๊มน้ำ': p.pumpType || '',
     'ขนาดท่อ': p.pipeSize || '',
     'การชำระเงิน': p.boxType === 'no_button' ? '-' : (p.paymentStatus || ''),
-    'ชื่อ-นามสกุล': (p.name || '') + (getIotInstallBlockerStateByNationalId(p.nationalId) ? ' (ติดตั้งไม่ได้)' : ''),
-    'เลขบัตรประชาชน': p.nationalId || '',
-    'เบอร์ติดต่อ': p.phone || '',
-    'จังหวัด': p.province,
-    'อำเภอ': p.district || '',
-    'ตำบล': p.subdistrict || '',
     'ตำแหน่ง (Google Maps)': p.mapLink || '',
     'หมายเหตุ': p.note || ''
   }));
