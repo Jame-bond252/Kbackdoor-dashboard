@@ -1217,7 +1217,7 @@
         <div class="plan-progress-legend">
           <span><i class="dot done"></i>ติดตั้งแล้ว <b id="iotPlanProgressDoneCount">0</b></span>
           <span><i class="dot pending"></i>รอติดตั้ง <b id="iotPlanProgressPendingCount">0</b></span>
-          <span><i class="dot cancelled"></i>ยกเลิก <b id="iotPlanProgressCancelledCount">0</b></span>
+          <span><i class="dot cancelled"></i>สละสิทธิ์ <b id="iotPlanProgressCancelledCount">0</b></span>
         </div>
       </div>
 
@@ -1275,7 +1275,7 @@
             <option value="">ทุกสถานะ</option>
             <option value="pending">รอติดตั้ง</option>
             <option value="done">ติดตั้งแล้ว</option>
-            <option value="cancelled">ยกเลิก</option>
+            <option value="cancelled">สละสิทธิ์</option>
           </select>
         </div>
         <div>
@@ -1385,7 +1385,7 @@
       </div>
 
       <div class="kpi-grid">
-        <div class="kpi-card total"><div class="kpi-icon">📋</div><div class="kpi-label">รายชื่อในแผนทั้งหมด</div><div class="kpi-num" id="iotPlanMatchKpiTotal">-</div><div class="kpi-sub">ไม่รวมรายการที่ยกเลิก</div></div>
+        <div class="kpi-card total"><div class="kpi-icon">📋</div><div class="kpi-label">รายชื่อในแผนทั้งหมด</div><div class="kpi-num" id="iotPlanMatchKpiTotal">-</div><div class="kpi-sub">ไม่รวมรายการที่สละสิทธิ์</div></div>
         <div class="kpi-card yes"><div class="kpi-icon">📶</div><div class="kpi-label">ยืนยันได้รับตู้แล้ว (จากแอป)</div><div class="kpi-num" id="iotPlanMatchKpiConfirmed">-</div><div class="kpi-sub">รอแอดมินอัปเดต OTOD อย่างเป็นทางการ</div></div>
         <div class="kpi-card no"><div class="kpi-icon">❔</div><div class="kpi-label">ยังไม่พบการเชื่อมต่อแอป</div><div class="kpi-num" id="iotPlanMatchKpiUnconfirmed">-</div><div class="kpi-sub">ยังไม่พบชื่อ/เบอร์/เลขบัตรตรงกัน</div></div>
       </div>
@@ -1499,7 +1499,7 @@
     <div class="section">
       <h2>🏭 แดชบอร์ดทีมผลิตตู้ IoT</h2>
       <p style="font-size:13px; color:var(--muted); margin-top:-6px;">
-        สรุปจำนวนตู้ที่ต้องเตรียมจากแผนติดตั้ง IoT ทั้งหมด (ไม่รวมรายการที่ยกเลิก) — หน้านี้เป็นแดชบอร์ดสรุปตัวเลขล้วนๆ ไม่มีชื่อ เลขบัตรประชาชน เบอร์ติดต่อ หรือข้อมูลส่วนบุคคลใดๆ ทั้งสิ้น
+        สรุปจำนวนตู้ที่ต้องเตรียมจากแผนติดตั้ง IoT ทั้งหมด (ไม่รวมรายการที่สละสิทธิ์) — หน้านี้เป็นแดชบอร์ดสรุปตัวเลขล้วนๆ ไม่มีชื่อ เลขบัตรประชาชน เบอร์ติดต่อ หรือข้อมูลส่วนบุคคลใดๆ ทั้งสิ้น
       </p>
     </div>
 
@@ -6692,7 +6692,7 @@ function toggleSelectAllIotPeople(groupId) {
   boxes.forEach(b => { b.checked = !allChecked; });
 }
 
-const IOT_PLAN_STATUS_LABELS = { pending: 'รอติดตั้ง', done: 'ติดตั้งแล้ว', cancelled: 'ยกเลิก' };
+const IOT_PLAN_STATUS_LABELS = { pending: 'รอติดตั้ง', done: 'ติดตั้งแล้ว', cancelled: 'สละสิทธิ์' };
 const IOT_BOX_TYPE_LABELS = { no_button: 'ตู้ไม่มีปุ่มกด', with_button: 'ตู้มีปุ่มกด' };
 const IOT_INSTALL_TEAMS = ['ทีมโก้', 'ทีมนพดล', 'ทีม Aero'];
 const IOT_PUMP_TYPES = ['ไม่เกิน 5 แรงม้า', 'โซล่าเซลล์', 'เกิน 5 แรงม้า', 'เครื่องยนต์'];
@@ -6873,7 +6873,7 @@ function iotPlanRowHtml(p, i) {
         <select class="plan-status-select status-${status}" onchange="this.className='plan-status-select status-'+this.value; this.closest('tr').className='plan-row-'+this.value; updateIotPlanField('${p.id}','status',this.value)">
           <option value="pending" ${status === 'pending' ? 'selected' : ''}>รอติดตั้ง</option>
           <option value="done" ${status === 'done' ? 'selected' : ''}>ติดตั้งแล้ว</option>
-          <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>ยกเลิก</option>
+          <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>สละสิทธิ์</option>
         </select>
       </td>
       <td>
@@ -8406,7 +8406,7 @@ function buildIotPlanTeamSectionHtml(items, teamName) {
   const groups = groupByDate(items, 'installDate').sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
   groups.forEach(g => g.items.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)));
 
-  const statsLabel = `${total} คน • ติดตั้งแล้ว ${doneCount} • รอติดตั้ง ${pendingCount}${cancelledCount ? ' • ยกเลิก ' + cancelledCount : ''}`;
+  const statsLabel = `${total} คน • ติดตั้งแล้ว ${doneCount} • รอติดตั้ง ${pendingCount}${cancelledCount ? ' • สละสิทธิ์ ' + cancelledCount : ''}`;
 
   const groupsHtml = groups.map(g => `
     <div class="pdf-date-section">
@@ -8477,7 +8477,7 @@ function buildIotPlanPdfHtml(dated, teamLabel, reportTitleOverride) {
       <div class="pdf-kpi-card"><div class="pdf-kpi-num">${dayCount}</div><div class="pdf-kpi-label">สัปดาห์ที่นัดหมาย</div></div>
       <div class="pdf-kpi-card done"><div class="pdf-kpi-num">${doneCount}</div><div class="pdf-kpi-label">ติดตั้งแล้ว</div></div>
       <div class="pdf-kpi-card pending"><div class="pdf-kpi-num">${pendingCount}</div><div class="pdf-kpi-label">รอติดตั้ง</div></div>
-      <div class="pdf-kpi-card cancelled"><div class="pdf-kpi-num">${cancelledCount}</div><div class="pdf-kpi-label">ยกเลิก</div></div>
+      <div class="pdf-kpi-card cancelled"><div class="pdf-kpi-num">${cancelledCount}</div><div class="pdf-kpi-label">สละสิทธิ์</div></div>
       <div class="pdf-kpi-card blocked"><div class="pdf-kpi-num">${blockedCount}</div><div class="pdf-kpi-label">ติดตั้งไม่ได้</div></div>
     </div>
   `;
