@@ -370,6 +370,7 @@
   .plan-person-result-item:last-child { border-bottom:none; }
   .plan-person-result-item .ppr-info { font-size:13px; color:var(--text); }
   .plan-week-input, .plan-note-input { width:100%; min-width:0; box-sizing:border-box; padding:5px 8px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:13px; background:var(--card); color:var(--text); }
+  .plan-month-week-select { width:100%; min-width:145px; box-sizing:border-box; padding:5px 8px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:13px; background:var(--card); color:var(--text); }
   .plan-remove-btn { background:none; border:none; cursor:pointer; font-size:16px; color:#c0392b; }
   .plan-remove-btn:hover { opacity:0.7; }
   .people-group-actions { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 10px; }
@@ -1324,8 +1325,8 @@
           <thead>
             <tr>
               <th><input type="checkbox" id="iotPlanBulkSelectAllHeader" onchange="toggleSelectAllIotPlanRows()" title="เลือกทั้งหมด"></th>
-              <th>ลำดับ</th><th>นัดหมาย</th><th>วันที่ / เวลาติดตั้ง</th><th>สถานะ</th><th>ทีมติดตั้ง</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>การชำระเงิน</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th>
-              <th>เบอร์ติดต่อ</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>ตำแหน่ง (Google Maps)</th><th>หมายเหตุ</th><th></th>
+              <th>ลำดับ</th><th>นัดหมาย</th><th>วันที่ / เวลาติดตั้ง</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์ติดต่อ</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th>
+              <th>สถานะ</th><th>ทีมติดตั้ง</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>การชำระเงิน</th><th>ตำแหน่ง (Google Maps)</th><th>หมายเหตุ</th><th></th>
             </tr>
           </thead>
           <tbody id="iotPlanTbody"></tbody>
@@ -3231,6 +3232,19 @@ function closeProvinceDetail() {
   document.getElementById('provinceDetail').style.display = 'none';
 }
 
+// จำ/คืนตำแหน่ง scroll ของลิสต์ย่อยๆ (แต่ละกลุ่มคนมี .table-wrap ของตัวเอง สูงจำกัด เลื่อนเองได้)
+// ที่อยู่ภายในพาแนลคนก่อน/หลังเขียนทับ innerHTML ทั้งก้อน (ไม่งั้นทุกครั้งที่กด +เพิ่ม/ยกเลิกแค่คนเดียว
+// ลิสต์ทั้งหมดจะเด้งกลับไปบนสุดเพราะพาแนลถูกวาดใหม่ทั้งหมด อ้างอิงตามลำดับกลุ่มที่ปรากฏ ไม่ใช่ id
+// เพราะบางกลุ่ม (เช่น "อบรมแล้ว"/"ติดตั้งแล้ว") ไม่มี groupId ให้อ้างอิงตรงๆ)
+function capturePeoplePanelScroll(panel) {
+  return [...panel.querySelectorAll('.table-wrap')].map(el => el.scrollTop);
+}
+
+function restorePeoplePanelScroll(panel, positions) {
+  const boxes = panel.querySelectorAll('.table-wrap');
+  boxes.forEach((el, i) => { if (positions[i] !== undefined) el.scrollTop = positions[i]; });
+}
+
 function renderPeopleGroup(title, icon, cls, groupRows, highlightId, opts) {
   opts = opts || {};
   const selectable = !!opts.selectable;
@@ -3293,6 +3307,7 @@ function showDistrictPeople(province, district, highlightId) {
   const trained = people.filter(p => p.training_status === 'Y');
   const untrained = people.filter(p => p.training_status === 'N');
   const panel = document.getElementById('peoplePanel');
+  const prevScroll = capturePeoplePanelScroll(panel);
   panel.style.display = 'block';
   panel.innerHTML = `
     <div class="detail-header">
@@ -3305,6 +3320,7 @@ function showDistrictPeople(province, district, highlightId) {
     ${renderPeopleGroup('อบรมแล้ว', '✅', 'group-yes', trained, highlightId)}
     ${renderPeopleGroup('ยังไม่อบรม', '⛔', 'group-no', untrained, highlightId, { selectable: true, groupId: 'peopleUntrained' })}
   `;
+  restorePeoplePanelScroll(panel, prevScroll);
   if (highlightId) {
     const row = document.getElementById('highlightedPersonRow');
     if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -3320,6 +3336,7 @@ function showProvinceAllDistrictsPeople(province) {
   const provinceRows = allRows.filter(r => normName(r.province) === normName(province));
   const districts = [...new Set(provinceRows.map(r => r.district))].filter(Boolean).sort();
   const panel = document.getElementById('peoplePanel');
+  const prevScroll = capturePeoplePanelScroll(panel);
   panel.style.display = 'block';
   panel.innerHTML = `
     <div class="detail-header">
@@ -3340,6 +3357,7 @@ function showProvinceAllDistrictsPeople(province) {
       `;
     }).join('')}
   `;
+  restorePeoplePanelScroll(panel, prevScroll);
 }
 
 // เรียก render พาแนลปัจจุบันซ้ำ (ใช้หลังเพิ่มคนเข้าแผน) — รองรับทั้งโหมดดูทีละอำเภอ และโหมดดูทั้งจังหวัด
@@ -4892,6 +4910,7 @@ function showIotDistrictPeople(province, district, highlightId) {
   const blocked = people.filter(p => p[IOT_FIELDS.status] === IOT_FIELDS.notDone && getIotInstallBlockerState(p));
   const notInstalled = people.filter(p => p[IOT_FIELDS.status] === IOT_FIELDS.notDone && !getIotInstallBlockerState(p));
   const panel = document.getElementById('iotPeoplePanel');
+  const prevScroll = capturePeoplePanelScroll(panel);
   panel.style.display = 'block';
   panel.innerHTML = `
     <div class="detail-header">
@@ -4902,6 +4921,7 @@ function showIotDistrictPeople(province, district, highlightId) {
     ${renderIotPeopleGroup('ติดตั้งไม่ได้', '🚫', 'group-blocked', blocked, highlightId)}
     ${renderIotPeopleGroup('ยังไม่ติดตั้ง', '⛔', 'group-no', notInstalled, highlightId, { selectable: true, groupId: 'iotPeopleNotInstalled' })}
   `;
+  restorePeoplePanelScroll(panel, prevScroll);
   if (highlightId) {
     const row = document.getElementById('highlightedIotPersonRow');
     if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -4917,6 +4937,7 @@ function showIotProvinceAllDistrictsPeople(province) {
   const provinceRows = getIotVisibleRows().filter(r => normName(r[IOT_FIELDS.province]) === normName(province));
   const districts = [...new Set(provinceRows.map(r => r[IOT_FIELDS.district]))].filter(Boolean).sort();
   const panel = document.getElementById('iotPeoplePanel');
+  const prevScroll = capturePeoplePanelScroll(panel);
   panel.style.display = 'block';
   panel.innerHTML = `
     <div class="detail-header">
@@ -4937,6 +4958,7 @@ function showIotProvinceAllDistrictsPeople(province) {
       `;
     }).join('')}
   `;
+  restorePeoplePanelScroll(panel, prevScroll);
 }
 
 // เรียก render พาแนลปัจจุบันซ้ำ (ใช้หลังเพิ่มคนเข้าแผน) — รองรับทั้งโหมดดูทีละอำเภอ และโหมดดูทั้งจังหวัด
@@ -5627,6 +5649,10 @@ function setPlanScheduleTab(value) {
 function applyPlanFilters() {
   const tbody = document.getElementById('planTbody');
   if (!tbody) return;
+  // จำตำแหน่ง scroll ของกล่องตารางไว้ก่อนเขียนทับแถวทั้งหมด แล้วคืนกลับหลังวาดเสร็จ
+  // (ไม่งั้นทุกครั้งที่แก้ dropdown ในแถวใดแถวหนึ่ง ตารางจะเด้งกลับไปบนสุดเพราะ innerHTML ถูกเขียนทับใหม่ทั้งก้อน)
+  const scrollBox = document.getElementById('planTableView');
+  const prevScrollTop = scrollBox ? scrollBox.scrollTop : 0;
   const filtered = getFilteredPlan();
 
   if (filtered.length) {
@@ -5636,6 +5662,7 @@ function applyPlanFilters() {
   } else {
     tbody.innerHTML = `<tr><td colspan="13" class="empty-state-cell"><span class="empty-icon">📭</span><span class="empty-text">ยังไม่มีรายการในแผนอบรมเลย<br>ไปที่แท็บ 🗺️ แผนที่ เพื่อเพิ่มคนเข้าแผนได้เลยครับ</span></td></tr>`;
   }
+  if (scrollBox) scrollBox.scrollTop = prevScrollTop;
 
   const countInfo = document.getElementById('planFilterCountInfo');
   if (countInfo) {
@@ -5800,6 +5827,18 @@ async function clearPlan() {
   showToast('ล้างรายการแผนอบรมทั้งหมดแล้ว', 'success');
 }
 
+// จัดความกว้างคอลัมน์ Excel ให้พอดีกับความยาวข้อมูลจริงในแต่ละคอลัมน์อัตโนมัติ (ผู้ใช้ไม่ต้องมาลาก/ดับเบิลคลิกขยายเอง)
+// และเปิดปุ่มกรอง/เรียงข้อมูล (autofilter) ที่หัวตาราง ให้กดเรียงหรือกรองข้อมูลในเอ็กเซลได้เลยทันทีที่เปิดไฟล์
+function prettifyExcelSheet(ws, data) {
+  if (!data.length) return;
+  const headers = Object.keys(data[0]);
+  ws['!cols'] = headers.map(h => {
+    const maxLen = Math.max(h.length, ...data.map(row => String(row[h] ?? '').length));
+    return { wch: Math.min(Math.max(maxLen + 3, 10), 45) };
+  });
+  ws['!autofilter'] = { ref: ws['!ref'] };
+}
+
 function exportPlanExcel() {
   const sortedPlan = trainingPlan
     .filter(p => p.visitDate)
@@ -5819,6 +5858,7 @@ function exportPlanExcel() {
     'หมายเหตุ': p.note || ''
   }));
   const ws = XLSX.utils.json_to_sheet(data);
+  prettifyExcelSheet(ws, data);
 
   // ทำให้คอลัมน์ "ตำแหน่ง (Google Maps)" กดเปิดได้จริงใน Excel (ไม่ใช่แค่ข้อความเฉยๆ)
   const mapLinkColIndex = 9; // ลำดับ(0) วันที่นัด(1) สถานะ(2) ชื่อ(3) เลขบัตร(4) เบอร์(5) จังหวัด(6) อำเภอ(7) ตำบล(8) ตำแหน่ง(9)
@@ -5914,6 +5954,24 @@ function buildPlanPdfHtml(dated) {
   `;
 }
 
+// สลับหน้ากระดาษเป็นแนวนอน (landscape) เฉพาะตอนพิมพ์รายงานที่ต้องการเท่านั้น โดยไม่แตะ @page เริ่มต้น (แนวตั้ง)
+// ที่ยังใช้กับรายงานอื่น (เช่น สรุปจำนวนตู้ตามทีม/จังหวัด ซึ่งเป็นตารางเล็ก แนวตั้งอ่านง่ายกว่าอยู่แล้ว)
+// วิธีนี้แทรก <style> เพิ่มเข้าไปทับกฎ @page เดิมชั่วคราว แล้วลบ/ล้างทิ้งหลังพิมพ์เสร็จ (ผูกกับ afterprint เดียวกับที่ลบรายงานออก)
+function enableLandscapePrint() {
+  let styleEl = document.getElementById('pdfLandscapeOverrideStyle');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'pdfLandscapeOverrideStyle';
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = '@media print { @page { size: A4 landscape; } }';
+}
+
+function disableLandscapePrint() {
+  const styleEl = document.getElementById('pdfLandscapeOverrideStyle');
+  if (styleEl) styleEl.textContent = '';
+}
+
 function exportPlanPdf() {
   const dated = trainingPlan.filter(p => p.visitDate);
   if (!dated.length) { showToast('ยังไม่มีรายการที่ตั้งวันที่นัดเลยครับ ลองตั้งวันที่ก่อนแล้วค่อยส่งออกรายงาน', 'warn'); return; }
@@ -5928,10 +5986,12 @@ function exportPlanPdf() {
   root.className = 'pdf-report';
   root.innerHTML = buildPlanPdfHtml(dated);
   document.body.appendChild(root);
+  enableLandscapePrint();
 
   const cleanup = () => {
     window.removeEventListener('afterprint', cleanup);
     if (root.parentNode) document.body.removeChild(root);
+    disableLandscapePrint();
   };
   window.addEventListener('afterprint', cleanup);
 
@@ -6231,7 +6291,10 @@ function setPlanLookback(days) {
   renderPlanDashboard();
 }
 
-function renderPlanTimelineList(containerId, groups, emptyLabel, today) {
+function renderPlanTimelineList(containerId, groups, emptyLabel, today, opts) {
+  opts = opts || {};
+  const dateFormatter = opts.dateFormatter || ((d) => formatThaiDate(d, today));
+  const isCurrentFn = opts.isCurrentFn || ((d) => d === today);
   const el = document.getElementById(containerId);
   if (!el) return;
   if (!groups.length) {
@@ -6240,8 +6303,8 @@ function renderPlanTimelineList(containerId, groups, emptyLabel, today) {
   }
   el.innerHTML = groups.map(g => `
     <div class="plan-day-group">
-      <div class="plan-day-header ${g.date === today ? 'is-today' : ''}">
-        <span>${formatThaiDate(g.date, today)}</span>
+      <div class="plan-day-header ${isCurrentFn(g.date) ? 'is-today' : ''}">
+        <span>${dateFormatter(g.date)}</span>
         <span class="badge">${g.items.length} คน</span>
       </div>
       <div class="plan-day-people">
@@ -6624,6 +6687,56 @@ function getIotMonthOptionsHtml(selectedValue) {
   return `<option value="">- เดือน -</option>` + options.map(o => `<option value="${o.val}" ${o.val === selectedValue ? 'selected' : ''}>${o.label}</option>`).join('');
 }
 
+// ข้อความสัปดาห์แบบเดียวกับตัวเลือกใน dropdown (ให้ตรงกันทุกที่ที่โชว์ให้ผู้ใช้เห็น)
+const IOT_WEEK_LABELS = {
+  1: 'สัปดาห์ที่ 1 (1-7)',
+  2: 'สัปดาห์ที่ 2 (8-14)',
+  3: 'สัปดาห์ที่ 3 (15-21)',
+  4: 'สัปดาห์ที่ 4 (22-28)',
+  5: 'สัปดาห์ที่ 5 (29+)'
+};
+
+// ตั้งแต่เปลี่ยนมาให้เลือกแค่ "เดือน + สัปดาห์ที่" แทนวันที่จริงแล้ว (ไม่ให้เลือกวันที่ตรงๆ อีกต่อไป)
+// รายงาน/ไฟล์ที่ส่งออกก็ต้องบอกเป็น "เดือน + สัปดาห์ที่" ตามไปด้วย ไม่โชว์วันที่จริงแบบเป๊ะๆ ให้สับสน
+// (แม้ข้างในจะยังเก็บเป็นวันที่จริงอยู่ก็ตาม เพราะเป็นแค่กลไกภายในไม่ใช่สิ่งที่ผู้ใช้เลือก)
+function formatIotPlanWeekLabel(dateStr) {
+  if (!dateStr) return '';
+  const monthYear = getIotMonthYearFromDate(dateStr);
+  const week = getIotWeekOfMonthFromDate(dateStr);
+  const [y, m] = monthYear.split('-').map(Number);
+  const monthLabel = new Date(y, m - 1, 1).toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
+  return `${monthLabel} ${IOT_WEEK_LABELS[Number(week)] || ''}`;
+}
+
+// สรุปช่วงกำหนดติดตั้งจากหลายวันที่ (เรียงแล้ว) ให้เป็นข้อความเดือน/สัปดาห์อ่านง่าย ไม่ใช่ช่วงวันที่จริง
+function formatIotPlanWeekRangeLabel(sortedDates) {
+  if (!sortedDates.length) return '';
+  if (sortedDates.length === 1) return formatIotPlanWeekLabel(sortedDates[0]);
+  const firstMonth = getIotMonthYearFromDate(sortedDates[0]);
+  const lastMonth = getIotMonthYearFromDate(sortedDates[sortedDates.length - 1]);
+  if (firstMonth === lastMonth) {
+    const [y, m] = firstMonth.split('-').map(Number);
+    const monthLabel = new Date(y, m - 1, 1).toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
+    const firstWeek = getIotWeekOfMonthFromDate(sortedDates[0]);
+    const lastWeek = getIotWeekOfMonthFromDate(sortedDates[sortedDates.length - 1]);
+    return firstWeek === lastWeek ? `${monthLabel} สัปดาห์ที่ ${firstWeek}` : `${monthLabel} สัปดาห์ที่ ${firstWeek}–${lastWeek}`;
+  }
+  return `${formatIotPlanWeekLabel(sortedDates[0])} – ${formatIotPlanWeekLabel(sortedDates[sortedDates.length - 1])}`;
+}
+
+// เวอร์ชัน "สัปดาห์นี้"/"สัปดาห์ที่ N" แบบเทียบกับวันนี้ ใช้ในวิดเจ็ต "วันนี้ & กำลังจะมาถึง"/"ย้อนหลัง"
+// ของแผนติดตั้ง IoT โดยเฉพาะ (ต่างจาก formatIotPlanWeekLabel เฉยๆ ตรงที่จะบอก "สัปดาห์นี้" แทนชื่อเดือน+เลขสัปดาห์
+// ถ้าสัปดาห์นั้นตรงกับสัปดาห์ปัจจุบันจริงๆ อ่านเข้าใจง่ายกว่าในบริบทนี้)
+function formatIotPlanWeekLabelRelative(dateStr, today) {
+  if (!dateStr) return '';
+  const monthYear = getIotMonthYearFromDate(dateStr);
+  const week = getIotWeekOfMonthFromDate(dateStr);
+  const todayMonthYear = getIotMonthYearFromDate(today);
+  const todayWeek = getIotWeekOfMonthFromDate(today);
+  if (monthYear === todayMonthYear && week === todayWeek) return `สัปดาห์นี้ (${IOT_WEEK_LABELS[Number(week)] || ''})`;
+  return formatIotPlanWeekLabel(dateStr);
+}
+
 function updateIotPlanMonthWeek(id, part, value) {
   const entry = iotInstallPlan.find(p => p.id === id);
   if (!entry) return;
@@ -6659,24 +6772,37 @@ function iotPlanRowHtml(p, i) {
       </td>
       <td>
         <div>
-          <select class="plan-week-input" onchange="updateIotPlanMonthWeek('${p.id}','month',this.value)">
+          <select class="plan-month-week-select" onchange="updateIotPlanMonthWeek('${p.id}','month',this.value)">
             ${getIotMonthOptionsHtml(planMonth)}
           </select>
         </div>
         <div style="margin-top:4px;">
-          <select class="plan-week-input" onchange="updateIotPlanMonthWeek('${p.id}','week',this.value)">
+          <select class="plan-month-week-select" onchange="updateIotPlanMonthWeek('${p.id}','week',this.value)">
             <option value="">- สัปดาห์ -</option>
             <option value="1" ${planWeek === '1' ? 'selected' : ''}>สัปดาห์ที่ 1 (1-7)</option>
             <option value="2" ${planWeek === '2' ? 'selected' : ''}>สัปดาห์ที่ 2 (8-14)</option>
             <option value="3" ${planWeek === '3' ? 'selected' : ''}>สัปดาห์ที่ 3 (15-21)</option>
             <option value="4" ${planWeek === '4' ? 'selected' : ''}>สัปดาห์ที่ 4 (22-28)</option>
-            <option value="5" ${planWeek === '5' ? 'selected' : ''}>สัปดาห์ที่ 5 (29 เป็นต้นไป)</option>
+            <option value="5" ${planWeek === '5' ? 'selected' : ''}>สัปดาห์ที่ 5 (29+)</option>
           </select>
         </div>
         <div class="plan-map-actions">
           <button type="button" class="btn-linklike" onclick="applyInstallDateToSubdistrict('${p.id}')">ใช้ทั้งตำบล</button>
         </div>
       </td>
+      <td>
+        ${p.name || '-'}
+        <div class="plan-meta-line" style="${planBlocker ? 'color:var(--red);' : ''}">
+          ${planBlocker
+            ? `🚫 ติดตั้งไม่ได้ <button type="button" class="btn-linklike" onclick="openIotInstallBlockerModalByNationalId('${planBlockerNidSafe}')" title="เหตุผล: ${(planBlocker.reason || '').replace(/"/g, '&quot;')}">แก้ไข</button>`
+            : `<button type="button" class="btn-linklike" onclick="openIotInstallBlockerModalByNationalId('${planBlockerNidSafe}')">🚫 ทำเครื่องหมายว่าติดตั้งไม่ได้</button>`}
+        </div>
+      </td>
+      <td>${p.nationalId || ''}</td>
+      <td>${p.phone || ''}</td>
+      <td>${p.province}</td>
+      <td>${p.district || '-'}</td>
+      <td>${p.subdistrict || '-'}</td>
       <td>
         <select class="plan-status-select status-${status}" onchange="this.className='plan-status-select status-'+this.value; this.closest('tr').className='plan-row-'+this.value; updateIotPlanField('${p.id}','status',this.value)">
           <option value="pending" ${status === 'pending' ? 'selected' : ''}>รอติดตั้ง</option>
@@ -6723,19 +6849,6 @@ function iotPlanRowHtml(p, i) {
               ${IOT_PAYMENT_STATUSES.map(t => `<option value="${t}" ${p.paymentStatus === t ? 'selected' : ''}>${t}</option>`).join('')}
             </select>`}
       </td>
-      <td>
-        ${p.name || '-'}
-        <div class="plan-meta-line" style="${planBlocker ? 'color:var(--red);' : ''}">
-          ${planBlocker
-            ? `🚫 ติดตั้งไม่ได้ <button type="button" class="btn-linklike" onclick="openIotInstallBlockerModalByNationalId('${planBlockerNidSafe}')" title="เหตุผล: ${(planBlocker.reason || '').replace(/"/g, '&quot;')}">แก้ไข</button>`
-            : `<button type="button" class="btn-linklike" onclick="openIotInstallBlockerModalByNationalId('${planBlockerNidSafe}')">🚫 ทำเครื่องหมายว่าติดตั้งไม่ได้</button>`}
-        </div>
-      </td>
-      <td>${p.nationalId || ''}</td>
-      <td>${p.phone || ''}</td>
-      <td>${p.province}</td>
-      <td>${p.district || '-'}</td>
-      <td>${p.subdistrict || '-'}</td>
       <td>
         <input class="plan-note-input plan-map-input" type="text" value="${mapLinkSafe}" placeholder="วางลิงก์ Google Maps" oninput="updateIotPlanField('${p.id}','mapLink',this.value)">
         ${p.mapLink ? `<div class="plan-map-actions"><a href="${mapLinkSafe}" target="_blank" rel="noopener" class="plan-map-link">📍 เปิดแผนที่</a></div>` : ''}
@@ -6840,6 +6953,10 @@ function populateIotPlanFilterOptions() {
 function applyIotPlanFilters() {
   const tbody = document.getElementById('iotPlanTbody');
   if (!tbody) return;
+  // จำตำแหน่ง scroll ของกล่องตารางไว้ก่อนเขียนทับแถวทั้งหมด แล้วคืนกลับหลังวาดเสร็จ
+  // (ไม่งั้นทุกครั้งที่แก้ dropdown ในแถวใดแถวหนึ่ง ตารางจะเด้งกลับไปบนสุดเพราะ innerHTML ถูกเขียนทับใหม่ทั้งก้อน)
+  const scrollBox = document.getElementById('iotPlanTableView');
+  const prevScrollTop = scrollBox ? scrollBox.scrollTop : 0;
   const filtered = getFilteredIotPlan();
 
   if (filtered.length) {
@@ -6849,6 +6966,7 @@ function applyIotPlanFilters() {
   } else {
     tbody.innerHTML = `<tr><td colspan="17" class="empty-state-cell"><span class="empty-icon">📭</span><span class="empty-text">ยังไม่มีรายการในแผนติดตั้ง IoT เลย<br>ไปที่แท็บ 🗺️ แผนที่ เพื่อเพิ่มคนเข้าแผนได้เลยครับ</span></td></tr>`;
   }
+  if (scrollBox) scrollBox.scrollTop = prevScrollTop;
 
   const countInfo = document.getElementById('iotPlanFilterCountInfo');
   if (countInfo) {
@@ -7600,6 +7718,7 @@ function exportIotMatchPendingDocExcel() {
     };
   });
   const ws = XLSX.utils.json_to_sheet(data);
+  prettifyExcelSheet(ws, data);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'ได้ตู้แล้ว รอยืนยันเอกสาร');
   XLSX.writeFile(wb, 'ได้ตู้แล้ว_รอยืนยันเอกสาร.xlsx');
@@ -7745,8 +7864,12 @@ function renderIotPlanDashboard() {
   document.getElementById('iotPlanProgressPendingCount').textContent = pendingCount.toLocaleString();
   document.getElementById('iotPlanProgressCancelledCount').textContent = cancelledCount.toLocaleString();
 
-  renderPlanTimelineList('iotPlanPastList', groupByDate(pastEntries, 'installDate'), 'ไม่มีรายการย้อนหลังในช่วงที่เลือก', today);
-  renderPlanTimelineList('iotPlanUpcomingList', groupByDate([...todayEntries, ...upcomingEntries], 'installDate'), 'ยังไม่มีรายการที่กำลังจะมาถึง', today);
+  const iotTimelineOpts = {
+    dateFormatter: (d) => formatIotPlanWeekLabelRelative(d, today),
+    isCurrentFn: (d) => getIotMonthYearFromDate(d) === getIotMonthYearFromDate(today) && getIotWeekOfMonthFromDate(d) === getIotWeekOfMonthFromDate(today)
+  };
+  renderPlanTimelineList('iotPlanPastList', groupByDate(pastEntries, 'installDate'), 'ไม่มีรายการย้อนหลังในช่วงที่เลือก', today, iotTimelineOpts);
+  renderPlanTimelineList('iotPlanUpcomingList', groupByDate([...todayEntries, ...upcomingEntries], 'installDate'), 'ยังไม่มีรายการที่กำลังจะมาถึง', today, iotTimelineOpts);
 
   const countByDate = {};
   withDate.forEach(p => { countByDate[p.installDate] = (countByDate[p.installDate] || 0) + 1; });
@@ -7790,7 +7913,7 @@ function iotPlanMatchRowHtml(p, i, confirm) {
       <td>${p.nationalId || ''}</td>
       <td>${p.phone || ''}</td>
       <td>${p.installTeam || 'ยังไม่ระบุ'}</td>
-      <td>${p.installDate || 'ยังไม่นัด'}${p.installTime ? ' ' + p.installTime : ''}</td>
+      <td>${p.installDate ? formatIotPlanWeekLabel(p.installDate) : 'ยังไม่นัด'}</td>
       <td><span class="pdf-status-badge status-${p.status || 'pending'}">${IOT_PLAN_STATUS_LABELS[p.status || 'pending']}</span></td>
       ${confirm ? `<td>${formatDateTimeThai(confirm.firstSeenAt)}</td>` : ''}
     </tr>
@@ -7964,7 +8087,7 @@ function exportIotPlanExcel() {
   if (!sortedPlan.length) { showToast('ยังไม่มีรายการที่ตั้งวันที่ติดตั้งเลยครับ ลองตั้งวันที่ก่อนแล้วค่อยส่งออกอีกครั้ง', 'warn'); return; }
   const data = sortedPlan.map((p, i) => ({
     'ลำดับ': i + 1,
-    'วันที่ติดตั้ง': p.installDate || '',
+    'กำหนดติดตั้ง (เดือน/สัปดาห์)': formatIotPlanWeekLabel(p.installDate) || 'ยังไม่นัด',
     'สถานะ': IOT_PLAN_STATUS_LABELS[p.status || 'pending'],
     'ทีมติดตั้ง': p.installTeam || '',
     'ผู้ดำเนินการ': p.operatorName || '',
@@ -7982,6 +8105,7 @@ function exportIotPlanExcel() {
     'หมายเหตุ': p.note || ''
   }));
   const ws = XLSX.utils.json_to_sheet(data);
+  prettifyExcelSheet(ws, data);
 
   const mapLinkColIndex = 15;
   sortedPlan.forEach((p, i) => {
@@ -8007,19 +8131,14 @@ function buildIotPlanTeamSectionHtml(items, teamName) {
   const pendingCount = total - doneCount - cancelledCount;
 
   const groups = groupByDate(items, 'installDate').sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
-  groups.forEach(g => g.items.sort((a, b) => {
-    const timeA = a.installTime || '~'; // ยังไม่ระบุเวลา -> ให้อยู่ท้ายกลุ่มวันเดียวกันเสมอ ('~' มีค่ามากกว่าเลข/':' ทุกตัว)
-    const timeB = b.installTime || '~';
-    if (timeA !== timeB) return timeA < timeB ? -1 : 1;
-    return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
-  }));
+  groups.forEach(g => g.items.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)));
 
   const statsLabel = `${total} คน • ติดตั้งแล้ว ${doneCount} • รอติดตั้ง ${pendingCount}${cancelledCount ? ' • ยกเลิก ' + cancelledCount : ''}`;
 
   const groupsHtml = groups.map(g => `
     <div class="pdf-date-section">
       <div class="pdf-date-heading">
-        <span>📅 ${formatThaiDate(g.date)}</span>
+        <span>🗓️ ${formatIotPlanWeekLabel(g.date)}</span>
         <span class="pdf-date-count">${g.items.length} คน</span>
       </div>
       <table class="pdf-table">
@@ -8074,11 +8193,7 @@ function buildIotPlanPdfHtml(dated, teamLabel) {
 
   const sortedDates = [...new Set(dated.map(p => p.installDate))].sort();
   const dayCount = sortedDates.length;
-  const rangeLabel = sortedDates.length === 0
-    ? ''
-    : sortedDates.length === 1
-      ? formatThaiDate(sortedDates[0])
-      : `${formatThaiDateShort(sortedDates[0])} – ${formatThaiDate(sortedDates[sortedDates.length - 1])}`;
+  const rangeLabel = formatIotPlanWeekRangeLabel(sortedDates);
 
   const generatedAt = new Date().toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' });
   const blockedCount = dated.filter(p => getIotInstallBlockerStateByNationalId(p.nationalId)).length;
@@ -8086,7 +8201,7 @@ function buildIotPlanPdfHtml(dated, teamLabel) {
   const kpiHtml = `
     <div class="pdf-kpi-grid">
       <div class="pdf-kpi-card"><div class="pdf-kpi-num">${total}</div><div class="pdf-kpi-label">คนที่นัดแล้ว</div></div>
-      <div class="pdf-kpi-card"><div class="pdf-kpi-num">${dayCount}</div><div class="pdf-kpi-label">วันที่นัดหมาย</div></div>
+      <div class="pdf-kpi-card"><div class="pdf-kpi-num">${dayCount}</div><div class="pdf-kpi-label">สัปดาห์ที่นัดหมาย</div></div>
       <div class="pdf-kpi-card done"><div class="pdf-kpi-num">${doneCount}</div><div class="pdf-kpi-label">ติดตั้งแล้ว</div></div>
       <div class="pdf-kpi-card pending"><div class="pdf-kpi-num">${pendingCount}</div><div class="pdf-kpi-label">รอติดตั้ง</div></div>
       <div class="pdf-kpi-card cancelled"><div class="pdf-kpi-num">${cancelledCount}</div><div class="pdf-kpi-label">ยกเลิก</div></div>
@@ -8110,7 +8225,7 @@ function buildIotPlanPdfHtml(dated, teamLabel) {
       <div class="pdf-header-text">
         <div class="pdf-header-eyebrow">เอกสารสรุปแผนปฏิบัติงานทีมติดตั้ง</div>
         <h1>รายงานแผนติดตั้ง IoT${teamLabel ? ' — ' + teamLabel : ' — ทุกทีม'}</h1>
-        <div class="pdf-header-sub">ช่วงวันที่นัด: ${rangeLabel}</div>
+        <div class="pdf-header-sub">ช่วงกำหนดติดตั้ง: ${rangeLabel}</div>
       </div>
       <div class="pdf-header-meta">
         <div>พิมพ์เมื่อ ${generatedAt}</div>
@@ -8144,10 +8259,12 @@ function exportIotPlanPdf() {
   root.className = 'pdf-report';
   root.innerHTML = buildIotPlanPdfHtml(dated, teamLabel);
   document.body.appendChild(root);
+  enableLandscapePrint();
 
   const cleanup = () => {
     window.removeEventListener('afterprint', cleanup);
     if (root.parentNode) document.body.removeChild(root);
+    disableLandscapePrint();
   };
   window.addEventListener('afterprint', cleanup);
 
