@@ -403,6 +403,37 @@
   .plan-map-input { margin-bottom:4px; }
   .plan-map-actions { display:flex; align-items:center; gap:10px; font-size:11px; }
   .plan-meta-line { font-size:10.5px; color:var(--muted); margin-top:4px; white-space:normal; }
+
+  /* ===== โหมด "ดูอย่างเดียว" (viewer) — ปิดการแก้ไขบนหน้าจอ =====
+     หมายเหตุ: นี่เป็นแค่ชั้นความสะดวก/กันพลาดเท่านั้น การล็อกสิทธิ์จริงอยู่ที่ฐานข้อมูล (RLS)
+     เลือกเฉพาะ control ที่อยู่ในตาราง/พาแนลที่แก้ข้อมูลได้ ไม่แตะช่องค้นหา/ตัวกรอง เพราะ viewer ยังต้องใช้ได้ */
+  body.readonly-mode #planTbody select,
+  body.readonly-mode #planTbody input,
+  body.readonly-mode #iotPlanTbody select,
+  body.readonly-mode #iotPlanTbody input,
+  body.readonly-mode #iotPlanFinalizedGroups select,
+  body.readonly-mode #iotPlanFinalizedGroups input,
+  body.readonly-mode #iotManualCodeSearchTbody input {
+    pointer-events: none;
+    background: var(--bg) !important;
+    opacity: .7;
+  }
+  body.readonly-mode .plan-remove-btn,
+  body.readonly-mode #planBulkOperatorBar,
+  body.readonly-mode #iotPlanBulkOperatorBar,
+  body.readonly-mode .readonly-hide {
+    display: none !important;
+  }
+  .readonly-badge {
+    display: inline-block;
+    background: #fef3c7; color: #92400e;
+    border: 1px solid #fbbf24;
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-size: 11.5px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
   .plan-map-link { color:var(--brand-dark); text-decoration:none; font-weight:600; white-space:nowrap; }
   .plan-map-link:hover { text-decoration:underline; }
   .btn-linklike { background:none; border:none; padding:0; margin:0; color:var(--muted); text-decoration:underline; cursor:pointer; font-size:11px; font-family:inherit; white-space:nowrap; }
@@ -625,6 +656,7 @@
     </div>
     <div style="display:flex; align-items:center; gap:10px;">
       <span id="authUserEmailLabel" style="font-size:12px; color:var(--muted);"></span>
+      <span id="readOnlyBadge" class="readonly-badge" style="display:none;" title="บัญชีนี้ดูข้อมูลและส่งออกไฟล์ได้ แต่แก้ไขข้อมูลไม่ได้">👁️ ดูอย่างเดียว</span>
       <button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="handleLogout()">ออกจากระบบ</button>
       <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="สลับโหมดมืด/สว่าง">🌙</button>
     </div>
@@ -1947,6 +1979,36 @@ function toggleTheme() {
 let currentModule = 'training';
 let currentUserEmail = ''; // อีเมลผู้ใช้ที่ล็อกอินอยู่ตอนนี้ (ใช้บันทึกว่าใครแก้ไขข้อมูลล่าสุด)
 let currentUserName = '';  // ชื่อที่ใช้แสดง (จากตาราง allowed_users ถ้ามี ไม่งั้นใช้ส่วนหน้า @ ของอีเมล)
+let currentUserRole = 'admin'; // 'admin' = แก้ไขได้ / 'viewer' = ดูอย่างเดียว (อ่านจากคอลัมน์ role ใน allowed_users)
+let isReadOnlyUser = false;    // ทางลัดของ currentUserRole === 'viewer'
+
+// ใช้ขึ้นต้นทุกฟังก์ชันที่เขียนข้อมูล: ถ้าเป็นบัญชีดูอย่างเดียวให้หยุดทันทีแล้วบอกผู้ใช้
+// (ด่านจริงอยู่ที่ RLS ฝั่งฐานข้อมูล ตรงนี้แค่กันไม่ให้กดแล้วงงว่าทำไมไม่มีอะไรเกิดขึ้น)
+function blockIfReadOnly() {
+  if (!isReadOnlyUser) return false;
+  showToast('บัญชีนี้เป็นแบบ "ดูอย่างเดียว" จึงแก้ไขข้อมูลไม่ได้ครับ (ดูและส่งออกไฟล์ได้ตามปกติ)', 'warn');
+  return true;
+}
+
+// ซ่อน/ปิดปุ่มแก้ไขทั้งหน้าเมื่อเป็นบัญชีดูอย่างเดียว
+function applyReadOnlyUiMode() {
+  document.body.classList.toggle('readonly-mode', isReadOnlyUser);
+  const badge = document.getElementById('readOnlyBadge');
+  if (badge) badge.style.display = isReadOnlyUser ? '' : 'none';
+  // ปุ่มที่เป็นการแก้ไขล้วนๆ ในหน้าจอหลัก (ปุ่มพวกนี้อยู่ใน HTML ตายตัว เลยซ่อนด้วย id ตรงๆ ได้)
+  READONLY_HIDDEN_BUTTON_SELECTORS.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => { el.style.display = isReadOnlyUser ? 'none' : ''; });
+  });
+}
+
+// ปุ่ม/แถบที่ต้องซ่อนสำหรับบัญชีดูอย่างเดียว (ปุ่มส่งออก Excel/PDF ไม่อยู่ในลิสต์นี้ เพราะยังให้ใช้ได้)
+const READONLY_HIDDEN_BUTTON_SELECTORS = [
+  '[onclick^="clearPlan"]', '[onclick^="clearIotPlan"]',
+  '[onclick^="optimizePlanRoute"]', '[onclick^="optimizeIotPlanRoute"]',
+  '[onclick^="toggleDateRangeTool"]', '[onclick^="confirmDateRangeTool"]',
+  '#planBulkOperatorBar', '#iotPlanBulkOperatorBar',
+  '#docChecklistModalSave', '#installBlockerModalSave', '#installBlockerModalRemove'
+];
 
 function switchModule(module) {
   currentModule = module;
@@ -2535,11 +2597,26 @@ async function handleAuthSession(session) {
   const email = session.user.email;
 
   // เช็คว่าอีเมลนี้อยู่ในรายชื่อที่อนุญาต (allowed_users) ไหม
-  const { data: allowedRow, error } = await supabaseClient
+  // ลองดึงคอลัมน์ role มาด้วย แต่ถ้ายังไม่ได้รันไฟล์ readonly_viewer_role_migration.sql
+  // คอลัมน์ role จะยังไม่มี query จะ error -> ถอยไปใช้แบบเดิม (email, name) เพื่อไม่ให้ใครล็อกอินไม่ได้
+  let allowedRow = null;
+  let error = null;
+  const withRole = await supabaseClient
     .from('allowed_users')
-    .select('email, name')
+    .select('email, name, role')
     .eq('email', email)
     .maybeSingle();
+  if (withRole.error) {
+    const legacy = await supabaseClient
+      .from('allowed_users')
+      .select('email, name')
+      .eq('email', email)
+      .maybeSingle();
+    allowedRow = legacy.data;
+    error = legacy.error;
+  } else {
+    allowedRow = withRole.data;
+  }
 
   if (error || !allowedRow) {
     document.getElementById('authPendingEmail').textContent = email;
@@ -2554,6 +2631,10 @@ async function handleAuthSession(session) {
 
   currentUserEmail = email;
   currentUserName = (allowedRow.name || '').trim() || email.split('@')[0];
+  // ไม่มีคอลัมน์ role (ยังไม่ได้รัน migration) หรือค่าว่าง -> ถือเป็น admin เหมือนเดิม คนเดิมจึงไม่ถูกตัดสิทธิ์
+  currentUserRole = String(allowedRow.role || 'admin').trim().toLowerCase() === 'viewer' ? 'viewer' : 'admin';
+  isReadOnlyUser = currentUserRole === 'viewer';
+  applyReadOnlyUiMode();
 
   loadData();
   await syncPlanFromSupabase();
@@ -2609,6 +2690,9 @@ async function handleLogout() {
   teardownRealtimeSync();
   currentUserEmail = '';
   currentUserName = '';
+  currentUserRole = 'admin';
+  isReadOnlyUser = false;
+  applyReadOnlyUiMode();
   document.getElementById('appShell').style.display = 'none';
   document.getElementById('authGate').style.display = 'flex';
   showAuthView('login');
@@ -3815,6 +3899,7 @@ function refreshAfterIotInstallBlockerChange() {
 }
 
 async function saveIotInstallBlockerModal() {
+  if (blockIfReadOnly()) return;
   if (!iotInstallBlockerModalRefId) return;
   if (!supabaseClient) { showToast('ยังไม่ได้เชื่อมต่อ Supabase', 'warn'); return; }
   const referenceId = iotInstallBlockerModalRefId;
@@ -3837,6 +3922,7 @@ async function saveIotInstallBlockerModal() {
 }
 
 async function removeIotInstallBlockerModal() {
+  if (blockIfReadOnly()) return;
   if (!iotInstallBlockerModalRefId) return;
   if (!supabaseClient) { showToast('ยังไม่ได้เชื่อมต่อ Supabase', 'warn'); return; }
   const referenceId = iotInstallBlockerModalRefId;
@@ -3991,6 +4077,7 @@ function closeIotDocChecklistModal() {
 
 // บันทึกเช็คลิสต์ทั้ง 6 รายการทีเดียว (upsert ด้วย reference_id) แล้วอัปเดตแคชในหน่วยความจำ + รีเฟรชตารางทันที
 async function saveIotDocChecklistModal() {
+  if (blockIfReadOnly()) return;
   if (!iotDocChecklistModalRefId) return;
   if (!supabaseClient) { showToast('ยังไม่ได้เชื่อมต่อ Supabase', 'warn'); return; }
   const referenceId = iotDocChecklistModalRefId;
@@ -4016,6 +4103,29 @@ async function saveIotDocChecklistModal() {
 // หารายชื่อ "คนที่น่าจะรอกรอกรหัสฐาน" ให้ขึ้นมาอัตโนมัติ (ไม่ต้องรู้ชื่อมาค้นหาเองก่อน) แบ่ง 2 กลุ่ม (ไม่ซ้ำคนกัน เจอกลุ่ม 1 ก่อนก็ไม่ต้องเช็คกลุ่ม 2 ซ้ำ):
 //   1) แผนติดตั้ง (iotInstallPlan) บอกว่า "ติดตั้งแล้ว" ไปแล้ว แต่ระบบ OTOD ยังไม่อัปเดตสถานะ (จับคู่ด้วยเลขบัตรประชาชน)
 //   2) ติดตั้งแล้วในระบบเรา (ไม่ว่า OTOD ยืนยันเองหรือระบบอนุมานให้จากหลักฐานอื่น) แต่ไม่มี SN เลยสักทาง (ทั้งจากแอปและชีตเก่า)
+// วันสุดท้ายของสัปดาห์ที่นัด (ใช้เช็คว่า "เลยกำหนด" หรือยัง) — installDate เก็บเป็นวันแรกของสัปดาห์เสมอ (1/8/15/22/29)
+// สัปดาห์ 1-4 จบก่อนวันที่สัปดาห์ถัดไปเริ่ม 1 วัน (7/14/21/28) ส่วนสัปดาห์ 5 จบวันสุดท้ายของเดือนนั้นๆ
+function getIotWeekEndDate(dateStr) {
+  if (!dateStr) return '';
+  const monthYear = getIotMonthYearFromDate(dateStr);
+  const week = Number(getIotWeekOfMonthFromDate(dateStr));
+  const [y, m] = monthYear.split('-').map(Number);
+  const lastDayOfMonth = new Date(y, m, 0).getDate();
+  const nextFirstDay = IOT_WEEK_FIRST_DAY[week + 1];
+  const day = nextFirstDay ? Math.min(nextFirstDay - 1, lastDayOfMonth) : lastDayOfMonth;
+  return `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+// เช็คว่ารายการนี้ "เลยกำหนดเชื่อมต่อแอป" หรือยัง: มีนัดวันแล้ว + วันนี้เลยวันสุดท้ายของสัปดาห์ที่นัดแล้ว + สถานะไม่ใช่สละสิทธิ์ + ยังไม่เชื่อมต่อแอป
+// เป็นการคำนวณสดทุกครั้ง ไม่มีการบันทึกสถานะค้างไว้ที่ไหน — พอเชื่อมต่อแอปสำเร็จเมื่อไหร่ก็หลุดออกจากเงื่อนไขนี้ทันทีในรอบคำนวณถัดไปเอง
+function isIotPlanEntryOverdueForAppConnect(p, today) {
+  if (!p.installDate) return false;
+  if (p.status === 'cancelled') return false;
+  const deadline = getIotWeekEndDate(p.installDate);
+  if (!deadline || (today || todayDateStr()) <= deadline) return false;
+  return !getAppConfirmForPlanEntry(p);
+}
+
 function getIotManualCodeCandidates() {
   if (!iotDataLoaded) return [];
   const rows = getIotVisibleRows();
@@ -4039,6 +4149,16 @@ function getIotManualCodeCandidates() {
       seen.add(r.reference_id);
       result.push({ row: r, reason: 'ติดตั้งแล้ว แต่ไม่มี SN' });
     }
+  });
+
+  // กลุ่มที่ 3: คนในแผนที่เลยกำหนดสัปดาห์นัดแล้วแต่ยังไม่เชื่อมต่อแอป — ต้องเปลี่ยนมากรอกรหัสฐานเองแทนที่จะรอแอปต่อไป
+  const today = todayDateStr();
+  iotInstallPlan.forEach(p => {
+    if (!p.nationalId || !isIotPlanEntryOverdueForAppConnect(p, today)) return;
+    const r = rows.find(row => row.national_id === p.nationalId);
+    if (!r || seen.has(r.reference_id)) return;
+    seen.add(r.reference_id);
+    result.push({ row: r, reason: `⏰ เลยกำหนดเชื่อมแอป (${formatIotPlanWeekLabel(p.installDate)})` });
   });
 
   return result;
@@ -4097,6 +4217,7 @@ function renderIotManualCodeSearchResults() {
 // บันทึกรหัสฐานที่ admin กรอกเองขึ้น Supabase (upsert ด้วย reference_id) แล้วโหลดข้อมูล IoT ใหม่ทั้งหมด
 // (ต้องโหลดใหม่ทั้งหมด ไม่ใช่แค่แก้ค่าในหน่วยความจำ เพราะ mutation สถานะติดตั้งเป็นการคำนวณทางเดียวจากข้อมูลดิบทุกครั้งที่โหลด)
 async function saveIotManualBaseCode(referenceId) {
+  if (blockIfReadOnly()) return;
   if (!supabaseClient) { showToast('ยังไม่ได้เชื่อมต่อ Supabase', 'warn'); return; }
   const input = document.getElementById('iotManualCodeInput_' + referenceId);
   if (!input) return;
@@ -4130,6 +4251,7 @@ async function saveIotManualBaseCode(referenceId) {
 
 // ลบรหัสฐานที่กรอกเอง แล้วโหลดข้อมูล IoT ใหม่ทั้งหมด เพื่อคำนวณสถานะย้อนกลับให้ถูกต้อง
 async function removeIotManualBaseCode(referenceId) {
+  if (blockIfReadOnly()) return;
   if (!supabaseClient) return;
   const confirmed = await showConfirmModal('ยืนยันลบรหัสฐานที่กรอกเองของคนนี้?');
   if (!confirmed) return;
@@ -5214,6 +5336,7 @@ function planEntryToSupabaseRow(entry) {
 }
 
 async function syncPlanEntriesToSupabase(entries) {
+  if (blockIfReadOnly()) return;
   if (!supabaseClient || !entries || !entries.length) return;
   try {
     const rows = entries.map(planEntryToSupabaseRow);
@@ -5225,6 +5348,7 @@ async function syncPlanEntriesToSupabase(entries) {
 }
 
 async function deletePlanEntryFromSupabase(id) {
+  if (blockIfReadOnly()) return;
   if (!supabaseClient) return;
   try {
     const { error } = await supabaseClient.from('training_plan').delete().eq('id', id);
@@ -5235,6 +5359,7 @@ async function deletePlanEntryFromSupabase(id) {
 }
 
 async function deleteAllPlanEntriesFromSupabase(ids) {
+  if (blockIfReadOnly()) return;
   if (!supabaseClient || !ids || !ids.length) return;
   try {
     const { error } = await supabaseClient.from('training_plan').delete().in('id', ids);
@@ -5387,6 +5512,7 @@ function addPersonToPlan(p) {
 }
 
 function addPersonToPlanByNid(nid) {
+  if (blockIfReadOnly()) return;
   const p = allRows.find(r => r.national_id === nid);
   if (!p) return;
   const entry = addPersonToPlan(p);
@@ -5403,6 +5529,7 @@ function addPersonToPlanByNid(nid) {
 
 // เพิ่มคนที่ "ยังไม่อบรม" ทั้งอำเภอที่ระบุเข้าแผน (parametrized เพื่อใช้ได้ทั้งมุมมองทีละอำเภอ และมุมมองทั้งจังหวัด)
 function addAllUntrainedToPlanFor(province, district) {
+  if (blockIfReadOnly()) return;
   const people = allRows.filter(r =>
     normName(r.province) === normName(province) &&
     normName(r.district) === normName(district) &&
@@ -5422,11 +5549,13 @@ function addAllUntrainedToPlanFor(province, district) {
 }
 
 function addAllDistrictUntrainedToPlan() {
+  if (blockIfReadOnly()) return;
   if (!currentPeoplePanelProvince || !currentPeoplePanelDistrict) return;
   addAllUntrainedToPlanFor(currentPeoplePanelProvince, currentPeoplePanelDistrict);
 }
 
 function addSelectedPeopleToPlan(groupId) {
+  if (blockIfReadOnly()) return;
   const container = document.getElementById(groupId + 'Tbody');
   if (!container) return;
   const checked = container.querySelectorAll('.plan-select-checkbox:checked');
@@ -5510,6 +5639,7 @@ function planRowHtml(p, i) {
 }
 
 function applyMapLinkToSubdistrict(id) {
+  if (blockIfReadOnly()) return;
   const entry = trainingPlan.find(p => p.id === id);
   if (!entry || !entry.mapLink) { showToast('กรุณาวางลิงก์ Google Maps ก่อนครับ', 'warn'); return; }
   if (!entry.subdistrict) { showToast('รายการนี้ยังไม่มีข้อมูลตำบลครับ', 'warn'); return; }
@@ -5600,6 +5730,7 @@ function previewDateRangeTool() {
 }
 
 function confirmDateRangeTool() {
+  if (blockIfReadOnly()) return;
   const start = document.getElementById('dateRangeToolStart').value;
   const end = document.getElementById('dateRangeToolEnd').value;
   const targets = getDateRangeToolTargets();
@@ -5616,6 +5747,7 @@ function confirmDateRangeTool() {
 }
 
 function applyVisitDateToSubdistrict(id) {
+  if (blockIfReadOnly()) return;
   const entry = trainingPlan.find(p => p.id === id);
   if (!entry || !entry.visitDate) { showToast('กรุณาเลือกวันที่นัดก่อนครับ', 'warn'); return; }
   if (!entry.subdistrict) { showToast('รายการนี้ยังไม่มีข้อมูลตำบลครับ', 'warn'); return; }
@@ -5838,6 +5970,7 @@ function schedulePlanEntrySync(entry, immediate) {
 }
 
 function updatePlanField(id, field, value) {
+  if (blockIfReadOnly()) return;
   const entry = trainingPlan.find(p => p.id === id);
   if (!entry) return;
   entry[field] = value;
@@ -5851,6 +5984,7 @@ function updatePlanField(id, field, value) {
 }
 
 async function removePlanEntry(id) {
+  if (blockIfReadOnly()) return;
   const entry = trainingPlan.find(p => p.id === id);
   if (entry && entry.visitDate && entry.visitDate >= todayDateStr()) {
     const confirmed = await showConfirmModal(`${entry.name || 'คนนี้'} มีนัดอบรมวันที่ ${formatThaiDate(entry.visitDate)} อยู่ ต้องการลบออกจากแผนหรือไม่?`);
@@ -5865,12 +5999,14 @@ async function removePlanEntry(id) {
 
 // ยกเลิกการเพิ่มคนเข้าแผนอบรม โดยหาแถวแผนจากเลขบัตรประชาชน (ใช้จากปุ่ม "ยกเลิก" ในพาแนลเลือกคน)
 async function removePersonFromPlanByNid(nationalId) {
+  if (blockIfReadOnly()) return;
   const entry = trainingPlan.find(e => e.nationalId === nationalId);
   if (!entry) return;
   await removePlanEntry(entry.id);
 }
 
 async function clearPlan() {
+  if (blockIfReadOnly()) return;
   if (!trainingPlan.length) return;
   const confirmed = await showConfirmModal('ต้องการล้างรายการแผนอบรมทั้งหมดหรือไม่? ข้อมูลจะหายจากเบราว์เซอร์นี้ทันที');
   if (!confirmed) return;
@@ -6203,6 +6339,7 @@ function haversineDistanceKm(a, b) {
 }
 
 async function optimizePlanRoute() {
+  if (blockIfReadOnly()) return;
   const scoped = getFilteredPlan(); // จัดเรียงเฉพาะรายการที่กำลังกรอง/มองเห็นอยู่ตอนนี้
   if (scoped.length < 2) {
     showToast('ต้องมีอย่างน้อย 2 รายการ (ตามตัวกรองปัจจุบัน) ถึงจะจัดเรียงเส้นทางได้ครับ', 'warn');
@@ -6519,6 +6656,7 @@ function iotPlanEntryToSupabaseRow(entry) {
 }
 
 async function syncIotPlanEntriesToSupabase(entries) {
+  if (blockIfReadOnly()) return;
   if (!supabaseClient || !entries || !entries.length) return;
   try {
     const rows = entries.map(iotPlanEntryToSupabaseRow);
@@ -6530,6 +6668,7 @@ async function syncIotPlanEntriesToSupabase(entries) {
 }
 
 async function deleteIotPlanEntryFromSupabase(id) {
+  if (blockIfReadOnly()) return;
   if (!supabaseClient) return;
   try {
     const { error } = await supabaseClient.from('iot_install_plan').delete().eq('id', id);
@@ -6540,6 +6679,7 @@ async function deleteIotPlanEntryFromSupabase(id) {
 }
 
 async function deleteAllIotPlanEntriesFromSupabase(ids) {
+  if (blockIfReadOnly()) return;
   if (!supabaseClient || !ids || !ids.length) return;
   try {
     const { error } = await supabaseClient.from('iot_install_plan').delete().in('id', ids);
@@ -6629,6 +6769,7 @@ function addPersonToIotPlan(p) {
 }
 
 function addPersonToIotPlanByNid(nid) {
+  if (blockIfReadOnly()) return;
   const p = allIotRows.find(r => r.national_id === nid);
   if (!p) return;
   const entry = addPersonToIotPlan(p);
@@ -6644,6 +6785,7 @@ function addPersonToIotPlanByNid(nid) {
 
 // เพิ่มคนที่ "ยังไม่ติดตั้ง" ทั้งอำเภอที่ระบุเข้าแผน (parametrized เพื่อใช้ได้ทั้งมุมมองทีละอำเภอ และมุมมองทั้งจังหวัด)
 function addAllNotInstalledToIotPlanFor(province, district) {
+  if (blockIfReadOnly()) return;
   // ไม่รวมคนที่ทำเครื่องหมายว่า "ติดตั้งไม่ได้" ไว้ ให้สอดคล้องกับพาแนลที่แยกหัวข้อคนกลุ่มนี้ออกไปแล้ว
   const people = getIotVisibleRows().filter(r =>
     normName(r[IOT_FIELDS.province]) === normName(province) &&
@@ -6662,11 +6804,13 @@ function addAllNotInstalledToIotPlanFor(province, district) {
 }
 
 function addAllDistrictNotInstalledToIotPlan() {
+  if (blockIfReadOnly()) return;
   if (!currentIotPeoplePanelProvince || !currentIotPeoplePanelDistrict) return;
   addAllNotInstalledToIotPlanFor(currentIotPeoplePanelProvince, currentIotPeoplePanelDistrict);
 }
 
 function addSelectedIotPeopleToIotPlan(groupId) {
+  if (blockIfReadOnly()) return;
   const container = document.getElementById(groupId + 'Tbody');
   if (!container) return;
   const checked = container.querySelectorAll('.iot-plan-select-checkbox:checked');
@@ -6800,6 +6944,7 @@ function formatIotPlanWeekLabelRelative(dateStr, today) {
 }
 
 function updateIotPlanMonthWeek(id, part, value) {
+  if (blockIfReadOnly()) return;
   const entry = iotInstallPlan.find(p => p.id === id);
   if (!entry) return;
   let month = getIotMonthYearFromDate(entry.installDate);
@@ -6827,6 +6972,7 @@ function iotPlanRowHtml(p, i) {
   const planBlocker = getIotInstallBlockerStateByNationalId(p.nationalId);
   const planBlockerNidSafe = (p.nationalId || '').replace(/'/g, "\\'");
   const isHighlighted = p.id === iotPlanHighlightEntryId;
+  const isOverdueAppConnect = isIotPlanEntryOverdueForAppConnect(p);
   return `
     <tr class="plan-row-${status}${isHighlighted ? ' row-highlight' : ''}" ${isHighlighted ? 'id="highlightedIotPlanTableRow"' : ''}>
       <td><input type="checkbox" class="iot-plan-bulk-checkbox" data-id="${p.id}" onchange="updateIotPlanBulkSelectedCount()"></td>
@@ -6863,6 +7009,7 @@ function iotPlanRowHtml(p, i) {
             ? `🚫 ติดตั้งไม่ได้ <button type="button" class="btn-linklike" onclick="openIotInstallBlockerModalByNationalId('${planBlockerNidSafe}')" title="เหตุผล: ${(planBlocker.reason || '').replace(/"/g, '&quot;')}">แก้ไข</button>`
             : `<button type="button" class="btn-linklike" onclick="openIotInstallBlockerModalByNationalId('${planBlockerNidSafe}')">🚫 ทำเครื่องหมายว่าติดตั้งไม่ได้</button>`}
         </div>
+        ${isOverdueAppConnect ? `<div class="plan-meta-line" style="color:var(--red);" title="เลยวันสุดท้ายของสัปดาห์ที่นัดแล้ว แต่ยังไม่เชื่อมต่อแอป — โผล่ในรายชื่อ &quot;กรอกรหัสฐานเอง&quot; ให้แล้ว">⏰ เลยกำหนดเชื่อมแอป</div>` : ''}
       </td>
       <td>${p.nationalId || ''}</td>
       <td>${p.phone || ''}</td>
@@ -6934,6 +7081,7 @@ function iotPlanRowHtml(p, i) {
 // ทีมติดตั้งมักไปทั้งตำบลในวันเดียวกัน (แม้แต่ละจุดจะมีพิกัด GPS ต่างกัน) จึงให้ซิงก์ "วันที่ติดตั้ง" ทั้งตำบลได้
 // (ต่างจากลิงก์ Google Maps ที่ไม่ซิงก์ เพราะแต่ละบ้านมีตำแหน่งติดตั้งจริงไม่เหมือนกัน)
 function applyInstallDateToSubdistrict(id) {
+  if (blockIfReadOnly()) return;
   const entry = iotInstallPlan.find(p => p.id === id);
   if (!entry || !entry.installDate) { showToast('กรุณาเลือกวันที่ติดตั้งก่อนครับ', 'warn'); return; }
   if (!entry.subdistrict) { showToast('รายการนี้ยังไม่มีข้อมูลตำบลครับ', 'warn'); return; }
@@ -7093,6 +7241,7 @@ function toggleSelectAllIotPlanRows() {
 
 // ตั้ง "ผู้ดำเนินการ" ให้ทุกแถวที่ติ๊กเลือกไว้พร้อมกันทีเดียว แล้วซิงก์ขึ้น Supabase ทีเดียว
 function applyBulkIotPlanOperator() {
+  if (blockIfReadOnly()) return;
   const select = document.getElementById('iotPlanBulkOperatorSelect');
   const operator = select ? select.value : '';
   if (!operator) { showToast('กรุณาเลือกผู้ดำเนินการก่อนครับ', 'warn'); return; }
@@ -7111,6 +7260,7 @@ function applyBulkIotPlanOperator() {
 
 // ทำเครื่องหมายว่า "วางแผนเสร็จแล้ว" ให้ทุกแถวที่ติ๊กเลือกไว้พร้อมกัน — ย้ายไปแท็บ "✅ วางแผนเสร็จแล้ว" ทันที (ยังแก้ไขข้อมูลได้ตามปกติ)
 function applyBulkIotPlanFinalize() {
+  if (blockIfReadOnly()) return;
   const checked = [...document.querySelectorAll('#iotPlanTbody .iot-plan-bulk-checkbox:checked')];
   if (!checked.length) { showToast('กรุณาเลือกอย่างน้อย 1 แถวก่อนครับ', 'warn'); return; }
   const changed = [];
@@ -7126,6 +7276,7 @@ function applyBulkIotPlanFinalize() {
 
 // ย้ายรายการเดียวกลับจากแท็บ "วางแผนเสร็จแล้ว" ไปแท็บแผนติดตั้งหลัก เผื่อมาร์คผิดหรืออยากแก้แผนใหม่
 function unfinalizeIotPlanEntry(id) {
+  if (blockIfReadOnly()) return;
   const entry = iotInstallPlan.find(p => p.id === id);
   if (!entry) return;
   entry.planFinalized = false;
@@ -7137,6 +7288,7 @@ function unfinalizeIotPlanEntry(id) {
 
 // ย้ายกลับทั้งกลุ่ม (ทุกรายการในอำเภอเดียว หรือทุกรายการในจังหวัดเดียว ถ้าไม่ระบุ district) จากแท็บ "วางแผนเสร็จแล้ว" กลับไปแท็บแผนติดตั้งหลักทีเดียว
 function unfinalizeIotPlanGroup(province, district, evt) {
+  if (blockIfReadOnly()) return;
   if (evt) evt.stopPropagation(); // ป้องกันไม่ให้ไปเรียก toggleGroupBody ซ้อนตอนกดปุ่มในหัวกลุ่ม
   const entries = iotInstallPlan.filter(p => {
     if (!p.planFinalized) return false;
@@ -7361,6 +7513,7 @@ function scheduleIotPlanEntrySync(entry, immediate) {
 }
 
 function updateIotPlanTimePart(id, part, value) {
+  if (blockIfReadOnly()) return;
   const entry = iotInstallPlan.find(p => p.id === id);
   if (!entry) return;
   const [curH, curM] = (entry.installTime || '').split(':');
@@ -7372,6 +7525,7 @@ function updateIotPlanTimePart(id, part, value) {
 }
 
 function updateIotPlanField(id, field, value) {
+  if (blockIfReadOnly()) return;
   const entry = iotInstallPlan.find(p => p.id === id);
   if (!entry) return;
   entry[field] = value;
@@ -7390,6 +7544,7 @@ function updateIotPlanField(id, field, value) {
 }
 
 async function removeIotPlanEntry(id) {
+  if (blockIfReadOnly()) return;
   const entry = iotInstallPlan.find(p => p.id === id);
   if (entry && entry.installDate && entry.installDate >= todayDateStr()) {
     const confirmed = await showConfirmModal(`${entry.name || 'คนนี้'} มีนัดติดตั้ง IoT วันที่ ${formatThaiDate(entry.installDate)} อยู่ ต้องการลบออกจากแผนหรือไม่?`);
@@ -7404,12 +7559,14 @@ async function removeIotPlanEntry(id) {
 
 // ยกเลิกการเพิ่มคนเข้าแผนติดตั้ง IoT โดยหาแถวแผนจากเลขบัตรประชาชน (ใช้จากปุ่ม "ยกเลิก" ในพาแนลเลือกคน)
 async function removePersonFromIotPlanByNid(nationalId) {
+  if (blockIfReadOnly()) return;
   const entry = iotInstallPlan.find(e => e.nationalId === nationalId);
   if (!entry) return;
   await removeIotPlanEntry(entry.id);
 }
 
 async function clearIotPlan() {
+  if (blockIfReadOnly()) return;
   if (!iotInstallPlan.length) return;
   const confirmed = await showConfirmModal('ต้องการล้างรายการแผนติดตั้ง IoT ทั้งหมดหรือไม่? ข้อมูลจะหายจากเบราว์เซอร์นี้ทันที');
   if (!confirmed) return;
@@ -7536,6 +7693,7 @@ function renderIotPlanCalendar() {
 
 // ----- จัดเรียงลำดับเส้นทางอัตโนมัติสำหรับแผนติดตั้ง IoT (ใช้ centroid/haversine ร่วมกับแผนอบรม) -----
 async function optimizeIotPlanRoute() {
+  if (blockIfReadOnly()) return;
   const scoped = getFilteredIotPlan();
   if (scoped.length < 2) {
     showToast('ต้องมีอย่างน้อย 2 รายการ (ตามตัวกรองปัจจุบัน) ถึงจะจัดเรียงเส้นทางได้ครับ', 'warn');
@@ -7903,9 +8061,17 @@ let iotAppMatchCategoriesCache = null;
 function matchesIotFarmerSearch(r, term) {
   const q = (term || '').trim().toLowerCase();
   if (!q) return true;
-  const hay = [r.prefix, r.first_name, r.last_name, r.national_id, r.phone, r.matched_sn, r.legacySerial, r.farm_province, r.farm_district, r.farm_subdistrict]
+  const arCode = getIotArCodeDisplay(r) || '';
+  const hay = [r.prefix, r.first_name, r.last_name, r.national_id, r.phone, r.matched_sn, r.legacySerial, r.farm_province, r.farm_district, r.farm_subdistrict, arCode]
     .map(v => (v || '').toString().toLowerCase()).join(' ');
-  return hay.includes(q);
+  if (hay.includes(q)) return true;
+  // เผื่อพิมพ์เลข AR แบบเว้นวรรค/ขีด แทนขีดล่างที่เก็บจริง (เช่น "AR 0000" หรือ "ar-0000" ให้ยังหาเจอ "AR_0000")
+  if (arCode) {
+    const normalizedArCode = arCode.toLowerCase().replace(/[\s_-]/g, '');
+    const normalizedQuery = q.replace(/[\s_-]/g, '');
+    if (normalizedQuery && normalizedArCode.includes(normalizedQuery)) return true;
+  }
+  return false;
 }
 
 // ค้นหาในตาราง "เชื่อมต่อแอปแล้ว แต่ไม่พบข้อมูลในระบบ OTOD" (ข้อมูลดิบจาก app_connections ไม่ใช่ iot_farmers)
