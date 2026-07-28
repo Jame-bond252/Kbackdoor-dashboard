@@ -413,11 +413,127 @@
   body.readonly-mode #iotPlanTbody input,
   body.readonly-mode #iotPlanFinalizedGroups select,
   body.readonly-mode #iotPlanFinalizedGroups input,
-  body.readonly-mode #iotManualCodeSearchTbody input {
+  body.readonly-mode #iotManualCodeSearchTbody input,
+  body.readonly-mode #trainingConfirmTbody input {
     pointer-events: none;
     background: var(--bg) !important;
     opacity: .7;
   }
+  body.readonly-mode #trainingConfirmTbody .btn-linklike { display: none !important; }
+
+  /* ตัวจัดการตัวเลือกดรอปดาวน์ */
+  .dropdown-manager { border:1px solid var(--border); border-radius:8px; margin:4px 0 10px; background:var(--card); }
+  .dropdown-manager-header { display:flex; align-items:center; gap:8px; padding:9px 12px; cursor:pointer; flex-wrap:wrap; }
+  .dropdown-manager-body { padding:4px 12px 12px; display:flex; flex-wrap:wrap; gap:14px; }
+  .dropdown-manager-cat { flex:1; min-width:220px; border:1px solid var(--border); border-radius:8px; padding:8px 10px; background:var(--bg); }
+  .dropdown-manager-cat-title { font-weight:700; font-size:13px; margin-bottom:6px; }
+  .dropdown-chips { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:7px; }
+  .dropdown-chip { display:inline-flex; align-items:center; gap:4px; font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid var(--border); }
+  .dropdown-chip.is-default { background:var(--card); color:var(--muted); }
+  .dropdown-chip.is-custom { background:#ecfdf5; color:#065f46; border-color:#6ee7b7; }
+  .dropdown-chip.is-custom button { border:none; background:transparent; color:#dc2626; cursor:pointer; font-size:12px; line-height:1; padding:0 1px; }
+  .dropdown-add-row { display:flex; gap:6px; }
+  .dropdown-add-row input { flex:1; min-width:0; padding:5px 8px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:12.5px; background:var(--card); color:var(--text); }
+  body.readonly-mode .dropdown-add-row, body.readonly-mode .dropdown-chip.is-custom button { display:none !important; }
+
+  /* โหมดกรอกรายละเอียดบนหน้าแผนที่ */
+  .iot-map-name-toggle { cursor:pointer; color:var(--brand); font-weight:600; }
+  .iot-map-name-toggle .caret { display:inline-block; transition:transform .2s; font-size:10px; }
+  .iot-map-name-toggle .caret.open { transform:rotate(90deg); }
+  .iot-map-detail-row > td { background:var(--bg); padding:0 !important; }
+  .iot-map-detail { padding:10px 12px; }
+  .iot-map-detail-ctx { display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12px; color:var(--muted); margin-bottom:9px; padding-bottom:8px; border-bottom:1px dashed var(--border); }
+  .iot-map-detail-ctx b { color:var(--text); font-weight:600; }
+  .iot-map-detail-empty { font-size:13px; color:var(--muted); padding:4px 0; }
+  .iot-map-detail-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:8px 12px; }
+  .iot-map-detail-grid label { display:flex; flex-direction:column; gap:3px; font-size:11.5px; font-weight:600; color:var(--muted); }
+  .iot-map-detail-grid label.iot-map-detail-wide { grid-column:1 / -1; }
+  .iot-map-detail-grid select, .iot-map-detail-grid input { padding:5px 8px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:13px; background:var(--card); color:var(--text); font-weight:400; }
+  .iot-map-detail-foot { margin-top:9px; }
+  body.readonly-mode .iot-map-detail select, body.readonly-mode .iot-map-detail input { pointer-events:none; opacity:.7; background:var(--bg) !important; }
+  body.readonly-mode .iot-map-detail-empty button, body.readonly-mode .iot-map-detail-foot { display:none !important; }
+
+  /* ===== หน้าทีมติดตั้ง (installer) ===== */
+  #installerShell { max-width:900px; margin:0 auto; padding:4px 2px 40px; }
+  .inst-topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:6px 0 10px; }
+  .inst-team-name { font-size:16px; }
+  .inst-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .inst-summary { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px; }
+  .inst-kpi { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 8px; text-align:center; }
+  .inst-kpi-num { font-size:22px; font-weight:800; }
+  .inst-kpi-label { font-size:11.5px; color:var(--muted); margin-top:2px; }
+  .inst-kpi.ok .inst-kpi-num { color:#16a34a; }
+  .inst-kpi.pending .inst-kpi-num { color:#d97706; }
+  .inst-kpi.money .inst-kpi-num { color:#2563eb; }
+  .inst-tabbar { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+  .inst-tab-btn { flex:1; min-width:120px; padding:10px; border:1px solid var(--border); border-radius:8px; background:var(--card); cursor:pointer; font-family:inherit; font-size:14px; font-weight:600; color:var(--text); }
+  .inst-tab-btn.active { background:var(--brand); color:#fff; border-color:var(--brand); }
+  .inst-group { display:flex; align-items:center; gap:8px; cursor:pointer; padding:9px 11px; border:1px solid var(--border); border-radius:8px; margin-top:8px; background:var(--card); }
+  .inst-group.sub { padding:7px 10px; background:var(--bg); font-size:13.5px; }
+  .inst-group-count { font-size:12px; color:var(--muted); }
+  .inst-job-card { border:1px solid var(--border); border-radius:10px; padding:11px 13px; margin:8px 0; background:var(--card); }
+  .inst-job-card.row-done { opacity:.72; }
+  .inst-job-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap; }
+  .inst-job-name { font-size:15.5px; font-weight:700; }
+  .inst-job-when { font-size:12.5px; color:var(--muted); white-space:nowrap; }
+  .inst-job-area { font-size:13px; color:var(--muted); margin-top:3px; }
+  .inst-job-detail { color:var(--text); }
+  .inst-badge { display:inline-block; font-size:11px; font-weight:700; padding:1px 8px; border-radius:999px; margin-left:4px; }
+  .inst-badge.s-pending { background:#fef3c7; color:#92400e; }
+  .inst-badge.s-done { background:#dcfce7; color:#166534; }
+  .inst-badge.s-cancelled { background:#fee2e2; color:#991b1b; }
+  .inst-job-actions { display:flex; gap:8px; margin-top:9px; flex-wrap:wrap; }
+  .inst-act-btn { display:inline-flex; align-items:center; gap:5px; padding:9px 14px; border-radius:8px; font-size:14px; font-weight:700; text-decoration:none; }
+  .inst-act-btn.call { background:#16a34a; color:#fff; }
+  .inst-act-btn.nav { background:#2563eb; color:#fff; }
+  .inst-act-btn.disabled { background:var(--bg); color:var(--muted); }
+  .inst-job-edit { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:8px 10px; margin-top:10px; padding-top:9px; border-top:1px dashed var(--border); }
+  .inst-job-edit label { display:flex; flex-direction:column; gap:3px; font-size:11.5px; font-weight:600; color:var(--muted); }
+  .inst-job-edit label.inst-pay-check { flex-direction:row; align-items:center; gap:6px; font-size:13px; color:var(--text); align-self:end; }
+  .inst-job-edit label.inst-note-wide { grid-column:1 / -1; }
+  .inst-job-edit select, .inst-job-edit input[type=text], .inst-job-edit input[type=number] { padding:8px; border:1px solid var(--border); border-radius:7px; font-family:inherit; font-size:14px; background:var(--card); color:var(--text); font-weight:400; }
+  .inst-nomap { margin-top:12px; padding:10px 12px; background:#fffbeb; border:1px solid #fbbf24; border-radius:8px; font-size:13px; color:#92400e; }
+  @media (max-width:640px) { .inst-summary { grid-template-columns:repeat(2,1fr); } }
+  .inst-act-btn.submit { background:#7c3aed; color:#fff; }
+  /* เมนูส่งงานหน้างาน */
+  .fs-modal { max-width:560px; }
+  #fieldSubBody .fs-job { font-weight:700; font-size:14.5px; margin-bottom:10px; }
+  .fs-section { margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border); }
+  .fs-section:last-child { border-bottom:none; }
+  .fs-section h4 { margin:0 0 8px; font-size:13.5px; }
+  .fs-plot-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+  .fs-section > input[type=text] { width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:7px; font-family:inherit; font-size:13px; background:var(--card); color:var(--text); box-sizing:border-box; }
+  .fs-hint { font-size:11.5px; color:var(--muted); margin-top:5px; }
+  .fs-photos { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  .fs-slot { border:1px solid var(--border); border-radius:8px; padding:8px; text-align:center; background:var(--bg); }
+  .fs-slot-label { font-size:11.5px; font-weight:600; margin-bottom:6px; min-height:28px; }
+  .fs-thumb { width:100%; height:96px; object-fit:cover; border-radius:6px; display:block; }
+  .fs-thumb.fs-empty { display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; background:var(--card); border:1px dashed var(--border); }
+  .fs-upload-btn { display:inline-block; margin-top:7px; padding:7px 12px; border-radius:7px; background:var(--brand); color:#fff; font-size:12.5px; font-weight:600; cursor:pointer; }
+  .fs-doc { display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; cursor:pointer; }
+  .fs-del-btn { display:inline-block; margin-top:6px; margin-left:6px; padding:6px 10px; border-radius:7px; background:#fff; border:1px solid #fca5a5; color:#dc2626; font-size:12px; font-weight:600; cursor:pointer; }
+  .fs-drive { background:#f5f3ff; border:1px solid #ddd6fe; border-radius:8px; padding:10px 12px; }
+  .fs-drive h4 { color:#6d28d9; }
+
+  /* ===== พรีวิวทีม (master) + จัดการผู้ใช้ ===== */
+  .inst-preview-banner { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; background:#fef3c7; border:1px solid #fbbf24; color:#92400e; border-radius:8px; padding:8px 12px; margin:6px 0 10px; font-size:13px; }
+  .um-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; display:flex; align-items:flex-start; justify-content:center; padding:24px 12px; overflow:auto; }
+  .um-modal { background:var(--card); border-radius:12px; width:100%; max-width:720px; padding:16px 18px 20px; box-shadow:0 10px 40px rgba(0,0,0,0.25); }
+  .um-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
+  .um-head h3 { margin:0; }
+  .um-note { font-size:12.5px; color:var(--muted); background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:8px 10px; margin:6px 0 12px; }
+  .um-section { margin-bottom:16px; }
+  .um-section h4 { margin:0 0 8px; font-size:13.5px; }
+  .um-addform { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .um-addform input, .um-addform select { padding:8px 10px; border:1px solid var(--border); border-radius:7px; font-family:inherit; font-size:13px; background:var(--card); color:var(--text); }
+  .um-addform input { flex:1; min-width:130px; }
+  .um-list { display:flex; flex-direction:column; gap:6px; max-height:320px; overflow:auto; }
+  .um-row { display:flex; align-items:center; gap:8px; padding:7px 9px; border:1px solid var(--border); border-radius:8px; background:var(--bg); flex-wrap:wrap; }
+  .um-row-email { flex:1; min-width:160px; font-size:13px; }
+  .um-row-email b { display:block; }
+  .um-row-email span { font-size:11.5px; color:var(--muted); }
+  .um-row select, .um-row input { padding:6px 8px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:12.5px; background:var(--card); color:var(--text); }
+  .um-row input { width:110px; }
   body.readonly-mode .plan-remove-btn,
   body.readonly-mode #planBulkOperatorBar,
   body.readonly-mode #iotPlanBulkOperatorBar,
@@ -657,6 +773,7 @@
     <div style="display:flex; align-items:center; gap:10px;">
       <span id="authUserEmailLabel" style="font-size:12px; color:var(--muted);"></span>
       <span id="readOnlyBadge" class="readonly-badge" style="display:none;" title="บัญชีนี้ดูข้อมูลและส่งออกไฟล์ได้ แต่แก้ไขข้อมูลไม่ได้">👁️ ดูอย่างเดียว</span>
+      <button id="userMgmtBtn" class="btn btn-outline" style="padding:6px 12px; font-size:12px; display:none;" onclick="openUserMgmt()" title="จัดการผู้ใช้และสิทธิ์ (เฉพาะ master)">👑 ผู้ใช้</button>
       <button class="btn btn-outline" style="padding:6px 12px; font-size:12px;" onclick="handleLogout()">ออกจากระบบ</button>
       <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="สลับโหมดมืด/สว่าง">🌙</button>
     </div>
@@ -672,10 +789,84 @@
   <button id="qaBubbleBtn" class="qa-bubble-btn" onclick="toggleQaBubble()" title="ถาม-ตอบ">
     <img src="Kasetkorn-logo-removebg-preview.png" alt="ถาม-ตอบ">
   </button>
+  <div id="fieldSubModal" class="um-overlay" style="display:none;">
+    <div class="um-modal fs-modal">
+      <div class="um-head"><h3>📸 ส่งงานหน้างาน</h3><button class="btn btn-outline" onclick="closeFieldSubmission()">ปิด ✕</button></div>
+      <div id="fieldSubBody"></div>
+    </div>
+  </div>
+
+  <div id="userMgmtModal" class="um-overlay" style="display:none;">
+    <div class="um-modal">
+      <div class="um-head"><h3>👑 จัดการผู้ใช้และสิทธิ์</h3><button class="btn btn-outline" onclick="closeUserMgmt()">ปิด ✕</button></div>
+      <p class="um-note">เพิ่ม/เปลี่ยนสิทธิ์ได้จากหน้านี้เลย — <b>แต่การตั้งรหัสผ่าน</b>ทำที่นี่ไม่ได้ (เพื่อความปลอดภัย) ให้คนใหม่กด "สมัคร" ในหน้าล็อกอินตั้งรหัสเอง แล้วค่อยมาให้สิทธิ์ที่นี่ หรือสร้างบัญชีในหน้า Supabase Dashboard</p>
+      <div class="um-section"><h4>➕ เพิ่ม / อัปเดตสิทธิ์ผู้ใช้</h4>
+        <div class="um-addform">
+          <input type="text" id="umEmail" placeholder="อีเมล (ต้องสมัครไว้แล้ว)">
+          <input type="text" id="umName" placeholder="ชื่อที่แสดง">
+          <select id="umRole" onchange="onUmRoleChange()"><option value="admin">admin (ซูเปอร์ ทั้ง 2 ฝั่ง)</option><option value="admin_training">admin_training (อบรมเท่านั้น)</option><option value="admin_iot">admin_iot (IoT เท่านั้น)</option><option value="master">master (แอดมินสูงสุด)</option><option value="viewer">viewer (ดูอย่างเดียว)</option><option value="installer">installer (ทีมติดตั้ง)</option></select>
+          <input type="text" id="umTeam" placeholder="ชื่อทีม (เฉพาะ installer)" style="display:none;">
+          <button class="btn btn-brand" onclick="umAddOrUpdate()">บันทึก</button>
+        </div>
+      </div>
+      <div class="um-section"><h4>👥 รายชื่อผู้ใช้ทั้งหมด</h4><div id="umUserList" class="um-list"><div style="opacity:.6;">กำลังโหลด...</div></div></div>
+      <div class="um-section" id="umLockedSection" style="display:none;"><h4>🔒 บัญชีที่ถูกล็อก (กรอกรหัสผิดเกิน 5 ครั้ง)</h4><div id="umLockedList" class="um-list"></div></div>
+      <div class="um-section"><h4>👁️ พรีวิวหน้าทีมติดตั้ง (ดูว่าทีมเห็นอะไร ไม่ต้องสลับรหัส)</h4>
+        <div class="um-addform"><select id="umPreviewTeam"><option value="">— เลือกทีม —</option></select><button class="btn btn-outline" onclick="enterInstallerPreviewFromSelect()">ดูหน้าทีมนี้</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="installerShell" style="display:none;">
+    <div id="installerPreviewBanner" class="inst-preview-banner" style="display:none;">
+      <span>👑 กำลังพรีวิวหน้าทีมติดตั้ง: <b id="installerPreviewTeamName">-</b> (ดูเฉยๆ ในฐานะ master)</span>
+      <button class="btn btn-brand btn-xs" onclick="exitInstallerPreview()">← กลับหน้าแอดมิน</button>
+    </div>
+    <div class="inst-topbar">
+      <div class="inst-team-name">🔧 ทีมติดตั้ง: <b id="installerTeamName">-</b></div>
+      <div class="inst-actions">
+        <button class="btn btn-outline" onclick="syncIotPlanFromSupabase({showToastOnSuccess:true})">🔄 รีเฟรชงาน</button>
+        <button class="btn btn-outline" onclick="exportIotPlanExcel()">📥 ใบงาน Excel</button>
+        <button class="btn btn-outline" onclick="exportIotPlanPdf()">🖨️ ใบงาน PDF</button>
+      </div>
+    </div>
+
+    <div class="inst-summary" id="installerSummary"></div>
+
+    <div class="inst-tabbar">
+      <button class="inst-tab-btn active" data-itab="jobs" onclick="switchInstallerTab('jobs')">📋 งานของทีม</button>
+      <button class="inst-tab-btn" data-itab="today" onclick="switchInstallerTab('today')">🗓️ วันนี้ / สัปดาห์นี้</button>
+      <button class="inst-tab-btn" data-itab="nav" onclick="switchInstallerTab('nav')">🗺️ นำทาง</button>
+    </div>
+
+    <div id="installerTabJobs">
+      <div class="filters">
+        <div><label>อำเภอ</label><select id="instFilterDistrict"><option value="">ทุกอำเภอ</option></select></div>
+        <div><label>ตำบล</label><select id="instFilterSubdistrict"><option value="">ทุกตำบล</option></select></div>
+        <div><label>สัปดาห์นัด</label><select id="instFilterWeek"><option value="">ทุกช่วง</option></select></div>
+        <div><label>สถานะ</label>
+          <select id="instFilterStatus">
+            <option value="">ทุกสถานะ</option>
+            <option value="pending">รอติดตั้ง</option>
+            <option value="done">ติดตั้งแล้ว</option>
+            <option value="cancelled">สละสิทธิ์</option>
+          </select>
+        </div>
+        <div style="flex:1;"><label>ค้นหาชื่อ / เบอร์</label><input id="instFilterSearch" type="text" placeholder="พิมพ์เพื่อค้นหา..."></div>
+      </div>
+      <div id="instFilterCountInfo" style="font-size:12px; color:var(--muted); margin:-6px 0 6px;"></div>
+      <div id="installerJobGroups"></div>
+    </div>
+
+    <div id="installerTabToday" style="display:none;"></div>
+    <div id="installerTabNav" style="display:none;"></div>
+  </div>
+
   <nav class="tabbar" id="tabbarTraining">
     <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">📊 แดชบอร์ด</button>
     <button class="tab-btn" data-tab="map" onclick="switchTab('map')">🗺️ แผนที่</button>
     <button class="tab-btn" data-tab="plan" onclick="switchTab('plan')">📅 แผนอบรม</button>
+    <button class="tab-btn" data-tab="training-confirm" onclick="switchTab('training-confirm')">✅ ยืนยันอบรมแล้ว</button>
     <button class="tab-btn disabled" onclick="showComingSoon()">✏️ อัปเดตข้อมูล <span class="soon-badge">เร็วๆ นี้</span></button>
   </nav>
   <nav class="tabbar" id="tabbarIot" style="display:none;">
@@ -845,6 +1036,63 @@
   </div>
 
   <!-- ===== TAB: IOT DASHBOARD ===== -->
+  <div class="tab-content" id="tab-training-confirm">
+    <div class="section">
+      <h2>✅ ยืนยันว่าอบรมแล้ว (มาร์คเอง) <span class="badge" id="trainingConfirmMarkedBadge">0 คนที่มาร์คเอง</span></h2>
+      <p style="font-size:13px; color:var(--muted); margin-top:-6px;">
+        ใช้ตอนแอดมินรู้ว่าเกษตรกรอบรมเสร็จแล้วจริง แต่ข้อมูลที่ซิงก์มายังขึ้นว่า "ยังไม่อบรม" อยู่ — ติ๊กเลือกรายคนแล้วกดมาร์ค หรือมาร์คทั้งตำบลทีเดียวก็ได้ (มาร์คเฉพาะคนที่ยังไม่อบรม) พอมาร์คแล้วคนนั้นจะนับเป็น "อบรมแล้ว" ทันทีทุกหน้า (แดชบอร์ด/แผนที่) และกดยกเลิกได้ถ้ามาร์คผิด
+      </p>
+      <div class="filters">
+        <div>
+          <label>จังหวัด</label>
+          <select id="trainingConfirmFilterProvince"><option value="">ทุกจังหวัด</option></select>
+        </div>
+        <div>
+          <label>อำเภอ</label>
+          <select id="trainingConfirmFilterDistrict"><option value="">ทุกอำเภอ</option></select>
+        </div>
+        <div>
+          <label>ตำบล</label>
+          <select id="trainingConfirmFilterSubdistrict"><option value="">ทุกตำบล</option></select>
+        </div>
+        <div>
+          <label>สถานะอบรม</label>
+          <select id="trainingConfirmFilterStatus">
+            <option value="">ทุกสถานะ</option>
+            <option value="untrained">ยังไม่อบรม</option>
+            <option value="trained_sync">อบรมแล้ว (จากระบบ)</option>
+            <option value="trained_manual">อบรมแล้ว (มาร์คเอง)</option>
+          </select>
+        </div>
+        <div style="flex:1;">
+          <label>ค้นหาชื่อ / เลขบัตรประชาชน</label>
+          <input id="trainingConfirmFilterSearch" type="text" placeholder="พิมพ์เพื่อค้นหา...">
+        </div>
+      </div>
+      <div id="trainingConfirmCountInfo" style="font-size:12px; color:var(--muted); margin:-6px 0 4px;">แสดง 0 จาก 0 คน</div>
+
+      <div id="trainingConfirmBulkBar" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:6px 0 8px;">
+        <span id="trainingConfirmSelectedCount" style="font-size:12.5px; color:var(--muted);">เลือกแล้ว 0 คน</span>
+        <button type="button" class="btn btn-brand" onclick="markTrainingConfirmSelected()">✓ ทำเครื่องหมายว่าอบรมแล้ว (ที่เลือก)</button>
+        <button type="button" class="btn btn-outline" onclick="markTrainingConfirmFilteredUntrained()">✓ มาร์คทุกคนที่ยังไม่อบรมในรายการนี้</button>
+      </div>
+
+      <div id="trainingConfirmTableWrap" class="table-wrap" style="max-height:560px;">
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th style="width:28px;"><input type="checkbox" id="trainingConfirmSelectAll" onchange="toggleSelectAllTrainingConfirm()" title="เลือกทั้งหมดที่ยังไม่อบรม"></th>
+              <th>ลำดับ</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์ติดต่อ</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>สถานะอบรม</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="trainingConfirmTbody">
+            <tr><td colspan="10" class="empty-state-cell"><span class="empty-text">กำลังโหลดรายชื่อ...</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div class="tab-content" id="tab-iot-dashboard">
 
     <div class="iot-project-filter-bar">
@@ -1288,6 +1536,15 @@
         </div>
       </div>
 
+      <div class="dropdown-manager readonly-hide">
+        <div class="dropdown-manager-header" onclick="toggleDropdownManager()">
+          <span class="chevron" id="iotDropdownManagerChevron">▶</span>
+          <strong>⚙️ จัดการตัวเลือกดรอปดาวน์</strong>
+          <span style="font-size:12px; color:var(--muted);">เพิ่ม/ลบตัวเลือก ปั๊มน้ำ · ท่อ · วาล์ว · การชำระเงิน · ทีม · ผู้ดำเนินการ — เพิ่มแล้วใช้ได้ทุกแถว ทุกเครื่อง</span>
+        </div>
+        <div class="dropdown-manager-body" id="iotDropdownManagerBody" style="display:none;"></div>
+      </div>
+
       <div class="filters">
         <div>
           <label>จังหวัด</label>
@@ -1360,7 +1617,7 @@
             <tr>
               <th><input type="checkbox" id="iotPlanBulkSelectAllHeader" onchange="toggleSelectAllIotPlanRows()" title="เลือกทั้งหมด"></th>
               <th>ลำดับ</th><th>นัดหมาย</th><th>วันที่ / เวลาติดตั้ง</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์ติดต่อ</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th>
-              <th>สถานะ</th><th>ทีมติดตั้ง</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>การชำระเงิน</th><th>ตำแหน่ง (Google Maps)</th><th>หมายเหตุ</th><th></th>
+              <th>สถานะ</th><th>ทีมติดตั้ง</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>ขนาดวาล์ว</th><th>การชำระเงิน</th><th>ยอดชำระ</th><th>ตำแหน่ง (Google Maps)</th><th>หมายเหตุ</th><th></th>
             </tr>
           </thead>
           <tbody id="iotPlanTbody"></tbody>
@@ -1620,7 +1877,7 @@
             <thead>
               <tr>
                 <th>ลำดับ</th><th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
-                <th>เบอร์มือถือ</th><th>SN ตู้</th><th>เลข AR</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>สถานะในระบบ OTOD</th><th>เอกสาร/ภาพ/วีดีโอ</th>
+                <th>เบอร์มือถือ</th><th>SN ตู้</th><th>เลข AR</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>สถานะในระบบ OTOD</th><th>เอกสาร/ภาพ/วีดีโอ</th><th>รูป / ส่ง Drive</th>
               </tr>
             </thead>
             <tbody id="iotMatchPendingDocTbody"></tbody>
@@ -1863,6 +2120,25 @@
 const SUPABASE_URL = 'https://xdqpiwrbrznlrgdxdlod.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_dEO4brXE9vXkxyiwn17abQ_C2sZQpRs';
 
+// ===== ที่เก็บรูป/วีดีโอของทีมหน้างาน: Cloudinary (ฟรี ~25GB, โชว์รูปในแอปได้เลย) =====
+// วิธีเอาค่า 2 อันนี้ (ทำครั้งเดียว):
+//   1) สมัคร cloudinary.com (ฟรี) -> หน้า Dashboard จะเห็น "Cloud name" -> เอามาใส่ CLOUDINARY_CLOUD_NAME
+//   2) Settings (รูปเฟือง) -> Upload -> เลื่อนหา "Upload presets" -> Add upload preset
+//      -> ตั้ง "Signing Mode" = Unsigned -> Save -> เอาชื่อ preset มาใส่ CLOUDINARY_UPLOAD_PRESET
+// ค่าพวกนี้ไม่ใช่ความลับ ฝังในโค้ดฝั่งเว็บได้ (unsigned upload ปลอดภัยพอสำหรับงานภายใน)
+const CLOUDINARY_CLOUD_NAME = 'dca8zutx';     // <-- ใส่ cloud name ของคุณตรงนี้
+const CLOUDINARY_UPLOAD_PRESET = 'ml_default';  // <-- ใส่ชื่อ unsigned upload preset ของคุณตรงนี้
+
+// ===== ส่งรูป/วีดีโอที่ตรวจแล้วเข้า Google Drive (แอดมิน IoT กดส่ง จัดเป็นโฟลเดอร์ตามชื่อเกษตรกร) =====
+// วิธีเอาค่า (ทำครั้งเดียว): console.cloud.google.com -> สร้างโปรเจกต์ -> เปิด "Google Drive API"
+//   -> OAuth consent screen (External, เพิ่มอีเมลแอดมินเป็น test user) -> Credentials -> Create OAuth client ID
+//   -> Application type = Web application -> Authorized JavaScript origins = URL ที่โฮสต์เว็บนี้ (เช่น https://xxx)
+//   -> เอา "Client ID" มาใส่ตรงนี้
+// สำคัญ: ต้องเปิดเว็บผ่าน http(s) (โฮสต์ไว้) การเซ็นชื่อ Google ใช้กับ file:// ไม่ได้
+const GOOGLE_CLIENT_ID = '903242433455-kh71ggl1guakfr0f16f92ec1lqp2sqfm.apps.googleusercontent.com';  // <-- ใส่ OAuth Client ID (web) ของคุณตรงนี้
+const GOOGLE_DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const DRIVE_ROOT_FOLDER_NAME = 'OTOD รูปติดตั้ง';
+
 let supabaseClient = null;
 let allRows = [];
 const PLAN_STORAGE_KEY = 'otod_training_plan_v1';
@@ -1981,6 +2257,10 @@ let currentUserEmail = ''; // อีเมลผู้ใช้ที่ล็�
 let currentUserName = '';  // ชื่อที่ใช้แสดง (จากตาราง allowed_users ถ้ามี ไม่งั้นใช้ส่วนหน้า @ ของอีเมล)
 let currentUserRole = 'admin'; // 'admin' = แก้ไขได้ / 'viewer' = ดูอย่างเดียว (อ่านจากคอลัมน์ role ใน allowed_users)
 let isReadOnlyUser = false;    // ทางลัดของ currentUserRole === 'viewer'
+let currentUserTeam = '';      // ทีมที่บัญชีนี้สังกัด (ใช้เฉพาะ role='installer')
+let isMasterUser = false;      // ทางลัดของ currentUserRole === 'master'
+let installerPreviewTeam = null; // master พรีวิวหน้าทีมติดตั้งของทีมนี้ (ไม่ต้องสลับรหัส)
+let installerCurrentTab = 'jobs'; // แท็บที่เปิดอยู่ในหน้าทีมติดตั้ง
 
 // ใช้ขึ้นต้นทุกฟังก์ชันที่เขียนข้อมูล: ถ้าเป็นบัญชีดูอย่างเดียวให้หยุดทันทีแล้วบอกผู้ใช้
 // (ด่านจริงอยู่ที่ RLS ฝั่งฐานข้อมูล ตรงนี้แค่กันไม่ให้กดแล้วงงว่าทำไมไม่มีอะไรเกิดขึ้น)
@@ -2007,10 +2287,33 @@ const READONLY_HIDDEN_BUTTON_SELECTORS = [
   '[onclick^="optimizePlanRoute"]', '[onclick^="optimizeIotPlanRoute"]',
   '[onclick^="toggleDateRangeTool"]', '[onclick^="confirmDateRangeTool"]',
   '#planBulkOperatorBar', '#iotPlanBulkOperatorBar',
-  '#docChecklistModalSave', '#installBlockerModalSave', '#installBlockerModalRemove'
+  '#docChecklistModalSave', '#installBlockerModalSave', '#installBlockerModalRemove',
+  '#trainingConfirmBulkBar'
 ];
 
+// สิทธิ์เข้าเมนูรายฝั่ง: admin_training เห็นเฉพาะอบรม, admin_iot เห็นเฉพาะ IoT, ที่เหลือเห็นทั้ง 2
+function getAllowedModules() {
+  if (currentUserRole === 'admin_training') return ['training'];
+  if (currentUserRole === 'admin_iot') return ['iot'];
+  return ['training', 'iot'];
+}
+function applyModuleAccess() {
+  const allowed = getAllowedModules();
+  document.querySelectorAll('.module-btn[data-module]').forEach(btn => {
+    btn.style.display = allowed.includes(btn.dataset.module) ? '' : 'none';
+  });
+  const switcher = document.querySelector('.module-switcher');
+  if (switcher) switcher.style.display = allowed.length > 1 ? '' : 'none';
+  if (!allowed.includes(currentModule)) switchModule(allowed[0]);
+  // บังคับซ่อนแถบเมนู (tabbar) ของฝั่งที่ไม่มีสิทธิ์ไว้เสมอ (กันหลุดจากทางอื่น)
+  const tbTrain = document.getElementById('tabbarTraining');
+  const tbIot = document.getElementById('tabbarIot');
+  if (tbTrain && !allowed.includes('training')) tbTrain.style.display = 'none';
+  if (tbIot && !allowed.includes('iot')) tbIot.style.display = 'none';
+}
+
 function switchModule(module) {
+  if (!getAllowedModules().includes(module)) { showToast('บัญชีนี้ไม่มีสิทธิ์เข้าเมนูฝั่งนี้ครับ', 'warn'); return; }
   currentModule = module;
   closeQaBubble();
   document.querySelectorAll('.module-btn').forEach(b => b.classList.remove('active'));
@@ -2072,6 +2375,9 @@ function switchTab(tab) {
   }
   if (tab === 'plan') {
     renderPlanTable();
+  }
+  if (tab === 'training-confirm') {
+    renderTrainingConfirmTab();
   }
   if (tab === 'iot-plan') {
     renderIotPlanTable();
@@ -2567,6 +2873,780 @@ function clearAuthError(elId) {
   el.classList.remove('show');
 }
 
+// ===================== หน้าทีมติดตั้ง (role = 'installer') =====================
+// เปิด/ปิดโหมดทีมติดตั้ง: ซ่อน UI ปกติทั้งหมด แสดงเฉพาะหน้าของทีม (เห็นเฉพาะงานทีมตัวเอง)
+function applyInstallerMode(on) {
+  const shell = document.getElementById('installerShell');
+  if (shell) shell.style.display = on ? 'block' : 'none';
+  // ซ่อนส่วนของแอดมิน/ผู้ดูทั้งหมดเมื่อเป็นทีมติดตั้ง (หรือตอน master พรีวิว)
+  ['.module-switcher', '.global-search-wrap', '#qaBubbleBtn']
+    .forEach(sel => document.querySelectorAll(sel).forEach(el => { el.style.display = on ? 'none' : ''; }));
+  document.querySelectorAll('.tab-content').forEach(el => { el.style.display = on ? 'none' : ''; });
+  // แถบเมนู 2 ฝั่ง (อบรม/IoT): ตอนโหมดทีมติดตั้งซ่อนทั้งคู่ / ตอนกลับมาโชว์ตามโมดูลที่เปิดอยู่เท่านั้น
+  // (กันบั๊ก: เดิมเผลอสั่งโชว์ทั้ง 2 แถบพร้อมกันตอนล็อกอิน/ออกจากพรีวิว)
+  const tbTrain = document.getElementById('tabbarTraining');
+  const tbIot = document.getElementById('tabbarIot');
+  if (tbTrain) tbTrain.style.display = on ? 'none' : (currentModule === 'training' ? 'flex' : 'none');
+  if (tbIot) tbIot.style.display = on ? 'none' : (currentModule === 'iot' ? 'flex' : 'none');
+  // ป้าย "ดูอย่างเดียว" + ปุ่ม "ผู้ใช้": จัดการแยกตาม role ไม่เหมารวม
+  // (กันบั๊ก: ตอนออกจากพรีวิว ป้ายดูอย่างเดียวเคยโผล่ผิดกับ master ที่ไม่ใช่ viewer)
+  const roBadge = document.getElementById('readOnlyBadge');
+  if (roBadge) roBadge.style.display = (!on && isReadOnlyUser) ? '' : 'none';
+  const umBtn = document.getElementById('userMgmtBtn');
+  if (umBtn) umBtn.style.display = (!on && isMasterUser) ? '' : 'none';
+  const teamLabel = document.getElementById('installerTeamName');
+  if (teamLabel) teamLabel.textContent = installerActiveTeam() || '(ยังไม่ได้ตั้งทีม)';
+  const banner = document.getElementById('installerPreviewBanner');
+  if (banner) banner.style.display = (on && installerPreviewTeam) ? 'flex' : 'none';
+  const pt = document.getElementById('installerPreviewTeamName');
+  if (pt) pt.textContent = installerPreviewTeam || '';
+}
+
+function switchInstallerTab(tab) {
+  installerCurrentTab = tab;
+  document.querySelectorAll('.inst-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.itab === tab));
+  document.getElementById('installerTabJobs').style.display = tab === 'jobs' ? '' : 'none';
+  document.getElementById('installerTabToday').style.display = tab === 'today' ? '' : 'none';
+  document.getElementById('installerTabNav').style.display = tab === 'nav' ? '' : 'none';
+  renderInstallerView();
+}
+
+// งานทั้งหมดของทีมนี้ (iotInstallPlan ถูก RLS กรองเหลือเฉพาะทีมนี้อยู่แล้ว แต่กันเหนียวกรองซ้ำด้วยชื่อทีม)
+// ถ้าเป็น master พรีวิวทีมอื่นอยู่ ใช้ชื่อทีมที่กำลังพรีวิวแทน
+function installerActiveTeam() { return installerPreviewTeam || currentUserTeam; }
+function getInstallerTeamJobs() {
+  const team = installerActiveTeam();
+  return iotInstallPlan.filter(p => !team || p.installTeam === team);
+}
+
+function getFilteredInstallerJobs() {
+  const dist = (document.getElementById('instFilterDistrict') || {}).value || '';
+  const subd = (document.getElementById('instFilterSubdistrict') || {}).value || '';
+  const week = (document.getElementById('instFilterWeek') || {}).value || '';
+  const status = (document.getElementById('instFilterStatus') || {}).value || '';
+  const q = ((document.getElementById('instFilterSearch') || {}).value || '').trim().toLowerCase();
+  return getInstallerTeamJobs().filter(p => {
+    if (dist && p.district !== dist) return false;
+    if (subd && p.subdistrict !== subd) return false;
+    if (week && (p.installDate ? formatIotPlanWeekLabel(p.installDate) : 'ยังไม่นัด') !== week) return false;
+    if (status && (p.status || 'pending') !== status) return false;
+    if (q) {
+      const hay = `${p.name || ''} ${p.phone || ''} ${p.nationalId || ''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }).sort((a, b) => (a.installDate || '9999').localeCompare(b.installDate || '9999') || (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+}
+
+function populateInstallerFilters() {
+  const jobs = getInstallerTeamJobs();
+  const distSel = document.getElementById('instFilterDistrict');
+  const subdSel = document.getElementById('instFilterSubdistrict');
+  const weekSel = document.getElementById('instFilterWeek');
+  if (!distSel) return;
+  const curD = distSel.value, curS = subdSel.value, curW = weekSel.value;
+  const districts = [...new Set(jobs.map(p => p.district).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'th'));
+  distSel.innerHTML = '<option value="">ทุกอำเภอ</option>' + districts.map(d => `<option value="${d}">${d}</option>`).join('');
+  distSel.value = districts.includes(curD) ? curD : '';
+  const subs = [...new Set(jobs.filter(p => !distSel.value || p.district === distSel.value).map(p => p.subdistrict).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'th'));
+  subdSel.innerHTML = '<option value="">ทุกตำบล</option>' + subs.map(s => `<option value="${s}">${s}</option>`).join('');
+  subdSel.value = subs.includes(curS) ? curS : '';
+  const weeks = [...new Set(jobs.map(p => p.installDate ? formatIotPlanWeekLabel(p.installDate) : 'ยังไม่นัด'))];
+  weekSel.innerHTML = '<option value="">ทุกช่วง</option>' + weeks.map(w => `<option value="${w}">${w}</option>`).join('');
+  weekSel.value = weeks.includes(curW) ? curW : '';
+}
+
+const INSTALLER_STATUS_BADGE = {
+  pending: '<span class="inst-badge s-pending">รอติดตั้ง</span>',
+  done: '<span class="inst-badge s-done">ติดตั้งแล้ว</span>',
+  cancelled: '<span class="inst-badge s-cancelled">สละสิทธิ์</span>'
+};
+
+// การ์ดงาน 1 ใบ (สำหรับทีมติดตั้ง) — โทร/นำทาง/อัปเดตสถานะ-เก็บเงิน-หมายเหตุ ได้ในใบเดียว
+function installerJobCardHtml(p) {
+  const status = p.status || 'pending';
+  const phoneSafe = (p.phone || '').replace(/[^0-9+]/g, '');
+  const mapLinkSafe = (p.mapLink || '').replace(/"/g, '&quot;');
+  const idSafe = (p.id || '').replace(/'/g, "\\'");
+  const paid = p.paymentStatus === 'ชำระแล้ว';
+  const amountVal = (p.paymentAmount === '' || p.paymentAmount === undefined || p.paymentAmount === null) ? '' : String(p.paymentAmount).replace(/"/g, '&quot;');
+  const details = [
+    p.boxType ? IOT_BOX_TYPE_LABELS[p.boxType] : null,
+    p.pumpType ? 'ปั๊ม: ' + p.pumpType : null,
+    p.pipeSize ? 'ท่อ: ' + p.pipeSize : null,
+    p.valveSize ? 'วาล์ว: ' + p.valveSize : null
+  ].filter(Boolean).join(' · ');
+  return `
+    <div class="inst-job-card row-${status}">
+      <div class="inst-job-top">
+        <div class="inst-job-name">${p.name || '-'} ${INSTALLER_STATUS_BADGE[status] || ''}</div>
+        <div class="inst-job-when">${p.installDate ? '🗓️ ' + formatIotPlanWeekLabel(p.installDate) : '<span style="color:var(--muted);">ยังไม่นัด</span>'}</div>
+      </div>
+      <div class="inst-job-area">📍 ${p.district || '-'} / ${p.subdistrict || '-'}${details ? ' · <span class="inst-job-detail">' + details + '</span>' : ''}</div>
+      <div class="inst-job-actions">
+        ${phoneSafe ? `<a class="inst-act-btn call" href="tel:${phoneSafe}">📞 โทร ${p.phone}</a>` : '<span class="inst-act-btn disabled">ไม่มีเบอร์</span>'}
+        ${p.mapLink ? `<a class="inst-act-btn nav" href="${mapLinkSafe}" target="_blank" rel="noopener">🧭 นำทาง</a>` : ''}
+      </div>
+      <div class="inst-job-edit">
+        <label>สถานะ
+          <select onchange="installerSetStatus('${idSafe}',this.value)">
+            <option value="pending" ${status==='pending'?'selected':''}>รอติดตั้ง</option>
+            <option value="done" ${status==='done'?'selected':''}>ติดตั้งแล้ว</option>
+            <option value="cancelled" ${status==='cancelled'?'selected':''}>สละสิทธิ์</option>
+          </select>
+        </label>
+        <label>ตู้
+          <select onchange="installerSetEquip('${idSafe}','boxType',this.value)">
+            <option value="" ${!p.boxType?'selected':''}>ยังไม่ระบุ</option>
+            <option value="no_button" ${p.boxType==='no_button'?'selected':''}>ตู้ไม่มีปุ่มกด</option>
+            <option value="with_button" ${p.boxType==='with_button'?'selected':''}>ตู้มีปุ่มกด</option>
+          </select>
+        </label>
+        <label>ปั๊มน้ำ
+          <select onchange="installerSetEquip('${idSafe}','pumpType',this.value)"><option value="" ${!p.pumpType?'selected':''}>ยังไม่ระบุ</option>${getIotDropdownOptions('pump_type').map(t=>`<option value="${t}" ${p.pumpType===t?'selected':''}>${t}</option>`).join('')}</select>
+        </label>
+        <label>ขนาดท่อ
+          <select onchange="installerSetEquip('${idSafe}','pipeSize',this.value)"><option value="" ${!p.pipeSize?'selected':''}>ยังไม่ระบุ</option>${getIotDropdownOptions('pipe_size').map(t=>`<option value="${t}" ${p.pipeSize===t?'selected':''}>${t}</option>`).join('')}</select>
+        </label>
+        <label>ขนาดวาล์ว
+          <select onchange="installerSetEquip('${idSafe}','valveSize',this.value)"><option value="" ${!p.valveSize?'selected':''}>ยังไม่ระบุ</option>${getIotDropdownOptions('valve_size').map(t=>`<option value="${t}" ${p.valveSize===t?'selected':''}>${t}</option>`).join('')}</select>
+        </label>
+        ${p.boxType === 'no_button' ? '' : `
+        <label class="inst-pay-check"><input type="checkbox" ${paid?'checked':''} onchange="installerSetPaid('${idSafe}',this.checked)"> เก็บเงินแล้ว</label>
+        <label>ยอดเก็บ (บาท)
+          <input type="number" min="0" step="1" inputmode="numeric" value="${amountVal}" placeholder="บาท" onchange="installerSetAmount('${idSafe}',this.value)">
+        </label>`}
+        <label class="inst-note-wide">หมายเหตุ
+          <input type="text" value="${(p.note||'').replace(/"/g,'&quot;')}" placeholder="เช่น ติดไม่ได้เพราะ..." onchange="installerSetNote('${idSafe}',this.value)">
+        </label>
+      </div>
+    </div>`;
+}
+
+// จัดกลุ่มงานเป็น อำเภอ -> ตำบล แบบพับ/กางได้
+function installerGroupedHtml(jobs) {
+  if (!jobs.length) return '<div class="empty-state-cell"><span class="empty-icon">🎉</span><span class="empty-text">ไม่มีงานที่ตรงกับตัวกรองครับ</span></div>';
+  const byDist = {};
+  jobs.forEach(p => {
+    const d = p.district || 'ไม่ระบุอำเภอ';
+    const s = p.subdistrict || 'ไม่ระบุตำบล';
+    byDist[d] = byDist[d] || {};
+    byDist[d][s] = byDist[d][s] || [];
+    byDist[d][s].push(p);
+  });
+  return Object.keys(byDist).sort((a, b) => a.localeCompare(b, 'th')).map(d => {
+    const subs = byDist[d];
+    const distTotal = Object.values(subs).reduce((n, arr) => n + arr.length, 0);
+    const subHtml = Object.keys(subs).sort((a, b) => a.localeCompare(b, 'th')).map(s => `
+      <div class="inst-group sub" onclick="toggleGroupBody(this)"><span class="chevron open">▶</span><strong>ตำบล${s}</strong> <span class="inst-group-count">${subs[s].length} งาน</span></div>
+      <div>${subs[s].map(installerJobCardHtml).join('')}</div>
+    `).join('');
+    return `
+      <div class="inst-group dist" onclick="toggleGroupBody(this)"><span class="chevron open">▶</span><strong>📍 อำเภอ${d}</strong> <span class="inst-group-count">${distTotal} งาน</span></div>
+      <div style="padding-left:6px;">${subHtml}</div>`;
+  }).join('');
+}
+
+function renderInstallerSummary() {
+  const el = document.getElementById('installerSummary');
+  if (!el) return;
+  const jobs = getInstallerTeamJobs();
+  const total = jobs.length;
+  const done = jobs.filter(p => p.status === 'done').length;
+  const cancelled = jobs.filter(p => p.status === 'cancelled').length;
+  const pending = total - done - cancelled;
+  const toCollect = jobs.filter(p => p.boxType !== 'no_button' && p.paymentStatus !== 'ชำระแล้ว')
+    .reduce((sum, p) => sum + (Number(p.paymentAmount) || 0), 0);
+  el.innerHTML = `
+    <div class="inst-kpi"><div class="inst-kpi-num">${total.toLocaleString()}</div><div class="inst-kpi-label">งานทั้งหมด</div></div>
+    <div class="inst-kpi ok"><div class="inst-kpi-num">${done.toLocaleString()}</div><div class="inst-kpi-label">ติดตั้งแล้ว</div></div>
+    <div class="inst-kpi pending"><div class="inst-kpi-num">${pending.toLocaleString()}</div><div class="inst-kpi-label">รอติดตั้ง</div></div>
+    <div class="inst-kpi money"><div class="inst-kpi-num">${toCollect.toLocaleString()}</div><div class="inst-kpi-label">ยอดที่ต้องเก็บ (บาท)</div></div>`;
+}
+
+function renderInstallerView() {
+  // วาดได้ทั้งกรณีเป็นทีมติดตั้งจริง และกรณี master กำลังพรีวิวหน้าทีม
+  if (currentUserRole !== 'installer' && !installerPreviewTeam) return;
+  renderInstallerSummary();
+  populateInstallerFilters();
+  if (installerCurrentTab === 'jobs') {
+    const jobs = getFilteredInstallerJobs();
+    const info = document.getElementById('instFilterCountInfo');
+    if (info) info.textContent = `แสดง ${jobs.length.toLocaleString()} จาก ${getInstallerTeamJobs().length.toLocaleString()} งาน`;
+    const box = document.getElementById('installerJobGroups');
+    if (box) box.innerHTML = installerGroupedHtml(jobs);
+  } else if (installerCurrentTab === 'today') {
+    renderInstallerToday();
+  } else if (installerCurrentTab === 'nav') {
+    renderInstallerNav();
+  }
+}
+
+// วันนี้/สัปดาห์นี้: งานที่กำหนดติดตั้งตกอยู่ในสัปดาห์เดียวกับวันนี้
+function renderInstallerToday() {
+  const box = document.getElementById('installerTabToday');
+  if (!box) return;
+  const today = todayDateStr();
+  const tMonth = getIotMonthYearFromDate(today), tWeek = getIotWeekOfMonthFromDate(today);
+  const thisWeek = getInstallerTeamJobs().filter(p => p.installDate &&
+    getIotMonthYearFromDate(p.installDate) === tMonth && getIotWeekOfMonthFromDate(p.installDate) === tWeek);
+  box.innerHTML = `
+    <h3 style="margin:6px 0 10px;">🗓️ งานสัปดาห์นี้ (${formatIotPlanWeekLabel(today)}) <span class="badge">${thisWeek.length} งาน</span></h3>
+    ${installerGroupedHtml(thisWeek)}`;
+}
+
+// นำทาง: เฉพาะงานที่มีลิงก์ Google Maps จัดกลุ่มพื้นที่ให้ไล่เป็นเส้นทางได้
+function renderInstallerNav() {
+  const box = document.getElementById('installerTabNav');
+  if (!box) return;
+  const withMap = getInstallerTeamJobs().filter(p => p.mapLink && p.status !== 'done' && p.status !== 'cancelled');
+  const without = getInstallerTeamJobs().filter(p => !p.mapLink && p.status !== 'done' && p.status !== 'cancelled');
+  box.innerHTML = `
+    <p style="font-size:13px; color:var(--muted); margin:6px 0 10px;">งานที่มีพิกัด กดปุ่ม "เปิดแผนที่นำทาง" เพื่อเปิด Google Maps ได้เลย (แสดงเฉพาะงานที่ยังไม่ติดตั้ง)</p>
+    ${withMap.length ? installerGroupedHtml(withMap) : '<div class="empty-state-cell"><span class="empty-text">ยังไม่มีงานที่ระบุพิกัด Google Maps</span></div>'}
+    ${without.length ? `<div class="inst-nomap"><b>⚠️ ${without.length} งานยังไม่มีพิกัด</b> — ให้แอดมินใส่ลิงก์ Google Maps ในหน้าแผนก่อน</div>` : ''}`;
+}
+
+// ---- ทีมติดตั้งแก้ได้เฉพาะ สถานะ/การชำระเงิน/ยอดชำระ/หมายเหตุ ----
+function installerFindJob(id) {
+  const e = iotInstallPlan.find(p => p.id === id);
+  if (!e) return null;
+  const team = installerActiveTeam();
+  if (team && e.installTeam !== team) return null; // กันเหนียว: ห้ามแตะงานทีมอื่น
+  return e;
+}
+function installerSyncJob(entry) {
+  if (!supabaseClient) return;
+  // ส่งขึ้นเฉพาะฟิลด์ที่ทีมติดตั้งแก้ได้ (สถานะ/เงิน/หมายเหตุ + อุปกรณ์ ตู้/ปั๊ม/ท่อ/วาล์ว) — ไม่ใช้ upsert เพราะจะชนสิทธิ์ insert
+  supabaseClient.from('iot_install_plan').update({
+    status: entry.status || 'pending',
+    payment_status: entry.paymentStatus || null,
+    payment_amount: (entry.paymentAmount === '' || entry.paymentAmount === undefined || entry.paymentAmount === null) ? null : Number(entry.paymentAmount),
+    note: entry.note || null,
+    box_type: entry.boxType || null,
+    pump_type: entry.pumpType || null,
+    pipe_size: entry.pipeSize || null,
+    valve_size: entry.valveSize || null,
+    updated_by: currentUserName || null,
+    updated_at: new Date().toISOString()
+  }).eq('id', entry.id).then(({ error }) => {
+    if (error) showToast('บันทึกขึ้นระบบไม่สำเร็จ: ' + error.message, 'warn');
+  });
+}
+// ทีมติดตั้งแก้อุปกรณ์หน้างาน (ตู้/ปั๊ม/ท่อ/วาล์ว) เผื่อเกษตรกรเปลี่ยนใจ
+function installerSetEquip(id, field, value) {
+  const e = installerFindJob(id); if (!e) return;
+  e[field] = value;
+  if (field === 'boxType' && value === 'no_button') e.paymentStatus = '';
+  saveIotPlanToStorage(); renderInstallerView(); installerSyncJob(e);
+  showToast('อัปเดตอุปกรณ์แล้ว', 'success');
+}
+
+// ===================== ส่งงานหน้างาน: รูป/วีดีโอ/หมุดแปลง (iot_field_submissions) =====================
+const FIELD_PHOTO_SLOTS = [
+  { key: 'photo1_url', label: 'ภาพคู่สวนทุเรียน' },
+  { key: 'photo2_url', label: 'ภาพคู่ IoT' },
+  { key: 'photo3_url', label: 'ภาพการอบรม (2 คน)' },
+  { key: 'photo4_url', label: 'ภาพตู้ (เห็นสติกเกอร์)' }
+];
+let fieldSubmissionsByNid = new Map();
+let fieldSubModalNid = null;
+
+async function loadFieldSubmissions() {
+  if (!supabaseClient) return;
+  try {
+    const { data, error } = await supabaseClient.from('iot_field_submissions').select('*');
+    if (error) { console.warn('โหลดข้อมูลส่งงานไม่สำเร็จ:', error.message); return; }
+    fieldSubmissionsByNid = new Map();
+    (data || []).forEach(r => { if (r.national_id) fieldSubmissionsByNid.set(r.national_id, r); });
+  } catch (e) { console.warn('โหลดข้อมูลส่งงานไม่สำเร็จ:', e.message); }
+}
+
+// หาบริบทของเกษตรกรจากเลขบัตร: ใช้ได้ทั้งจากแผนติดตั้ง (iotInstallPlan) และข้อมูลเกษตรกร (allIotRows)
+// -> ทำให้แนบรูปได้จากทุกหน้า รวมถึงตาราง "ได้รับตู้แล้ว รอยืนยันเอกสาร"
+function fieldSubContext(nid) {
+  const p = iotInstallPlan.find(e => e.nationalId === nid);
+  if (p) return { nationalId: nid, name: p.name || '', district: p.district || '', subdistrict: p.subdistrict || '', installTeam: p.installTeam || '' };
+  const r = (typeof allIotRows !== 'undefined' && allIotRows) ? allIotRows.find(x => x.national_id === nid) : null;
+  if (r) return { nationalId: nid, name: `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''}`.trim(), district: r.farm_district || '', subdistrict: r.farm_subdistrict || '', installTeam: '' };
+  return { nationalId: nid, name: '', district: '', subdistrict: '', installTeam: '' };
+}
+// สิทธิ์แก้ไข: viewer แก้ไม่ได้ / installer แก้ได้เฉพาะงานทีมตัวเอง / แอดมิน IoT แก้ได้หมด
+function fieldSubCanEdit(nid) {
+  if (isReadOnlyUser) return false;
+  // จำกัดสิทธิ์ตามทีมเฉพาะ "ทีมติดตั้งจริง" หรือตอน master กดพรีวิวทีมเท่านั้น
+  // แอดมิน/แอดมิน IoT/มาสเตอร์ (แม้บังเอิญมีค่า team ติดในบัญชี) แก้/อัปรูปได้ทุกคนเสมอ
+  const scoped = currentUserRole === 'installer' || !!installerPreviewTeam;
+  if (!scoped) return true;
+  const team = installerActiveTeam();
+  if (!team) return false;
+  const p = iotInstallPlan.find(e => e.nationalId === nid);
+  return !!(p && p.installTeam === team);
+}
+
+function fieldSubProgress(nid) {
+  const r = fieldSubmissionsByNid.get(nid);
+  if (!r) return { photos: 0, hasVideo: false, hasPlot: false, driveSent: false };
+  const photos = FIELD_PHOTO_SLOTS.filter(s => r[s.key]).length;
+  return { photos, hasVideo: !!r.video_url, hasPlot: !!r.plot_location, driveSent: !!r.drive_sent_at };
+}
+
+function openFieldSubmission(nid) {
+  if (!nid) return;
+  fieldSubModalNid = nid;
+  document.getElementById('fieldSubModal').style.display = 'flex';
+  renderFieldSubmissionModal(nid);
+}
+function closeFieldSubmission() {
+  fieldSubModalNid = null;
+  document.getElementById('fieldSubModal').style.display = 'none';
+}
+
+function renderFieldSubmissionModal(nid) {
+  const box = document.getElementById('fieldSubBody');
+  const job = fieldSubContext(nid);
+  if (!box) return;
+  const editable = fieldSubCanEdit(nid);
+  const r = fieldSubmissionsByNid.get(nid) || {};
+  const plotSafe = (r.plot_location || '').replace(/"/g, '&quot;');
+  const idSafe = (nid || '').replace(/'/g, "\\'");
+  const dis = editable ? '' : 'disabled';
+  const photoHtml = FIELD_PHOTO_SLOTS.map((s, i) => {
+    const url = r[s.key];
+    return `
+      <div class="fs-slot">
+        <div class="fs-slot-label">${s.label}</div>
+        ${url ? `<a href="${url}" target="_blank" rel="noopener"><img src="${url}" class="fs-thumb" alt=""></a>` : '<div class="fs-thumb fs-empty">ยังไม่มีรูป</div>'}
+        ${editable ? `<label class="fs-upload-btn">${url ? '🔄 เปลี่ยนรูป' : '📷 ถ่าย/เลือกรูป'}
+          <input type="file" accept="image/*" capture="environment" style="display:none;" onchange="fieldSubUpload('${idSafe}','${s.key}',this.files[0])">
+        </label>
+        ${url ? `<button type="button" class="fs-del-btn" onclick="fieldSubDeleteFile('${idSafe}','${s.key}')">🗑️ ลบรูป</button>` : ''}` : ''}
+      </div>`;
+  }).join('');
+  box.innerHTML = `
+    <div class="fs-job">${job.name || '(ไม่ทราบชื่อ)'} · ${job.district || ''}/${job.subdistrict || ''}</div>
+
+    <div class="fs-section">
+      <h4>📍 หมุดแปลง (ตำแหน่งจริง)</h4>
+      <div class="fs-plot-row">
+        ${editable ? `<button type="button" class="btn btn-brand" onclick="fieldSubUseGps('${idSafe}')">📍 ใช้ตำแหน่งปัจจุบัน (GPS)</button>` : ''}
+        ${r.plot_location ? `<a href="${plotSafe}" target="_blank" rel="noopener" class="btn btn-outline">เปิดดูหมุด</a>` : ''}
+      </div>
+      <input type="text" value="${plotSafe}" ${dis} placeholder="วางลิงก์ Google Maps / พิกัดเอง (เลื่อนปรับเองได้)" onchange="fieldSubSave('${idSafe}',{plot_location:this.value.trim()})">
+    </div>
+
+    <div class="fs-section">
+      <h4>📷 รูปภาพ (${FIELD_PHOTO_SLOTS.length} หัวข้อ)</h4>
+      <div class="fs-photos">${photoHtml}</div>
+    </div>
+
+    <div class="fs-section">
+      <h4>🎥 วีดีโอมอบงาน</h4>
+      ${r.video_url ? `<a href="${r.video_url}" target="_blank" rel="noopener" class="btn btn-outline">▶ เปิดวีดีโอที่ส่งแล้ว</a>` : '<div class="fs-hint">ยังไม่ได้ส่งวีดีโอ</div>'}
+      ${editable ? `<label class="fs-upload-btn">${r.video_url ? '🔄 เปลี่ยนวีดีโอ' : '🎥 ถ่าย/เลือกวีดีโอ'}
+        <input type="file" accept="video/*" capture="environment" style="display:none;" onchange="fieldSubUpload('${idSafe}','video',this.files[0])">
+      </label>
+      ${r.video_url ? `<button type="button" class="fs-del-btn" onclick="fieldSubDeleteFile('${idSafe}','video_url')">🗑️ ลบวีดีโอ</button>` : ''}` : ''}
+    </div>
+
+    <div class="fs-section">
+      <label class="fs-doc"><input type="checkbox" ${r.document_ok ? 'checked' : ''} ${dis} onchange="fieldSubSave('${idSafe}',{document_ok:this.checked})"> ✅ ส่งเอกสารต้นฉบับ (มีลายเซ็น) แล้ว</label>
+    </div>
+    ${canSendToDrive() ? `
+    <div class="fs-section fs-drive">
+      <h4>☁️ ส่งเข้า Google Drive (จัดโฟลเดอร์ตามชื่อเกษตรกร)</h4>
+      <div class="fs-hint">ตรวจรูปให้เรียบร้อยก่อน (ไม่เบลอ/มุมถูก) แล้วกดส่ง — ระบบจะสร้างโฟลเดอร์ชื่อ "${(job.name || '').replace(/"/g, '&quot;')}" แล้วแยกรูปตามหัวข้อให้</div>
+      <div class="fs-plot-row" style="margin-top:8px;">
+        <button type="button" class="btn btn-brand" onclick="sendSubmissionToDrive('${idSafe}')">☁️ ส่งเข้า Google Drive</button>
+        ${r.drive_folder_url ? `<a href="${(r.drive_folder_url || '').replace(/"/g, '&quot;')}" target="_blank" rel="noopener" class="btn btn-outline">📂 เปิดโฟลเดอร์ใน Drive</a>` : ''}
+      </div>
+      ${r.drive_sent_at ? `<div class="fs-hint" style="color:#16a34a;">✅ ส่งเข้า Drive ล่าสุด: ${formatDateTimeThai(r.drive_sent_at)}</div>` : ''}
+    </div>` : ''}
+  `;
+}
+
+// ย่อรูปฝั่งเว็บก่อนอัปโหลด (ประหยัดพื้นที่มาก) คืนค่าเป็น Blob JPEG
+function resizeImageFile(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        if (width >= height) { height = Math.round(height * maxDim / width); width = maxDim; }
+        else { width = Math.round(width * maxDim / height); height = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('resize failed')), 'image/jpeg', quality || 0.72);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('โหลดรูปไม่ได้')); };
+    img.src = url;
+  });
+}
+
+async function fieldSubUpload(nid, slot, file) {
+  if (!file || !fieldSubCanEdit(nid)) return;
+  if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET) {
+    showToast('ยังไม่ได้ตั้งค่า Cloudinary — แจ้งผู้ดูแลใส่ cloud name + upload preset ในโค้ดก่อนครับ', 'warn');
+    return;
+  }
+  const isVideo = slot === 'video';
+  if (isVideo && file.size > 100 * 1024 * 1024) { showToast('วีดีโอใหญ่เกิน 100MB ถ่ายสั้นลงหน่อยครับ', 'warn'); return; }
+  showToast(isVideo ? 'กำลังอัปโหลดวีดีโอ...' : 'กำลังอัปโหลดรูป...', 'info');
+  try {
+    let body = file;
+    if (!isVideo) body = await resizeImageFile(file, 1600, 0.75);
+    const form = new FormData();
+    form.append('file', body);
+    form.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    form.append('folder', 'field-uploads/' + nid);
+    const resourceType = isVideo ? 'video' : 'image';
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`, { method: 'POST', body: form });
+    const data = await res.json();
+    if (!res.ok || !data.secure_url) throw new Error((data && data.error && data.error.message) ? data.error.message : 'อัปโหลดไม่สำเร็จ');
+    const field = isVideo ? 'video_url' : slot;
+    await fieldSubSave(nid, { [field]: data.secure_url });
+    showToast('ส่งไฟล์เรียบร้อย', 'success');
+  } catch (e) {
+    showToast('อัปโหลดไม่สำเร็จ: ' + (e.message || e), 'warn');
+  }
+}
+
+async function fieldSubDeleteFile(nid, field) {
+  if (!fieldSubCanEdit(nid)) return;
+  const cur = fieldSubmissionsByNid.get(nid) || {};
+  const url = cur[field];
+  if (!url) return;
+  const ok = await showConfirmModal(field === 'video_url' ? 'ลบวีดีโอนี้ออกหรือไม่?' : 'ลบรูปนี้ออกหรือไม่?');
+  if (!ok) return;
+  if (supabaseClient && url.includes('supabase') && url.includes('/field-uploads/')) {
+    const marker = '/field-uploads/';
+    const idx = url.indexOf(marker);
+    if (idx >= 0) {
+      const p = url.slice(idx + marker.length).split('?')[0];
+      try { await supabaseClient.storage.from('field-uploads').remove([decodeURIComponent(p)]); } catch (e) {}
+    }
+  }
+  await fieldSubSave(nid, { [field]: null });
+  showToast('ลบแล้ว', 'success');
+}
+
+function fieldSubUseGps(nid) {
+  if (!fieldSubCanEdit(nid)) return;
+  if (!navigator.geolocation) { showToast('อุปกรณ์นี้ไม่รองรับ GPS ครับ', 'warn'); return; }
+  showToast('กำลังขอตำแหน่ง GPS...', 'info');
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const lat = pos.coords.latitude.toFixed(6), lng = pos.coords.longitude.toFixed(6);
+      fieldSubSave(nid, { plot_location: `https://www.google.com/maps?q=${lat},${lng}` });
+      showToast('บันทึกหมุดจากตำแหน่งปัจจุบันแล้ว', 'success');
+    },
+    err => { showToast('ขอตำแหน่งไม่สำเร็จ: ' + err.message + ' (ต้องอนุญาตให้เว็บใช้ตำแหน่ง)', 'warn'); },
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+  );
+}
+
+async function fieldSubSave(nid, patch) {
+  if (!fieldSubCanEdit(nid)) return;
+  const ctx = fieldSubContext(nid);
+  const p = iotInstallPlan.find(e => e.nationalId === nid);
+  const cur = fieldSubmissionsByNid.get(nid) || { national_id: nid };
+  const row = Object.assign({}, cur, patch, {
+    national_id: nid,
+    plan_id: p ? p.id : (cur.plan_id || null),
+    install_team: ctx.installTeam || null,
+    updated_by: currentUserName || null,
+    updated_at: new Date().toISOString()
+  });
+  fieldSubmissionsByNid.set(nid, row);
+  if (fieldSubModalNid === nid) renderFieldSubmissionModal(nid);
+  renderInstallerView();
+  if (currentUserRole !== 'installer') {
+    renderIotPlanTable();
+    if (typeof applyIotMatchPendingDocSearch === 'function' && document.getElementById('iotMatchPendingDocTbody')) {
+      try { applyIotMatchPendingDocSearch(); } catch (e) {}
+    }
+  }
+  if (!supabaseClient) return;
+  const { error } = await supabaseClient.from('iot_field_submissions').upsert(row, { onConflict: 'national_id' });
+  if (error) showToast('บันทึกไม่สำเร็จ: ' + error.message, 'warn');
+}
+
+// ===== ส่งเข้า Google Drive (เฉพาะแอดมิน IoT/ซูเปอร์/มาสเตอร์) =====
+function canSendToDrive() {
+  return ['admin', 'master', 'admin_iot'].includes(currentUserRole);
+}
+let googleTokenClient = null, googleAccessToken = null, googleTokenExpiry = 0;
+
+function loadGoogleGsi() {
+  return new Promise((resolve, reject) => {
+    if (window.google && window.google.accounts && window.google.accounts.oauth2) return resolve();
+    let s = document.getElementById('gsiScript');
+    if (s) { s.addEventListener('load', () => resolve()); s.addEventListener('error', () => reject(new Error('โหลด Google script ไม่ได้'))); return; }
+    s = document.createElement('script');
+    s.id = 'gsiScript'; s.src = 'https://accounts.google.com/gsi/client'; s.async = true;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('โหลด Google script ไม่ได้ (เช็คอินเทอร์เน็ต)'));
+    document.head.appendChild(s);
+  });
+}
+
+async function ensureGoogleToken() {
+  if (!GOOGLE_CLIENT_ID) throw new Error('ยังไม่ได้ตั้งค่า Google Client ID ในโค้ด');
+  if (googleAccessToken && Date.now() < googleTokenExpiry - 60000) return googleAccessToken;
+  await loadGoogleGsi();
+  return new Promise((resolve, reject) => {
+    try {
+      googleTokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: GOOGLE_DRIVE_SCOPE,
+        callback: (resp) => {
+          if (resp && resp.error) { reject(new Error(resp.error)); return; }
+          googleAccessToken = resp.access_token;
+          googleTokenExpiry = Date.now() + ((resp.expires_in ? resp.expires_in : 3600) * 1000);
+          resolve(googleAccessToken);
+        }
+      });
+      googleTokenClient.requestAccessToken({ prompt: googleAccessToken ? '' : 'consent' });
+    } catch (e) { reject(e); }
+  });
+}
+
+async function driveFindFolder(name, parentId, token) {
+  let q = `name = '${name.replace(/'/g, "\\'")}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+  if (parentId) q += ` and '${parentId}' in parents`;
+  const res = await fetch('https://www.googleapis.com/drive/v3/files?spaces=drive&fields=files(id,name)&q=' + encodeURIComponent(q), { headers: { Authorization: 'Bearer ' + token } });
+  const data = await res.json();
+  return (data.files && data.files[0]) ? data.files[0].id : null;
+}
+async function driveCreateFolder(name, parentId, token) {
+  const body = { name, mimeType: 'application/vnd.google-apps.folder' };
+  if (parentId) body.parents = [parentId];
+  const res = await fetch('https://www.googleapis.com/drive/v3/files?fields=id', { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const data = await res.json();
+  if (!data.id) throw new Error('สร้างโฟลเดอร์ใน Drive ไม่สำเร็จ');
+  return data.id;
+}
+async function driveFindOrCreateFolder(name, parentId, token) {
+  return (await driveFindFolder(name, parentId, token)) || (await driveCreateFolder(name, parentId, token));
+}
+async function driveUploadBlob(name, parentId, blob, token) {
+  const metadata = { name, parents: [parentId] };
+  const form = new FormData();
+  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+  form.append('file', blob);
+  const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', { method: 'POST', headers: { Authorization: 'Bearer ' + token }, body: form });
+  const data = await res.json();
+  if (!data.id) throw new Error('อัปไฟล์เข้า Drive ไม่สำเร็จ');
+  return data.id;
+}
+
+async function sendSubmissionToDrive(nid) {
+  if (!canSendToDrive()) return;
+  const job = fieldSubContext(nid);
+  const r = fieldSubmissionsByNid.get(nid) || {};
+  const items = [];
+  FIELD_PHOTO_SLOTS.forEach((s, i) => { if (r[s.key]) items.push({ url: r[s.key], name: `${i + 1}_${s.label}.jpg` }); });
+  if (r.video_url) items.push({ url: r.video_url, name: 'วีดีโอมอบงาน.mp4' });
+  if (!items.length) { showToast('ยังไม่มีรูป/วีดีโอให้ส่งครับ ต้องอัปรูปก่อน', 'warn'); return; }
+  showToast('กำลังเชื่อม Google Drive... (ครั้งแรกต้องเซ็นชื่อ Google)', 'info');
+  try {
+    const token = await ensureGoogleToken();
+    const rootId = await driveFindOrCreateFolder(DRIVE_ROOT_FOLDER_NAME, null, token);
+    const folderName = (job.name || ('เกษตรกร ' + nid)).trim() || ('เกษตรกร ' + nid);
+    const folderId = await driveFindOrCreateFolder(folderName, rootId, token);
+    let n = 0;
+    for (const it of items) {
+      showToast(`กำลังส่ง ${it.name} (${n + 1}/${items.length})...`, 'info');
+      const blob = await fetch(it.url).then(x => { if (!x.ok) throw new Error('ดึงไฟล์จากที่พักไม่ได้'); return x.blob(); });
+      await driveUploadBlob(it.name, folderId, blob, token);
+      n++;
+    }
+    await fieldSubSave(nid, { drive_sent_at: new Date().toISOString(), drive_folder_url: 'https://drive.google.com/drive/folders/' + folderId });
+    showToast(`ส่งเข้า Google Drive แล้ว ${n} ไฟล์ — โฟลเดอร์ "${folderName}"`, 'success');
+  } catch (e) {
+    showToast('ส่งเข้า Drive ไม่สำเร็จ: ' + (e.message || e), 'warn');
+  }
+}
+function installerSetStatus(id, value) {
+  const e = installerFindJob(id); if (!e) return;
+  e.status = value; saveIotPlanToStorage(); renderInstallerView(); installerSyncJob(e);
+  showToast('อัปเดตสถานะแล้ว', 'success');
+}
+function installerSetPaid(id, checked) {
+  const e = installerFindJob(id); if (!e) return;
+  e.paymentStatus = checked ? 'ชำระแล้ว' : 'ยังไม่ชำระ'; saveIotPlanToStorage(); renderInstallerView(); installerSyncJob(e);
+}
+function installerSetAmount(id, value) {
+  const e = installerFindJob(id); if (!e) return;
+  e.paymentAmount = value; saveIotPlanToStorage(); renderInstallerSummary(); installerSyncJob(e);
+}
+function installerSetNote(id, value) {
+  const e = installerFindJob(id); if (!e) return;
+  e.note = value; saveIotPlanToStorage(); installerSyncJob(e);
+}
+
+// ===================== จัดการผู้ใช้ (เฉพาะ master) + พรีวิวหน้าทีมติดตั้ง =====================
+let umUsersCache = [];
+
+function openUserMgmt() {
+  if (!isMasterUser) return;
+  document.getElementById('userMgmtModal').style.display = 'flex';
+  onUmRoleChange();
+  loadUserMgmtData();
+}
+function closeUserMgmt() {
+  document.getElementById('userMgmtModal').style.display = 'none';
+}
+function onUmRoleChange() {
+  const role = (document.getElementById('umRole') || {}).value;
+  const teamInput = document.getElementById('umTeam');
+  if (teamInput) teamInput.style.display = role === 'installer' ? '' : 'none';
+}
+
+async function loadUserMgmtData() {
+  if (!supabaseClient || !isMasterUser) return;
+  const { data: users, error } = await supabaseClient.from('allowed_users').select('email, name, role, team').order('role', { ascending: true }).order('email', { ascending: true });
+  if (error) { showToast('โหลดรายชื่อผู้ใช้ไม่สำเร็จ: ' + error.message, 'warn'); return; }
+  let locked = [];
+  try {
+    const r = await supabaseClient.from('login_lockout').select('email, fail_count, locked_at').eq('locked', true);
+    locked = r.data || [];
+  } catch (e) {}
+  renderUserMgmt(users || [], locked);
+  populateUmPreviewTeams();
+}
+
+const UM_ROLE_LABEL = { master: '👑 master', admin: 'admin', viewer: '👁️ viewer', installer: '🔧 installer' };
+function renderUserMgmt(users, locked) {
+  umUsersCache = users;
+  const list = document.getElementById('umUserList');
+  if (list) {
+    list.innerHTML = users.map((u, i) => `
+      <div class="um-row">
+        <div class="um-row-email"><b>${u.email}</b>${u.name ? `<span>${u.name}</span>` : ''}</div>
+        <select id="umr_${i}" onchange="onUmRowRoleChange(${i})">
+          <option value="admin" ${u.role==='admin'?'selected':''}>admin (ซูเปอร์)</option>
+          <option value="admin_training" ${u.role==='admin_training'?'selected':''}>admin_training</option>
+          <option value="admin_iot" ${u.role==='admin_iot'?'selected':''}>admin_iot</option>
+          <option value="master" ${u.role==='master'?'selected':''}>master</option>
+          <option value="viewer" ${u.role==='viewer'?'selected':''}>viewer</option>
+          <option value="installer" ${u.role==='installer'?'selected':''}>installer</option>
+        </select>
+        <input type="text" id="umt_${i}" value="${(u.team||'').replace(/"/g,'&quot;')}" placeholder="ทีม" style="${u.role==='installer'?'':'visibility:hidden;'}">
+        <button class="btn btn-brand btn-xs" onclick="umSaveRow(${i})">💾 บันทึก</button>
+        <button class="btn btn-outline btn-xs" style="color:var(--red);" onclick="umRemove(${i})">🗑️</button>
+      </div>`).join('') || '<div style="opacity:.6;">ยังไม่มีผู้ใช้</div>';
+  }
+  const lockedSec = document.getElementById('umLockedSection');
+  const lockedList = document.getElementById('umLockedList');
+  if (lockedSec) lockedSec.style.display = locked.length ? '' : 'none';
+  if (lockedList) {
+    lockedList.innerHTML = locked.map(l => `
+      <div class="um-row">
+        <div class="um-row-email"><b>${l.email}</b><span>ถูกล็อก ${l.locked_at ? formatDateTimeThai(l.locked_at) : ''}</span></div>
+        <button class="btn btn-brand btn-xs" onclick="umUnlock('${(l.email||'').replace(/'/g,"\\'")}')">🔓 ปลดล็อก</button>
+      </div>`).join('');
+  }
+}
+function onUmRowRoleChange(i) {
+  const roleSel = document.getElementById('umr_' + i);
+  const teamInput = document.getElementById('umt_' + i);
+  if (roleSel && teamInput) teamInput.style.visibility = roleSel.value === 'installer' ? 'visible' : 'hidden';
+}
+
+async function umAddOrUpdate() {
+  if (!isMasterUser) return;
+  const email = (document.getElementById('umEmail').value || '').trim().toLowerCase();
+  const name = (document.getElementById('umName').value || '').trim();
+  const role = document.getElementById('umRole').value;
+  const team = role === 'installer' ? (document.getElementById('umTeam').value || '').trim() : null;
+  if (!email) { showToast('กรอกอีเมลก่อนครับ', 'warn'); return; }
+  if (role === 'installer' && !team) { showToast('installer ต้องระบุชื่อทีมด้วยครับ (สะกดให้ตรงกับช่อง "ทีมติดตั้ง" ในแผน)', 'warn'); return; }
+  const { error } = await supabaseClient.from('allowed_users').upsert({ email, name: name || null, role, team }, { onConflict: 'email' });
+  if (error) {
+    const hint = /role_check|check constraint/i.test(error.message || '')
+      ? ' — role นี้ยังใช้ไม่ได้ ต้องรันไฟล์ module_admin_roles_migration.sql ใน Supabase ก่อนครับ'
+      : '';
+    showToast('บันทึกไม่สำเร็จ: ' + error.message + hint, 'warn'); return;
+  }
+  showToast(`ให้สิทธิ์ ${email} เป็น ${role}${team ? ' (ทีม ' + team + ')' : ''} แล้วครับ`, 'success');
+  document.getElementById('umEmail').value = '';
+  document.getElementById('umName').value = '';
+  document.getElementById('umTeam').value = '';
+  loadUserMgmtData();
+}
+async function umSaveRow(i) {
+  if (!isMasterUser) return;
+  const u = umUsersCache[i]; if (!u) return;
+  const role = document.getElementById('umr_' + i).value;
+  const team = role === 'installer' ? (document.getElementById('umt_' + i).value || '').trim() : null;
+  if (role === 'installer' && !team) { showToast('installer ต้องระบุชื่อทีมครับ', 'warn'); return; }
+  const { error } = await supabaseClient.from('allowed_users').update({ role, team }).eq('email', u.email);
+  if (error) {
+    const hint = /role_check|check constraint/i.test(error.message || '')
+      ? ' — role นี้ยังใช้ไม่ได้ ต้องรันไฟล์ module_admin_roles_migration.sql ใน Supabase ก่อนครับ'
+      : '';
+    showToast('อัปเดตไม่สำเร็จ: ' + error.message + hint, 'warn'); return;
+  }
+  showToast(`อัปเดต ${u.email} แล้ว`, 'success');
+  loadUserMgmtData();
+}
+async function umRemove(i) {
+  if (!isMasterUser) return;
+  const u = umUsersCache[i]; if (!u) return;
+  if (u.email === currentUserEmail) { showToast('ลบบัญชีตัวเองไม่ได้ครับ', 'warn'); return; }
+  const ok = await showConfirmModal(`ถอดสิทธิ์เข้าระบบของ ${u.email}? (เขาจะเข้าดูข้อมูลไม่ได้อีก แต่บัญชีล็อกอินยังอยู่)`);
+  if (!ok) return;
+  const { error } = await supabaseClient.from('allowed_users').delete().eq('email', u.email);
+  if (error) { showToast('ลบไม่สำเร็จ: ' + error.message, 'warn'); return; }
+  showToast(`ถอดสิทธิ์ ${u.email} แล้ว`, 'success');
+  loadUserMgmtData();
+}
+async function umUnlock(email) {
+  if (!isMasterUser) return;
+  const { error } = await supabaseClient.rpc('master_unlock_login', { p_email: email });
+  if (error) { showToast('ปลดล็อกไม่สำเร็จ: ' + error.message, 'warn'); return; }
+  showToast(`ปลดล็อก ${email} แล้วครับ`, 'success');
+  loadUserMgmtData();
+}
+
+function populateUmPreviewTeams() {
+  const sel = document.getElementById('umPreviewTeam');
+  if (!sel) return;
+  const fromPlan = [...new Set(iotInstallPlan.map(p => p.installTeam).filter(Boolean))];
+  const fromOptions = getIotDropdownOptions('install_team');
+  const teams = [...new Set([...fromOptions, ...fromPlan])].sort((a, b) => a.localeCompare(b, 'th'));
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— เลือกทีม —</option>' + teams.map(t => `<option value="${t}">${t}</option>`).join('');
+  sel.value = teams.includes(cur) ? cur : '';
+}
+
+// master พรีวิวหน้าทีมติดตั้ง โดยไม่ต้องสลับรหัส
+function enterInstallerPreview(team) {
+  if (!isMasterUser || !team) return;
+  installerPreviewTeam = team;
+  installerCurrentTab = 'jobs';
+  closeUserMgmt();
+  applyInstallerMode(true);
+  loadFieldSubmissions().then(() => renderInstallerView());
+  renderInstallerView();
+}
+function enterInstallerPreviewFromSelect() {
+  const team = (document.getElementById('umPreviewTeam') || {}).value;
+  if (!team) { showToast('เลือกทีมที่จะพรีวิวก่อนครับ', 'warn'); return; }
+  enterInstallerPreview(team);
+}
+function exitInstallerPreview() {
+  installerPreviewTeam = null;
+  applyInstallerMode(false);
+  const b = document.getElementById('userMgmtBtn');
+  if (b) b.style.display = isMasterUser ? '' : 'none';
+}
+
 async function checkAuthAndBoot() {
   if (!supabaseClient) return;
   document.getElementById('appShell').style.display = 'none';
@@ -2599,24 +3679,18 @@ async function handleAuthSession(session) {
   // เช็คว่าอีเมลนี้อยู่ในรายชื่อที่อนุญาต (allowed_users) ไหม
   // ลองดึงคอลัมน์ role มาด้วย แต่ถ้ายังไม่ได้รันไฟล์ readonly_viewer_role_migration.sql
   // คอลัมน์ role จะยังไม่มี query จะ error -> ถอยไปใช้แบบเดิม (email, name) เพื่อไม่ให้ใครล็อกอินไม่ได้
+  // ลองดึง role + team ก่อน; ถ้าคอลัมน์ยังไม่มี (ยังไม่รัน migration) ค่อยถอยลงทีละขั้นเพื่อไม่ให้ใครล็อกอินไม่ได้
   let allowedRow = null;
   let error = null;
-  const withRole = await supabaseClient
-    .from('allowed_users')
-    .select('email, name, role')
-    .eq('email', email)
-    .maybeSingle();
-  if (withRole.error) {
-    const legacy = await supabaseClient
-      .from('allowed_users')
-      .select('email, name')
-      .eq('email', email)
-      .maybeSingle();
-    allowedRow = legacy.data;
-    error = legacy.error;
-  } else {
-    allowedRow = withRole.data;
+  let res = await supabaseClient.from('allowed_users').select('email, name, role, team').eq('email', email).maybeSingle();
+  if (res.error) {
+    res = await supabaseClient.from('allowed_users').select('email, name, role').eq('email', email).maybeSingle();
+    if (res.error) {
+      res = await supabaseClient.from('allowed_users').select('email, name').eq('email', email).maybeSingle();
+    }
   }
+  allowedRow = res.data;
+  error = res.error;
 
   if (error || !allowedRow) {
     document.getElementById('authPendingEmail').textContent = email;
@@ -2632,9 +3706,27 @@ async function handleAuthSession(session) {
   currentUserEmail = email;
   currentUserName = (allowedRow.name || '').trim() || email.split('@')[0];
   // ไม่มีคอลัมน์ role (ยังไม่ได้รัน migration) หรือค่าว่าง -> ถือเป็น admin เหมือนเดิม คนเดิมจึงไม่ถูกตัดสิทธิ์
-  currentUserRole = String(allowedRow.role || 'admin').trim().toLowerCase() === 'viewer' ? 'viewer' : 'admin';
+  const roleRaw = String(allowedRow.role || 'admin').trim().toLowerCase();
+  currentUserRole = ['admin', 'viewer', 'installer', 'master', 'admin_training', 'admin_iot'].includes(roleRaw) ? roleRaw : 'admin';
+  currentUserTeam = (allowedRow.team || '').trim();
   isReadOnlyUser = currentUserRole === 'viewer';
+  isMasterUser = currentUserRole === 'master';
+  const masterBtn = document.getElementById('userMgmtBtn');
+  if (masterBtn) masterBtn.style.display = isMasterUser ? '' : 'none';
+
+  // ===== บัญชีทีมติดตั้ง: เข้าหน้าเฉพาะของทีม เห็นเฉพาะงานทีมตัวเอง ไม่โหลดข้อมูลอบรม/เกษตรกร =====
+  if (currentUserRole === 'installer') {
+    applyInstallerMode(true);
+    await syncIotPlanFromSupabase(); // RLS คืนเฉพาะงานของทีมนี้
+    await loadDropdownOptions();     // ทีมติดตั้งต้องใช้ตัวเลือกอุปกรณ์ด้วย
+    setupIotPlanRealtimeSync();
+    renderInstallerView();
+    return;
+  }
+
+  applyInstallerMode(false);
   applyReadOnlyUiMode();
+  applyModuleAccess();
 
   loadData();
   await syncPlanFromSupabase();
@@ -2654,10 +3746,35 @@ async function handleLogin() {
   const btn = document.getElementById('authLoginBtn');
   const originalText = btn.textContent;
   btn.disabled = true; btn.textContent = 'กำลังเข้าสู่ระบบ...';
+
+  // เช็คก่อนว่าอีเมลนี้ถูกล็อกจากการกรอกรหัสผิดหลายครั้งไหม (ถ้ายังไม่ได้รัน migration ฟังก์ชันจะ error -> ข้ามไปเงียบๆ)
+  try {
+    const { data: locked } = await supabaseClient.rpc('check_login_locked', { p_email: email });
+    if (locked === true) {
+      btn.disabled = false; btn.textContent = originalText;
+      showAuthError('authLoginError', 'บัญชีนี้ถูกล็อกชั่วคราวจากการกรอกรหัสผิดหลายครั้ง กรุณาติดต่อผู้ดูแล (master) เพื่อปลดล็อก');
+      return;
+    }
+  } catch (e) { /* ยังไม่ได้ตั้งระบบล็อก ก็ล็อกอินตามปกติ */ }
+
   const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
   btn.disabled = false; btn.textContent = originalText;
 
-  if (error) { showAuthError('authLoginError', 'เข้าสู่ระบบไม่สำเร็จ: ' + error.message); return; }
+  if (error) {
+    // กรอกรหัสผิด -> บันทึกเพิ่ม 1 ครั้ง แล้วบอกจำนวนครั้งที่เหลือ
+    let extra = '';
+    try {
+      const { data: count } = await supabaseClient.rpc('record_login_fail', { p_email: email });
+      if (typeof count === 'number') {
+        if (count >= 5) { showAuthError('authLoginError', 'กรอกรหัสผิดครบ 5 ครั้ง บัญชีถูกล็อก กรุณาติดต่อผู้ดูแล (master) เพื่อปลดล็อก'); return; }
+        extra = ` (ผิด ${count}/5 ครั้ง — ครบ 5 ครั้งจะถูกล็อก)`;
+      }
+    } catch (e) {}
+    showAuthError('authLoginError', 'เข้าสู่ระบบไม่สำเร็จ: ' + error.message + extra);
+    return;
+  }
+  // ล็อกอินสำเร็จ -> ล้างตัวนับรหัสผิดของบัญชีนี้
+  try { await supabaseClient.rpc('reset_login_on_success'); } catch (e) {}
   await handleAuthSession(data.session);
 }
 
@@ -2691,7 +3808,9 @@ async function handleLogout() {
   currentUserEmail = '';
   currentUserName = '';
   currentUserRole = 'admin';
+  currentUserTeam = '';
   isReadOnlyUser = false;
+  applyInstallerMode(false);
   applyReadOnlyUiMode();
   document.getElementById('appShell').style.display = 'none';
   document.getElementById('authGate').style.display = 'flex';
@@ -2804,6 +3923,249 @@ function renderKpiSparklines() {
   }
 }
 
+// ===== "อบรมแล้ว (มาร์คเอง)" — override ฝั่งเว็บทับข้อมูลซิงก์ (training_completion) =====
+// เก็บเป็นตารางแยกใน Supabase คีย์ด้วย national_id ไม่ไปยุ่งกับตาราง farmers ที่ซิงก์มา (อ่านอย่างเดียว)
+// วิธีทำงาน: หลังโหลด allRows แล้ว เราจะ "แพตช์" training_status ของคนที่ถูกมาร์คให้เป็น 'Y' ในหน่วยความจำ
+// -> ทุกหน้าที่อ่าน training_status (แดชบอร์ด/แผนที่/สกอร์บอร์ด/แผน) จะเห็นเป็น "อบรมแล้ว" อัตโนมัติ โดยไม่ต้องแก้ทีละจุด
+let trainingCompletionByNid = new Map();
+
+async function loadTrainingCompletion() {
+  if (!supabaseClient) return;
+  let rows = [];
+  let from = 0;
+  const pageSize = 1000;
+  while (true) {
+    const { data, error } = await supabaseClient
+      .from('training_completion')
+      .select('*')
+      .range(from, from + pageSize - 1);
+    if (error) {
+      // ยังไม่ได้รัน training_completion_setup.sql ก็ไม่เป็นไร ถือว่ายังไม่มีใครถูกมาร์ค เว็บทำงานต่อได้ปกติ
+      console.warn('โหลดรายชื่ออบรมแล้ว (มาร์คเอง) ไม่สำเร็จ:', error.message);
+      return;
+    }
+    rows = rows.concat(data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+  trainingCompletionByNid = new Map();
+  rows.forEach(rec => { if (rec.national_id) trainingCompletionByNid.set(rec.national_id, rec); });
+}
+
+// แพตช์ training_status ในหน่วยความจำ: เก็บค่าดั้งเดิมไว้ครั้งแรก (_origTrainingStatus) แล้วคำนวณค่าที่ใช้แสดงจาก
+// (ค่าดั้งเดิม === 'Y') หรือ (ถูกแอดมินมาร์คไว้) -> 'Y' ถ้าไม่ใช่ก็คงค่าดั้งเดิม เรียกได้ซ้ำๆ ไม่เพี้ยน (idempotent)
+function applyTrainingOverrides() {
+  allRows.forEach(r => {
+    if (r._origTrainingStatus === undefined) r._origTrainingStatus = r.training_status;
+    const marked = r.national_id && trainingCompletionByNid.has(r.national_id);
+    r.training_status = (r._origTrainingStatus === 'Y' || marked) ? 'Y' : r._origTrainingStatus;
+  });
+}
+
+// จำแนกสถานะของแต่ละคนสำหรับตารางในแท็บนี้: 'trained_sync' | 'trained_manual' | 'untrained'
+function getTrainingConfirmState(r) {
+  if (r.national_id && trainingCompletionByNid.has(r.national_id)) return 'trained_manual';
+  if (r._origTrainingStatus === 'Y') return 'trained_sync';
+  return 'untrained';
+}
+
+// ----- ตัวกรองของแท็บนี้ (จังหวัด/อำเภอ/ตำบล/สถานะ/ค้นหา) -----
+function getFilteredTrainingConfirmRows() {
+  const provSel = document.getElementById('trainingConfirmFilterProvince');
+  const distSel = document.getElementById('trainingConfirmFilterDistrict');
+  const subdistSel = document.getElementById('trainingConfirmFilterSubdistrict');
+  const statusSel = document.getElementById('trainingConfirmFilterStatus');
+  const searchEl = document.getElementById('trainingConfirmFilterSearch');
+  const province = provSel ? provSel.value : '';
+  const district = distSel ? distSel.value : '';
+  const subdistrict = subdistSel ? subdistSel.value : '';
+  const status = statusSel ? statusSel.value : '';
+  const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  return allRows.filter(r => {
+    if (province && normName(r.province) !== normName(province)) return false;
+    if (district && normName(r.district) !== normName(district)) return false;
+    if (subdistrict && normName(r.subdistrict) !== normName(subdistrict)) return false;
+    if (status && getTrainingConfirmState(r) !== status) return false;
+    if (q) {
+      const hay = `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''} ${r.national_id || ''} ${r.phone || ''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function populateTrainingConfirmFilterOptions() {
+  const provSel = document.getElementById('trainingConfirmFilterProvince');
+  const distSel = document.getElementById('trainingConfirmFilterDistrict');
+  const subdistSel = document.getElementById('trainingConfirmFilterSubdistrict');
+  if (!provSel || !distSel) return;
+
+  const currentProvince = provSel.value;
+  const provinces = [...new Set(allRows.map(r => r.province).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'th'));
+  provSel.innerHTML = '<option value="">ทุกจังหวัด</option>' + provinces.map(p => `<option value="${p}">${p}</option>`).join('');
+  provSel.value = provinces.includes(currentProvince) ? currentProvince : '';
+
+  const selectedProvince = provSel.value;
+  const currentDistrict = distSel.value;
+  const districts = [...new Set(
+    allRows.filter(r => !selectedProvince || r.province === selectedProvince).map(r => r.district).filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, 'th'));
+  distSel.innerHTML = '<option value="">ทุกอำเภอ</option>' + districts.map(d => `<option value="${d}">${d}</option>`).join('');
+  distSel.value = districts.includes(currentDistrict) ? currentDistrict : '';
+
+  if (subdistSel) {
+    const selectedDistrict = distSel.value;
+    const currentSubdistrict = subdistSel.value;
+    const subdistricts = [...new Set(
+      allRows
+        .filter(r => (!selectedProvince || r.province === selectedProvince) && (!selectedDistrict || r.district === selectedDistrict))
+        .map(r => r.subdistrict).filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b, 'th'));
+    subdistSel.innerHTML = '<option value="">ทุกตำบล</option>' + subdistricts.map(s => `<option value="${s}">${s}</option>`).join('');
+    subdistSel.value = subdistricts.includes(currentSubdistrict) ? currentSubdistrict : '';
+  }
+}
+
+function onTrainingConfirmFilterProvinceChange() { populateTrainingConfirmFilterOptions(); renderTrainingConfirmTab(); }
+function onTrainingConfirmFilterDistrictChange() { populateTrainingConfirmFilterOptions(); renderTrainingConfirmTab(); }
+
+function updateTrainingConfirmSelectedCount() {
+  const countEl = document.getElementById('trainingConfirmSelectedCount');
+  if (!countEl) return;
+  const n = document.querySelectorAll('#trainingConfirmTbody .training-confirm-checkbox:checked').length;
+  countEl.textContent = `เลือกแล้ว ${n.toLocaleString()} คน`;
+}
+
+function toggleSelectAllTrainingConfirm() {
+  const boxes = document.querySelectorAll('#trainingConfirmTbody .training-confirm-checkbox');
+  const allChecked = boxes.length > 0 && [...boxes].every(b => b.checked);
+  boxes.forEach(b => { b.checked = !allChecked; });
+  updateTrainingConfirmSelectedCount();
+}
+
+const TRAINING_CONFIRM_STATE_BADGE = {
+  trained_sync: '<span class="tag tag-Y">✓ อบรมแล้ว (จากระบบ)</span>',
+  trained_manual: '<span class="tag tag-Y">✓ อบรมแล้ว (มาร์คเอง)</span>',
+  untrained: '<span class="tag tag-N">ยังไม่อบรม</span>'
+};
+
+function renderTrainingConfirmTab() {
+  const tbody = document.getElementById('trainingConfirmTbody');
+  const markedBadge = document.getElementById('trainingConfirmMarkedBadge');
+  if (markedBadge) markedBadge.textContent = trainingCompletionByNid.size.toLocaleString() + ' คนที่มาร์คเอง';
+  if (!tbody) return;
+
+  if (!allRows.length) {
+    tbody.innerHTML = '<tr><td colspan="10" class="empty-state-cell"><span class="empty-text">กำลังโหลดรายชื่อ...</span></td></tr>';
+    return;
+  }
+
+  populateTrainingConfirmFilterOptions();
+  const rows = getFilteredTrainingConfirmRows();
+
+  const countInfo = document.getElementById('trainingConfirmCountInfo');
+  if (countInfo) countInfo.textContent = `แสดง ${rows.length.toLocaleString()} จาก ${allRows.length.toLocaleString()} คน`;
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="10" class="empty-state-cell"><span class="empty-icon">🔍</span><span class="empty-text">ไม่พบคนที่ตรงกับตัวกรอง<br>ลองปรับตัวกรองดูใหม่นะครับ</span></td></tr>';
+    updateTrainingConfirmSelectedCount();
+    return;
+  }
+
+  // จำกัดจำนวนแถวที่วาดจริงกันหน่วง (ถ้าเยอะมากให้บอกผู้ใช้กรองแคบลง)
+  const MAX = 800;
+  const shown = rows.slice(0, MAX);
+  tbody.innerHTML = shown.map((r, i) => {
+    const state = getTrainingConfirmState(r);
+    const nidSafe = (r.national_id || '').replace(/'/g, "\\'");
+    const canSelect = state === 'untrained' && r.national_id;
+    const fullName = `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''}`.trim();
+    return `
+      <tr>
+        <td>${canSelect ? `<input type="checkbox" class="training-confirm-checkbox" data-nid="${r.national_id}" onchange="updateTrainingConfirmSelectedCount()">` : ''}</td>
+        <td>${i + 1}</td>
+        <td>${fullName || '-'}</td>
+        <td>${r.national_id || '-'}</td>
+        <td>${r.phone || '-'}</td>
+        <td>${r.province || '-'}</td>
+        <td>${r.district || '-'}</td>
+        <td>${r.subdistrict || '-'}</td>
+        <td>${TRAINING_CONFIRM_STATE_BADGE[state]}</td>
+        <td>${state === 'trained_manual' ? `<button type="button" class="btn-linklike" style="color:var(--red);" onclick="unmarkFarmerTrained('${nidSafe}')">↩ ยกเลิกมาร์ค</button>` : ''}</td>
+      </tr>
+    `;
+  }).join('') + (rows.length > MAX ? `<tr><td colspan="10" style="text-align:center; opacity:.7; padding:10px;">แสดง ${MAX.toLocaleString()} คนแรกจาก ${rows.length.toLocaleString()} คน — ลองกรองจังหวัด/อำเภอ/ตำบลให้แคบลงเพื่อดูครบ</td></tr>` : '');
+  updateTrainingConfirmSelectedCount();
+}
+
+// รีเฟรชทุกหน้าที่อ้างอิงสถานะอบรม หลังมีการมาร์ค/ยกเลิก (allRows ถูกแพตช์ในหน่วยความจำแล้ว)
+function refreshTrainingViewsAfterOverrideChange() {
+  renderTrainingConfirmTab();
+  if (allRows.length) {
+    renderKpis(allRows);
+    renderProvinceBreakdown(allRows);
+    renderScoreboard(allRows);
+    renderLeaderboard(allRows);
+    applyFilters();
+  }
+  // ถ้าพาแนลเลือกคนในหน้าแผนที่เปิดค้างอยู่ ให้วาดใหม่ให้สถานะตรง
+  if (currentPeoplePanelProvince && currentPeoplePanelDistrict && currentPeoplePanelMode === 'district') {
+    showDistrictPeople(currentPeoplePanelProvince, currentPeoplePanelDistrict);
+  }
+}
+
+// มาร์คหลายคนพร้อมกัน (รับ array ของ national_id) แล้วซิงก์ขึ้น Supabase ทีเดียว
+async function markFarmersAsTrained(nids) {
+  if (blockIfReadOnly()) return;
+  const uniqueNids = [...new Set(nids.filter(Boolean))];
+  const payload = [];
+  uniqueNids.forEach(nid => {
+    const r = allRows.find(row => row.national_id === nid);
+    if (!r) return;
+    const name = `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''}`.trim();
+    const rec = { national_id: nid, name: name || null, marked_by: currentUserName || null, marked_at: new Date().toISOString() };
+    trainingCompletionByNid.set(nid, rec);
+    payload.push(rec);
+  });
+  if (!payload.length) { showToast('ไม่มีรายชื่อให้มาร์คครับ', 'warn'); return; }
+  applyTrainingOverrides();
+  refreshTrainingViewsAfterOverrideChange();
+  showToast(`ทำเครื่องหมายว่าอบรมแล้ว ${payload.length.toLocaleString()} คนครับ`, 'success');
+  if (supabaseClient) {
+    const { error } = await supabaseClient.from('training_completion').upsert(payload, { onConflict: 'national_id' });
+    if (error) showToast('บันทึกขึ้นระบบไม่สำเร็จ: ' + error.message + ' (ตรวจว่ารันไฟล์ training_completion_setup.sql แล้วหรือยัง)', 'warn');
+  }
+}
+
+function markTrainingConfirmSelected() {
+  if (blockIfReadOnly()) return;
+  const checked = [...document.querySelectorAll('#trainingConfirmTbody .training-confirm-checkbox:checked')];
+  if (!checked.length) { showToast('กรุณาติ๊กเลือกอย่างน้อย 1 คนก่อนครับ', 'warn'); return; }
+  markFarmersAsTrained(checked.map(cb => cb.getAttribute('data-nid')));
+}
+
+async function markTrainingConfirmFilteredUntrained() {
+  if (blockIfReadOnly()) return;
+  const untrained = getFilteredTrainingConfirmRows().filter(r => getTrainingConfirmState(r) === 'untrained' && r.national_id);
+  if (!untrained.length) { showToast('ในรายการที่กรองอยู่ ไม่มีคนที่ "ยังไม่อบรม" ให้มาร์คครับ', 'warn'); return; }
+  const confirmed = await showConfirmModal(`ยืนยันทำเครื่องหมายว่าอบรมแล้วให้ทุกคนที่ยังไม่อบรมในรายการนี้ ${untrained.length.toLocaleString()} คน?`);
+  if (!confirmed) return;
+  markFarmersAsTrained(untrained.map(r => r.national_id));
+}
+
+async function unmarkFarmerTrained(nid) {
+  if (blockIfReadOnly()) return;
+  if (!trainingCompletionByNid.has(nid)) return;
+  trainingCompletionByNid.delete(nid);
+  applyTrainingOverrides(); // คืน training_status กลับเป็นค่าดั้งเดิมจากซิงก์ให้คนนี้
+  refreshTrainingViewsAfterOverrideChange();
+  showToast('ยกเลิกเครื่องหมาย "อบรมแล้ว" ให้คนนี้แล้วครับ', 'success');
+  if (supabaseClient) {
+    const { error } = await supabaseClient.from('training_completion').delete().eq('national_id', nid);
+    if (error) showToast('ลบออกจากระบบไม่สำเร็จ: ' + error.message, 'warn');
+  }
+}
+
 async function loadData() {
   if (!supabaseClient) initClient();
   document.getElementById('status').innerHTML = '<span class="spinner-inline"></span>กำลังโหลดข้อมูล...';
@@ -2826,6 +4188,8 @@ async function loadData() {
     from += pageSize;
   }
   allRows = rows;
+  await loadTrainingCompletion();
+  applyTrainingOverrides(); // แพตช์คนที่แอดมินมาร์คว่าอบรมแล้วก่อน render ทุกหน้า
   let lastSyncText = 'ยังไม่มีข้อมูล';
   try {
     const { data: logData, error: logError } = await supabaseClient
@@ -2852,6 +4216,7 @@ async function loadData() {
   renderScoreboard(rows);
   renderLeaderboard(rows);
   if (geoProvinces) renderCountryProvinces();
+  renderTrainingConfirmTab();
   backfillPlanSubdistricts();
 }
 
@@ -4449,7 +5814,8 @@ function applyIotProjectFilter(value) {
 
 async function loadIotData() {
   if (!supabaseClient) return;
-  await Promise.all([loadAppConnections(), loadIotLegacyPendingMap(), loadIotCabinetSerials(), loadIotManualBaseCodes(), loadIotDocChecklist(), loadIotInstallBlockers()]);
+  await Promise.all([loadAppConnections(), loadIotLegacyPendingMap(), loadIotCabinetSerials(), loadIotManualBaseCodes(), loadIotDocChecklist(), loadIotInstallBlockers(), loadDropdownOptions(), loadFieldSubmissions()]);
+  renderDropdownManager();
   let rows = [];
   let from = 0;
   const pageSize = 1000;
@@ -5053,10 +6419,12 @@ function renderIotPeopleGroup(title, icon, cls, groupRows, highlightId, opts) {
           <tbody id="${groupId ? groupId + 'Tbody' : ''}">
             ${groupRows.length ? groupRows.map(p => {
               const inPlan = iotInstallPlan.some(e => e.nationalId === p.national_id);
+              const nidSafe = (p.national_id || '').replace(/'/g, "\\'");
+              const expanded = iotMapExpandedNids.has(p.national_id);
               return `
               <tr class="${highlightId && p.national_id === highlightId ? 'row-highlight' : ''}" id="${highlightId && p.national_id === highlightId ? 'highlightedIotPersonRow' : ''}">
                 ${selectable ? `<td><input type="checkbox" class="iot-plan-select-checkbox" data-nid="${p.national_id}" ${inPlan ? 'disabled checked' : ''}></td>` : ''}
-                <td>${p.prefix || ''}${p.first_name || ''} ${p.last_name || ''}</td>
+                <td><a class="iot-map-name-toggle" onclick="toggleIotMapPersonDetail('${nidSafe}')" title="กดเพื่อกรอก/ดูรายละเอียดการติดตั้ง">${p.prefix || ''}${p.first_name || ''} ${p.last_name || ''} <span class="caret ${expanded ? 'open' : ''}">▸</span>${inPlan ? ' <span class="plan-added-tag" style="font-size:10px;">อยู่ในแผน</span>' : ''}</a></td>
                 <td>${p.national_id || ''}</td>
                 <td>${p.phone || ''}</td>
                 <td>${p.farm_subdistrict || ''}</td>
@@ -5065,12 +6433,146 @@ function renderIotPeopleGroup(title, icon, cls, groupRows, highlightId, opts) {
                 <td>${p.approval_round || ''}</td>
                 ${selectable ? `<td>${inPlan ? `<span class="plan-added-tag">✓ เพิ่มแล้ว</span> <button class="btn btn-outline btn-xs" onclick="removePersonFromIotPlanByNid('${p.national_id}')">ยกเลิก</button>` : `<button class="btn btn-outline btn-xs" onclick="addPersonToIotPlanByNid('${p.national_id}')">+ เพิ่ม</button>`}</td>` : ''}
               </tr>
+              <tr class="iot-map-detail-row" id="iotMapDetailRow_${p.national_id}" style="display:${expanded ? '' : 'none'};">
+                <td colspan="${colspan}"><div class="iot-map-detail" id="iotMapDetailBody_${p.national_id}">${expanded ? iotMapDetailEditorInner(p.national_id) : ''}</div></td>
+              </tr>
             `; }).join('') : `<tr><td colspan="${colspan}" style="text-align:center; opacity:.6;">ไม่มีข้อมูล</td></tr>`}
           </tbody>
         </table>
       </div>
     </div>
   `;
+}
+
+// ===== โหมดกรอกรายละเอียดติดตั้งบนหน้าแผนที่ (กดที่ชื่อคนเพื่อกาง/พับ) =====
+// เก็บ nid ที่กางอยู่ไว้ใน Set เพื่อให้พาแนลวาดใหม่แล้วยังกางค้างอยู่ (เช่นหลังกด "เพิ่มเข้าแผน")
+let iotMapExpandedNids = new Set();
+
+function toggleIotMapPersonDetail(nid) {
+  const row = document.getElementById('iotMapDetailRow_' + nid);
+  const body = document.getElementById('iotMapDetailBody_' + nid);
+  if (!row || !body) return;
+  const show = !iotMapExpandedNids.has(nid);
+  if (show) {
+    iotMapExpandedNids.add(nid);
+    body.innerHTML = iotMapDetailEditorInner(nid);
+    row.style.display = '';
+  } else {
+    iotMapExpandedNids.delete(nid);
+    row.style.display = 'none';
+  }
+  // อัปเดตลูกศรหน้า/หลังชื่อ
+  const link = document.querySelector(`.iot-map-name-toggle[onclick*="'${nid}'"] .caret`);
+  if (link) link.classList.toggle('open', show);
+}
+
+// วาดเนื้อหาในกล่องรายละเอียดของคนนี้ใหม่ (ใช้ตอนเปลี่ยน "รูปแบบตู้" เพื่อสลับช่องการชำระเงิน/ยอดชำระ)
+function renderIotMapDetailEditor(nid) {
+  const body = document.getElementById('iotMapDetailBody_' + nid);
+  if (body) body.innerHTML = iotMapDetailEditorInner(nid);
+}
+
+// wrapper: แก้ค่าจากหน้าแผนที่ แล้ววาดกล่องรายละเอียดใหม่เฉพาะเมื่อจำเป็น (เช่นเปลี่ยนตู้)
+function updateIotPlanFieldFromMap(id, field, value, nid) {
+  updateIotPlanField(id, field, value);
+  if (field === 'boxType') renderIotMapDetailEditor(nid);
+}
+
+// เพิ่มคนเข้าแผนแล้วกางกล่องรายละเอียดให้เลย (กรอกต่อได้ทันทีตอนโทร)
+function addPersonToIotPlanByNidAndExpand(nid) {
+  if (blockIfReadOnly()) return;
+  iotMapExpandedNids.add(nid);
+  addPersonToIotPlanByNid(nid); // ฟังก์ชันนี้จะ refresh พาแนลให้ แล้วกล่องจะกางค้างเพราะ nid อยู่ใน Set แล้ว
+}
+
+// เนื้อหาในกล่องรายละเอียด: ถ้ายังไม่อยู่ในแผน -> ปุ่มเพิ่มเข้าแผน / ถ้าอยู่ในแผนแล้ว -> ฟอร์มกรอกรายละเอียด
+function iotMapDetailEditorInner(nid) {
+  const p = allIotRows.find(r => r.national_id === nid);
+  const entry = iotInstallPlan.find(e => e.nationalId === nid);
+  const nidSafe = (nid || '').replace(/'/g, "\\'");
+
+  // ข้อมูลอ้างอิงจาก OTOD (อ่านอย่างเดียว) ให้แอดมินดูตอนโทร
+  const ctx = p ? `
+    <div class="iot-map-detail-ctx">
+      <span><b>สถานะติดตั้ง (OTOD):</b> ${getIotStatusDisplayHtml(p)}</span>
+      <span><b>โครงการ:</b> ${p[IOT_FIELDS.project] || '-'}</span>
+      <span><b>รอบการอนุมัติ:</b> ${p.approval_round || '-'}</span>
+      <span><b>SN ตู้:</b> ${getIotSnCellHtml(p)}</span>
+      <span><b>เลข AR:</b> ${getIotArCodeDisplay(p) || '-'}</span>
+    </div>` : '';
+
+  if (!entry) {
+    return `${ctx}<div class="iot-map-detail-empty">ยังไม่อยู่ในแผนติดตั้ง — <button type="button" class="btn btn-brand btn-xs" onclick="addPersonToIotPlanByNidAndExpand('${nidSafe}')">➕ เพิ่มเข้าแผนติดตั้ง แล้วกรอกรายละเอียด</button></div>`;
+  }
+
+  const eid = entry.id;
+  const planMonth = getIotMonthYearFromDate(entry.installDate);
+  const planWeek = getIotWeekOfMonthFromDate(entry.installDate);
+  const status = entry.status || 'pending';
+  const opt = (cat, cur) => getIotDropdownOptions(cat).map(t => `<option value="${t}" ${cur === t ? 'selected' : ''}>${t}</option>`).join('');
+  const amountVal = (entry.paymentAmount === '' || entry.paymentAmount === undefined || entry.paymentAmount === null) ? '' : String(entry.paymentAmount).replace(/"/g,'&quot;');
+
+  return `${ctx}
+    <div class="iot-map-detail-grid">
+      <label>นัดหมาย (เดือน)
+        <select onchange="updateIotPlanMonthWeek('${eid}','month',this.value)">${getIotMonthOptionsHtml(planMonth)}</select>
+      </label>
+      <label>นัดหมาย (สัปดาห์)
+        <select onchange="updateIotPlanMonthWeek('${eid}','week',this.value)">
+          <option value="">- สัปดาห์ -</option>
+          <option value="1" ${planWeek==='1'?'selected':''}>สัปดาห์ที่ 1 (1-7)</option>
+          <option value="2" ${planWeek==='2'?'selected':''}>สัปดาห์ที่ 2 (8-14)</option>
+          <option value="3" ${planWeek==='3'?'selected':''}>สัปดาห์ที่ 3 (15-21)</option>
+          <option value="4" ${planWeek==='4'?'selected':''}>สัปดาห์ที่ 4 (22-28)</option>
+          <option value="5" ${planWeek==='5'?'selected':''}>สัปดาห์ที่ 5 (29+)</option>
+        </select>
+      </label>
+      <label>สถานะ
+        <select onchange="updateIotPlanField('${eid}','status',this.value)">
+          <option value="pending" ${status==='pending'?'selected':''}>รอติดตั้ง</option>
+          <option value="done" ${status==='done'?'selected':''}>ติดตั้งแล้ว</option>
+          <option value="cancelled" ${status==='cancelled'?'selected':''}>สละสิทธิ์</option>
+        </select>
+      </label>
+      <label>ทีมติดตั้ง
+        <select onchange="updateIotPlanField('${eid}','installTeam',this.value)"><option value="" ${!entry.installTeam?'selected':''}>ยังไม่ระบุ</option>${opt('install_team', entry.installTeam)}</select>
+      </label>
+      <label>ผู้ดำเนินการ
+        <select onchange="updateIotPlanField('${eid}','operatorName',this.value)"><option value="" ${!entry.operatorName?'selected':''}>ยังไม่ระบุ</option>${opt('operator', entry.operatorName)}</select>
+      </label>
+      <label>รูปแบบตู้
+        <select onchange="updateIotPlanFieldFromMap('${eid}','boxType',this.value,'${nidSafe}')">
+          <option value="" ${!entry.boxType?'selected':''}>ยังไม่ระบุ</option>
+          <option value="no_button" ${entry.boxType==='no_button'?'selected':''}>ตู้ไม่มีปุ่มกด</option>
+          <option value="with_button" ${entry.boxType==='with_button'?'selected':''}>ตู้มีปุ่มกด</option>
+        </select>
+      </label>
+      <label>ปั๊มน้ำ
+        <select onchange="updateIotPlanField('${eid}','pumpType',this.value)"><option value="" ${!entry.pumpType?'selected':''}>ยังไม่ระบุ</option>${opt('pump_type', entry.pumpType)}</select>
+      </label>
+      <label>ขนาดท่อ
+        <select onchange="updateIotPlanField('${eid}','pipeSize',this.value)"><option value="" ${!entry.pipeSize?'selected':''}>ยังไม่ระบุ</option>${opt('pipe_size', entry.pipeSize)}</select>
+      </label>
+      <label>ขนาดวาล์ว
+        <select onchange="updateIotPlanField('${eid}','valveSize',this.value)"><option value="" ${!entry.valveSize?'selected':''}>ยังไม่ระบุ</option>${opt('valve_size', entry.valveSize)}</select>
+      </label>
+      ${entry.boxType === 'no_button' ? '' : `
+      <label>การชำระเงิน
+        <select onchange="updateIotPlanField('${eid}','paymentStatus',this.value)"><option value="" ${!entry.paymentStatus?'selected':''}>ยังไม่ระบุ</option>${opt('payment_status', entry.paymentStatus)}</select>
+      </label>
+      <label>ยอดชำระ (บาท)
+        <input type="number" min="0" step="1" inputmode="numeric" value="${amountVal}" placeholder="บาท" oninput="updateIotPlanField('${eid}','paymentAmount',this.value)">
+      </label>`}
+      <label class="iot-map-detail-wide">ตำแหน่ง (Google Maps)
+        <input type="text" value="${(entry.mapLink||'').replace(/"/g,'&quot;')}" placeholder="วางลิงก์ Google Maps" oninput="updateIotPlanField('${eid}','mapLink',this.value)">
+      </label>
+      <label class="iot-map-detail-wide">หมายเหตุ
+        <input type="text" value="${(entry.note||'').replace(/"/g,'&quot;')}" placeholder="หมายเหตุ" oninput="updateIotPlanField('${eid}','note',this.value)">
+      </label>
+    </div>
+    <div class="iot-map-detail-foot">
+      <button type="button" class="btn btn-outline btn-xs" onclick="removePersonFromIotPlanByNid('${nidSafe}')">🗑️ เอาออกจากแผน</button>
+    </div>`;
 }
 
 function showIotDistrictPeople(province, district, highlightId) {
@@ -6617,6 +8119,8 @@ function loadIotPlanFromStorage() {
     if (p.boxType === undefined) { migrated = true; p.boxType = ''; }
     if (p.installTeam === undefined) { migrated = true; p.installTeam = ''; }
     if (p.planFinalized === undefined) { migrated = true; p.planFinalized = false; }
+    if (p.valveSize === undefined) { migrated = true; p.valveSize = ''; }
+    if (p.paymentAmount === undefined) { migrated = true; p.paymentAmount = ''; }
   });
   if (migrated) saveIotPlanToStorage();
 }
@@ -6644,7 +8148,9 @@ function iotPlanEntryToSupabaseRow(entry) {
     operator_name: entry.operatorName || null,
     pump_type: entry.pumpType || null,
     pipe_size: entry.pipeSize || null,
+    valve_size: entry.valveSize || null,
     payment_status: entry.paymentStatus || null,
+    payment_amount: (entry.paymentAmount === '' || entry.paymentAmount === undefined || entry.paymentAmount === null) ? null : Number(entry.paymentAmount),
     map_link: entry.mapLink || null,
     note: entry.note || null,
     status: entry.status || 'pending',
@@ -6718,7 +8224,9 @@ async function syncIotPlanFromSupabase(opts) {
         operatorName: row.operator_name || '',
         pumpType: row.pump_type || '',
         pipeSize: row.pipe_size || '',
+        valveSize: row.valve_size || '',
         paymentStatus: row.payment_status || '',
+        paymentAmount: (row.payment_amount === null || row.payment_amount === undefined) ? '' : String(row.payment_amount),
         mapLink: row.map_link || '',
         note: row.note || '',
         status: row.status || 'pending',
@@ -6730,6 +8238,7 @@ async function syncIotPlanFromSupabase(opts) {
       saveIotPlanToStorage();
       renderIotPlanTable();
       if (iotPlanCurrentView === 'calendar') renderIotPlanCalendar();
+      if (currentUserRole === 'installer' || installerPreviewTeam) renderInstallerView();
       if (opts.showToastOnSuccess) showToast('ดึงแผนติดตั้ง IoT ล่าสุดจาก Supabase แล้ว', 'success');
     }
   } catch (e) {
@@ -6757,7 +8266,9 @@ function addPersonToIotPlan(p) {
     operatorName: '',
     pumpType: '',
     pipeSize: '',
+    valveSize: '',
     paymentStatus: '',
+    paymentAmount: '',
     mapLink: '',
     note: '',
     status: 'pending',
@@ -6843,6 +8354,115 @@ const IOT_PUMP_TYPES = ['ไม่เกิน 5 แรงม้า', 'โซล
 const IOT_PIPE_SIZES = ['1 นิ้ว', '2 นิ้ว', '3 นิ้ว'];
 const IOT_PAYMENT_STATUSES = ['ชำระแล้ว', 'ยังไม่ชำระ'];
 const IOT_OPERATORS = ['Admin', 'นพดล']; // รายชื่อผู้ดำเนินการสำเร็จรูป แก้/เพิ่มชื่อได้ตรงนี้
+const IOT_VALVE_SIZES = ['1/2 นิ้ว', '1 นิ้ว', '2 นิ้ว']; // ขนาดวาล์วพื้นฐาน (เพิ่มเองได้ผ่านหน้าเว็บ)
+
+// ===== ดรอปดาวน์ที่เพิ่มตัวเลือกเองได้ (เก็บตัวเลือกที่เพิ่มใหม่ลง Supabase ตาราง dropdown_options) =====
+// ตัวเลือกพื้นฐาน (default) ยังฝังในโค้ด ตารางฐานข้อมูลเก็บเฉพาะที่แอดมินเพิ่มเข้ามาใหม่ -> รายการที่ใช้จริง = default + ที่เพิ่ม
+const IOT_DROPDOWN_DEFAULTS = {
+  pump_type: IOT_PUMP_TYPES,
+  pipe_size: IOT_PIPE_SIZES,
+  valve_size: IOT_VALVE_SIZES,
+  payment_status: IOT_PAYMENT_STATUSES,
+  install_team: IOT_INSTALL_TEAMS,
+  operator: IOT_OPERATORS
+};
+const IOT_DROPDOWN_CATEGORY_LABELS = {
+  pump_type: 'ปั๊มน้ำ', pipe_size: 'ขนาดท่อ', valve_size: 'ขนาดวาล์ว',
+  payment_status: 'การชำระเงิน', install_team: 'ทีมติดตั้ง', operator: 'ผู้ดำเนินการ'
+};
+let customDropdownOptions = { pump_type: [], pipe_size: [], valve_size: [], payment_status: [], install_team: [], operator: [] };
+
+// รายการตัวเลือกที่ใช้จริงของหมวดนั้น = ตัวเลือกพื้นฐาน + ที่แอดมินเพิ่ม (ตัดซ้ำ คงลำดับ)
+function getIotDropdownOptions(category) {
+  const base = IOT_DROPDOWN_DEFAULTS[category] || [];
+  const custom = customDropdownOptions[category] || [];
+  return [...base, ...custom].filter((v, i, a) => a.indexOf(v) === i);
+}
+
+async function loadDropdownOptions() {
+  if (!supabaseClient) return;
+  try {
+    const { data, error } = await supabaseClient.from('dropdown_options').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: true });
+    if (error) { console.warn('โหลดตัวเลือกดรอปดาวน์ไม่สำเร็จ:', error.message); return; }
+    const next = { pump_type: [], pipe_size: [], valve_size: [], payment_status: [], install_team: [], operator: [] };
+    (data || []).forEach(row => {
+      if (next[row.category] && row.value && !next[row.category].includes(row.value)) next[row.category].push(row.value);
+    });
+    customDropdownOptions = next;
+  } catch (e) {
+    console.warn('โหลดตัวเลือกดรอปดาวน์ไม่สำเร็จ:', e.message);
+  }
+}
+
+// เพิ่มตัวเลือกใหม่ 1 อันในหมวดที่ระบุ -> บันทึกลง Supabase แล้ววาดใหม่ทุกที่ที่ใช้ดรอปดาวน์นี้
+async function addDropdownOption(category) {
+  if (blockIfReadOnly()) return;
+  const input = document.getElementById('dropdownAddInput_' + category);
+  if (!input) return;
+  const value = (input.value || '').trim();
+  if (!value) { showToast('พิมพ์ตัวเลือกที่จะเพิ่มก่อนครับ', 'warn'); return; }
+  if (getIotDropdownOptions(category).includes(value)) { showToast('มีตัวเลือกนี้อยู่แล้วครับ', 'info'); return; }
+  customDropdownOptions[category] = [...(customDropdownOptions[category] || []), value];
+  input.value = '';
+  renderDropdownManager();
+  renderIotPlanTable();
+  refreshIotPeoplePanel();
+  if (supabaseClient) {
+    const sortOrder = (IOT_DROPDOWN_DEFAULTS[category] || []).length + customDropdownOptions[category].length;
+    const { error } = await supabaseClient.from('dropdown_options').upsert(
+      { category, value, sort_order: sortOrder, created_by: currentUserName || null },
+      { onConflict: 'category,value' }
+    );
+    if (error) showToast('บันทึกตัวเลือกขึ้นระบบไม่สำเร็จ: ' + error.message + ' (รันไฟล์ dropdown_options_setup.sql แล้วหรือยัง?)', 'warn');
+    else showToast(`เพิ่มตัวเลือก "${value}" ใน "${IOT_DROPDOWN_CATEGORY_LABELS[category]}" แล้วครับ`, 'success');
+  }
+}
+
+// ลบเฉพาะตัวเลือกที่แอดมินเพิ่มเอง (ตัวเลือกพื้นฐานลบไม่ได้)
+async function removeCustomDropdownOption(category, value) {
+  if (blockIfReadOnly()) return;
+  if ((IOT_DROPDOWN_DEFAULTS[category] || []).includes(value)) { showToast('ตัวเลือกพื้นฐานลบไม่ได้ครับ', 'warn'); return; }
+  customDropdownOptions[category] = (customDropdownOptions[category] || []).filter(v => v !== value);
+  renderDropdownManager();
+  renderIotPlanTable();
+  refreshIotPeoplePanel();
+  if (supabaseClient) {
+    const { error } = await supabaseClient.from('dropdown_options').delete().eq('category', category).eq('value', value);
+    if (error) showToast('ลบตัวเลือกออกจากระบบไม่สำเร็จ: ' + error.message, 'warn');
+  }
+}
+
+function toggleDropdownManager() {
+  const body = document.getElementById('iotDropdownManagerBody');
+  const chevron = document.getElementById('iotDropdownManagerChevron');
+  if (!body) return;
+  const show = body.style.display === 'none';
+  body.style.display = show ? '' : 'none';
+  if (chevron) chevron.classList.toggle('open', show);
+  if (show) renderDropdownManager();
+}
+
+function renderDropdownManager() {
+  const body = document.getElementById('iotDropdownManagerBody');
+  if (!body) return;
+  body.innerHTML = Object.keys(IOT_DROPDOWN_CATEGORY_LABELS).map(cat => {
+    const base = IOT_DROPDOWN_DEFAULTS[cat] || [];
+    const custom = customDropdownOptions[cat] || [];
+    const chips = [
+      ...base.map(v => `<span class="dropdown-chip is-default" title="ตัวเลือกพื้นฐาน (ลบไม่ได้)">${v}</span>`),
+      ...custom.map(v => `<span class="dropdown-chip is-custom">${v} <button type="button" onclick="removeCustomDropdownOption('${cat}','${(v||'').replace(/'/g,"\'")}')" title="ลบตัวเลือกนี้">✕</button></span>`)
+    ].join('');
+    return `
+      <div class="dropdown-manager-cat">
+        <div class="dropdown-manager-cat-title">${IOT_DROPDOWN_CATEGORY_LABELS[cat]}</div>
+        <div class="dropdown-chips">${chips || '<span style="opacity:.5;">— ยังไม่มี —</span>'}</div>
+        <div class="dropdown-add-row">
+          <input type="text" id="dropdownAddInput_${cat}" placeholder="พิมพ์ตัวเลือกใหม่..." onkeydown="if(event.key==='Enter'){addDropdownOption('${cat}');}">
+          <button type="button" class="btn btn-brand btn-xs" onclick="addDropdownOption('${cat}')">+ เพิ่ม</button>
+        </div>
+      </div>`;
+  }).join('');
+}
 const IOT_TIME_HOURS = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, '0'));
 const IOT_TIME_MINUTES = ['00', '15', '30', '45'];
 
@@ -7026,13 +8646,13 @@ function iotPlanRowHtml(p, i) {
       <td>
         <select class="plan-status-select" onchange="updateIotPlanField('${p.id}','installTeam',this.value)">
           <option value="" ${!p.installTeam ? 'selected' : ''}>ยังไม่ระบุ</option>
-          ${IOT_INSTALL_TEAMS.map(t => `<option value="${t}" ${p.installTeam === t ? 'selected' : ''}>${t}</option>`).join('')}
+          ${getIotDropdownOptions('install_team').map(t => `<option value="${t}" ${p.installTeam === t ? 'selected' : ''}>${t}</option>`).join('')}
         </select>
       </td>
       <td>
         <select class="plan-status-select" onchange="updateIotPlanField('${p.id}','operatorName',this.value)">
           <option value="" ${!p.operatorName ? 'selected' : ''}>ยังไม่ระบุ</option>
-          ${IOT_OPERATORS.map(t => `<option value="${t}" ${p.operatorName === t ? 'selected' : ''}>${t}</option>`).join('')}
+          ${getIotDropdownOptions('operator').map(t => `<option value="${t}" ${p.operatorName === t ? 'selected' : ''}>${t}</option>`).join('')}
         </select>
       </td>
       <td>
@@ -7045,13 +8665,19 @@ function iotPlanRowHtml(p, i) {
       <td>
         <select class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','pumpType',this.value)">
           <option value="" ${!p.pumpType ? 'selected' : ''}>ยังไม่ระบุ</option>
-          ${IOT_PUMP_TYPES.map(t => `<option value="${t}" ${p.pumpType === t ? 'selected' : ''}>${t}</option>`).join('')}
+          ${getIotDropdownOptions('pump_type').map(t => `<option value="${t}" ${p.pumpType === t ? 'selected' : ''}>${t}</option>`).join('')}
         </select>
       </td>
       <td>
         <select class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','pipeSize',this.value)">
           <option value="" ${!p.pipeSize ? 'selected' : ''}>ยังไม่ระบุ</option>
-          ${IOT_PIPE_SIZES.map(t => `<option value="${t}" ${p.pipeSize === t ? 'selected' : ''}>${t}</option>`).join('')}
+          ${getIotDropdownOptions('pipe_size').map(t => `<option value="${t}" ${p.pipeSize === t ? 'selected' : ''}>${t}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <select class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','valveSize',this.value)">
+          <option value="" ${!p.valveSize ? 'selected' : ''}>ยังไม่ระบุ</option>
+          ${getIotDropdownOptions('valve_size').map(t => `<option value="${t}" ${p.valveSize === t ? 'selected' : ''}>${t}</option>`).join('')}
         </select>
       </td>
       <td>
@@ -7059,8 +8685,13 @@ function iotPlanRowHtml(p, i) {
           ? `<span class="plan-cell-dash" title="ตู้ไม่มีปุ่มกด ไม่ต้องเก็บเงิน">-</span>`
           : `<select class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','paymentStatus',this.value)">
               <option value="" ${!p.paymentStatus ? 'selected' : ''}>ยังไม่ระบุ</option>
-              ${IOT_PAYMENT_STATUSES.map(t => `<option value="${t}" ${p.paymentStatus === t ? 'selected' : ''}>${t}</option>`).join('')}
+              ${getIotDropdownOptions('payment_status').map(t => `<option value="${t}" ${p.paymentStatus === t ? 'selected' : ''}>${t}</option>`).join('')}
             </select>`}
+      </td>
+      <td>
+        ${p.boxType === 'no_button'
+          ? `<span class="plan-cell-dash" title="ตู้ไม่มีปุ่มกด ไม่ต้องเก็บเงิน">-</span>`
+          : `<input class="plan-note-input select-compact" type="number" min="0" step="1" inputmode="numeric" value="${p.paymentAmount === '' || p.paymentAmount === undefined || p.paymentAmount === null ? '' : String(p.paymentAmount).replace(/"/g,'&quot;')}" placeholder="บาท" style="width:88px;" oninput="updateIotPlanField('${p.id}','paymentAmount',this.value)">`}
       </td>
       <td>
         <input class="plan-note-input plan-map-input" type="text" value="${mapLinkSafe}" placeholder="วางลิงก์ Google Maps" oninput="updateIotPlanField('${p.id}','mapLink',this.value)">
@@ -7219,8 +8850,9 @@ function populateIotPlanBulkOperatorOptions() {
   const sel = document.getElementById('iotPlanBulkOperatorSelect');
   if (!sel) return;
   const current = sel.value;
-  sel.innerHTML = '<option value="">— เลือกผู้ดำเนินการ —</option>' + IOT_OPERATORS.map(o => `<option value="${o}">${o}</option>`).join('');
-  sel.value = IOT_OPERATORS.includes(current) ? current : '';
+  const ops = getIotDropdownOptions('operator');
+  sel.innerHTML = '<option value="">— เลือกผู้ดำเนินการ —</option>' + ops.map(o => `<option value="${o}">${o}</option>`).join('');
+  sel.value = ops.includes(current) ? current : '';
 }
 
 // นับจำนวนแถวที่ติ๊กเลือกไว้ตอนนี้ในตารางแผน แล้วอัปเดตข้อความในแถบ bulk-assign
@@ -7406,7 +9038,7 @@ function renderIotPlanFinalizedSection() {
   const theadRowHtml = `<tr>
       <th></th>
       <th>ลำดับ</th><th>นัดหมาย</th><th>วันที่ / เวลาติดตั้ง</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์ติดต่อ</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th>
-      <th>สถานะ</th><th>ทีมติดตั้ง</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>การชำระเงิน</th><th>ตำแหน่ง (Google Maps)</th><th>หมายเหตุ</th><th></th>
+      <th>สถานะ</th><th>ทีมติดตั้ง</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>ขนาดวาล์ว</th><th>การชำระเงิน</th><th>ยอดชำระ</th><th>ตำแหน่ง (Google Maps)</th><th>หมายเหตุ</th><th></th>
     </tr>`;
 
   const byProvince = {};
@@ -8030,12 +9662,21 @@ function populateIotPendingDocStatusOptions(rows) {
   sel.value = statusSet.has(prevValue) || prevValue === 'all' ? prevValue : 'all';
 }
 
-function renderIotFarmerMatchRows(rows, includeStatus, includeDocChecklist) {
-  const colCount = includeStatus ? (includeDocChecklist ? 13 : 12) : 11;
+function renderIotFarmerMatchRows(rows, includeStatus, includeDocChecklist, includePhotoBtn) {
+  let colCount = includeStatus ? (includeDocChecklist ? 13 : 12) : 11;
+  if (includePhotoBtn) colCount += 1;
   if (!rows.length) {
     return `<tr><td colspan="${colCount}" class="empty-state-cell"><span class="empty-icon">✨</span><span class="empty-text">ไม่มีรายการในหมวดนี้</span></td></tr>`;
   }
-  return rows.map((r, i) => `
+  return rows.map((r, i) => {
+    let photoCell = '';
+    if (includePhotoBtn) {
+      const nidSafe = (r.national_id || '').replace(/'/g, "\'");
+      const pr = fieldSubProgress(r.national_id);
+      const label = pr.driveSent ? '✅ Drive' : (pr.photos ? `📸 ${pr.photos}/4` : '📸 เพิ่มรูป');
+      photoCell = `<td>${r.national_id ? `<button type="button" class="btn btn-outline btn-xs" onclick="openFieldSubmission('${nidSafe}')" title="อัปโหลด/ตรวจรูป แล้วส่งเข้า Google Drive">${label}</button>` : '-'}</td>`;
+    }
+    return `
     <tr>
       <td>${i + 1}</td>
       <td>${r.prefix || ''}</td>
@@ -8050,8 +9691,10 @@ function renderIotFarmerMatchRows(rows, includeStatus, includeDocChecklist) {
       <td>${r.farm_subdistrict || ''}</td>
       ${includeStatus ? `<td>${getIotStatusDisplayHtml(r)}</td>` : ''}
       ${includeDocChecklist ? `<td>${getIotDocChecklistCellHtml(r)}</td>` : ''}
+      ${photoCell}
     </tr>
-  `).join('');
+  `;
+  }).join('');
 }
 
 // แคชผลลัพธ์การจัดหมวดล่าสุดไว้ ให้ช่องค้นหาแต่ละตารางกรองต่อได้โดยไม่ต้องคำนวณหมวดใหม่ทุกครั้งที่พิมพ์
@@ -8125,7 +9768,7 @@ function getFilteredIotPendingDoc() {
 
 function applyIotMatchPendingDocSearch() {
   const filtered = getFilteredIotPendingDoc();
-  document.getElementById('iotMatchPendingDocTbody').innerHTML = renderIotFarmerMatchRows(filtered, true, true);
+  document.getElementById('iotMatchPendingDocTbody').innerHTML = renderIotFarmerMatchRows(filtered, true, true, true);
 }
 
 // ส่งออก Excel เฉพาะรายการที่ตรงกับตัวกรองที่เลือกอยู่ตอนนี้ (ค้นหา/ครบไม่ครบ/สถานะ) ไม่ใช่ทั้งหมดเสมอไป
@@ -8539,14 +10182,16 @@ function exportIotPlanExcel() {
     'ประเภทตู้': p.boxType ? IOT_BOX_TYPE_LABELS[p.boxType] : '',
     'ปั๊มน้ำ': p.pumpType || '',
     'ขนาดท่อ': p.pipeSize || '',
+    'ขนาดวาล์ว': p.valveSize || '',
     'การชำระเงิน': p.boxType === 'no_button' ? '-' : (p.paymentStatus || ''),
+    'ยอดชำระ (บาท)': p.boxType === 'no_button' ? '-' : ((p.paymentAmount === '' || p.paymentAmount === undefined || p.paymentAmount === null) ? '' : Number(p.paymentAmount)),
     'ตำแหน่ง (Google Maps)': p.mapLink || '',
     'หมายเหตุ': p.note || ''
   }));
   const ws = XLSX.utils.json_to_sheet(data);
   prettifyExcelSheet(ws, data);
 
-  const mapLinkColIndex = 15;
+  const mapLinkColIndex = 17;
   sortedPlan.forEach((p, i) => {
     if (p.mapLink) {
       const cellRef = XLSX.utils.encode_cell({ r: i + 1, c: mapLinkColIndex });
@@ -8582,12 +10227,13 @@ function buildIotPlanTeamSectionHtml(items, teamName) {
       </div>
       <table class="pdf-table">
         <colgroup>
-          <col style="width:3%;"><col style="width:13%;"><col style="width:9%;"><col style="width:13%;">
-          <col style="width:8%;"><col style="width:7%;"><col style="width:8%;"><col style="width:5%;">
-          <col style="width:7%;"><col style="width:6%;"><col style="width:7%;"><col style="width:14%;">
+          <col style="width:3%;"><col style="width:12%;"><col style="width:8%;"><col style="width:12%;">
+          <col style="width:7%;"><col style="width:6%;"><col style="width:7%;"><col style="width:5%;">
+          <col style="width:5%;"><col style="width:6%;"><col style="width:5%;"><col style="width:5%;">
+          <col style="width:6%;"><col style="width:13%;">
         </colgroup>
         <thead>
-          <tr><th>#</th><th>ชื่อ-นามสกุล</th><th>เบอร์ติดต่อ</th><th>พื้นที่ (จังหวัด/อำเภอ/ตำบล)</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>การชำระเงิน</th><th>พิกัด</th><th>สถานะ</th><th>หมายเหตุ</th></tr>
+          <tr><th>#</th><th>ชื่อ-นามสกุล</th><th>เบอร์ติดต่อ</th><th>พื้นที่ (จังหวัด/อำเภอ/ตำบล)</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>ขนาดวาล์ว</th><th>การชำระเงิน</th><th>ยอดชำระ</th><th>พิกัด</th><th>สถานะ</th><th>หมายเหตุ</th></tr>
         </thead>
         <tbody>
           ${g.items.map((p, i) => {
@@ -8602,7 +10248,9 @@ function buildIotPlanTeamSectionHtml(items, teamName) {
               <td>${p.boxType ? IOT_BOX_TYPE_LABELS[p.boxType] : '-'}</td>
               <td>${p.pumpType || '-'}</td>
               <td>${p.pipeSize || '-'}</td>
+              <td>${p.valveSize || '-'}</td>
               <td>${p.boxType === 'no_button' ? '-' : (p.paymentStatus || '-')}</td>
+              <td>${p.boxType === 'no_button' ? '-' : ((p.paymentAmount === '' || p.paymentAmount === undefined || p.paymentAmount === null) ? '-' : Number(p.paymentAmount).toLocaleString())}</td>
               <td class="pdf-loc-cell">${p.mapLink ? '<span class="pdf-loc-badge has-loc">มีพิกัด</span>' : '<span class="pdf-loc-badge no-loc">-</span>'}</td>
               <td><span class="pdf-status-badge status-${p.status || 'pending'}">${IOT_PLAN_STATUS_LABELS[p.status || 'pending']}</span></td>
               <td>${p.note || '-'}</td>
@@ -8733,14 +10381,16 @@ function exportIotPlanFinalizedExcel() {
     'ประเภทตู้': p.boxType ? IOT_BOX_TYPE_LABELS[p.boxType] : '',
     'ปั๊มน้ำ': p.pumpType || '',
     'ขนาดท่อ': p.pipeSize || '',
+    'ขนาดวาล์ว': p.valveSize || '',
     'การชำระเงิน': p.boxType === 'no_button' ? '-' : (p.paymentStatus || ''),
+    'ยอดชำระ (บาท)': p.boxType === 'no_button' ? '-' : ((p.paymentAmount === '' || p.paymentAmount === undefined || p.paymentAmount === null) ? '' : Number(p.paymentAmount)),
     'ตำแหน่ง (Google Maps)': p.mapLink || '',
     'หมายเหตุ': p.note || ''
   }));
   const ws = XLSX.utils.json_to_sheet(data);
   prettifyExcelSheet(ws, data);
 
-  const mapLinkColIndex = 15;
+  const mapLinkColIndex = 17;
   sortedPlan.forEach((p, i) => {
     if (p.mapLink) {
       const cellRef = XLSX.utils.encode_cell({ r: i + 1, c: mapLinkColIndex });
@@ -8809,6 +10459,18 @@ document.getElementById('iotPlanFinalizedFilterProvince').addEventListener('chan
 document.getElementById('iotPlanFinalizedFilterDistrict').addEventListener('change', onIotPlanFinalizedFilterDistrictChange);
 document.getElementById('iotPlanFinalizedFilterSubdistrict').addEventListener('change', renderIotPlanFinalizedSection);
 document.getElementById('iotPlanFinalizedFilterSearch').addEventListener('input', renderIotPlanFinalizedSection);
+
+document.getElementById('trainingConfirmFilterProvince').addEventListener('change', onTrainingConfirmFilterProvinceChange);
+document.getElementById('trainingConfirmFilterDistrict').addEventListener('change', onTrainingConfirmFilterDistrictChange);
+document.getElementById('trainingConfirmFilterSubdistrict').addEventListener('change', renderTrainingConfirmTab);
+document.getElementById('trainingConfirmFilterStatus').addEventListener('change', renderTrainingConfirmTab);
+document.getElementById('trainingConfirmFilterSearch').addEventListener('input', renderTrainingConfirmTab);
+
+document.getElementById('instFilterDistrict').addEventListener('change', () => { populateInstallerFilters(); renderInstallerView(); });
+document.getElementById('instFilterSubdistrict').addEventListener('change', renderInstallerView);
+document.getElementById('instFilterWeek').addEventListener('change', renderInstallerView);
+document.getElementById('instFilterStatus').addEventListener('change', renderInstallerView);
+document.getElementById('instFilterSearch').addEventListener('input', renderInstallerView);
 
 loadPlanFromStorage();
 loadIotPlanFromStorage();
