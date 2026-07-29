@@ -3259,6 +3259,7 @@ function renderFieldSubmissionModal(nid) {
       <div class="fs-plot-row" style="margin-top:8px;">
         <button type="button" class="btn btn-brand" onclick="sendSubmissionToDrive('${idSafe}')">☁️ ส่งเข้า Google Drive</button>
         ${r.drive_folder_url ? `<a href="${(r.drive_folder_url || '').replace(/"/g, '&quot;')}" target="_blank" rel="noopener" class="btn btn-outline">📂 เปิดโฟลเดอร์ใน Drive</a>` : ''}
+        ${(isMasterUser && r.drive_sent_at) ? `<button type="button" class="fs-del-btn" onclick="fieldSubResetDrive('${idSafe}')">🗑️ ล้างสถานะส่ง Drive (master)</button>` : ''}
       </div>
       ${r.drive_sent_at ? `<div class="fs-hint" style="color:#16a34a;">✅ ส่งเข้า Drive ล่าสุด: ${formatDateTimeThai(r.drive_sent_at)}</div>` : ''}
     </div>` : ''}
@@ -3471,6 +3472,16 @@ async function sendSubmissionToDrive(nid) {
     showToast('ส่งเข้า Drive ไม่สำเร็จ: ' + (e.message || e), 'warn');
   }
 }
+
+// ===== master ล้างสถานะ "ส่งเข้า Drive" (เผื่อ test แล้วอยากส่งใหม่) =====
+async function fieldSubResetDrive(nid) {
+  if (!isMasterUser) { showToast('เฉพาะ master เท่านั้นที่ล้างสถานะได้', 'warn'); return; }
+  const ok = await showConfirmModal('ล้างสถานะ "ส่งเข้า Drive" ของรายนี้ออกใช่ไหม?\n(ไฟล์ที่อยู่ใน Drive แล้วจะไม่ถูกลบ — แค่ล้างสถานะในระบบให้กดส่งใหม่ได้)');
+  if (!ok) return;
+  await fieldSubSave(nid, { drive_sent_at: null, drive_folder_url: null });
+  showToast('ล้างสถานะส่ง Drive แล้ว — กดส่งใหม่ได้', 'success');
+}
+
 function installerSetStatus(id, value) {
   const e = installerFindJob(id); if (!e) return;
   e.status = value; saveIotPlanToStorage(); renderInstallerView(); installerSyncJob(e);
