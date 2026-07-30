@@ -1617,7 +1617,7 @@
             <tr>
               <th><input type="checkbox" id="iotPlanBulkSelectAllHeader" onchange="toggleSelectAllIotPlanRows()" title="เลือกทั้งหมด"></th>
               <th>ลำดับ</th><th>นัดหมาย</th><th>วันที่ / เวลาติดตั้ง</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์ติดต่อ</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th>
-              <th>สถานะ</th><th>ทีมติดตั้ง</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>ขนาดวาล์ว</th><th>การชำระเงิน</th><th>ยอดชำระ</th><th>ตำแหน่ง (Google Maps)</th><th>หมายเหตุ</th><th></th>
+              <th>สถานะ</th><th>ทีมติดตั้ง</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>ขนาดวาล์ว</th><th>แหล่งน้ำ</th><th>รูปแบบการให้น้ำ</th><th>การชำระเงิน</th><th>ยอดชำระ</th><th>ตำแหน่ง (Google Maps)</th><th>หมายเหตุ</th><th></th>
             </tr>
           </thead>
           <tbody id="iotPlanTbody"></tbody>
@@ -3003,13 +3003,13 @@ function installerJobCardHtml(p) {
           </select>
         </label>
         <label>ปั๊มน้ำ
-          <select onchange="installerSetEquip('${idSafe}','pumpType',this.value)"><option value="" ${!p.pumpType?'selected':''}>ยังไม่ระบุ</option>${getIotDropdownOptions('pump_type').map(t=>`<option value="${t}" ${p.pumpType===t?'selected':''}>${t}</option>`).join('')}</select>
+          <select data-dropcat="pump_type" onchange="installerSetEquip('${idSafe}','pumpType',this.value)"><option value="" ${!p.pumpType?'selected':''}>ยังไม่ระบุ</option>${getIotDropdownOptions('pump_type').map(t=>`<option value="${t}" ${p.pumpType===t?'selected':''}>${t}</option>`).join('')}</select>
         </label>
         <label>ขนาดท่อ
-          <select onchange="installerSetEquip('${idSafe}','pipeSize',this.value)"><option value="" ${!p.pipeSize?'selected':''}>ยังไม่ระบุ</option>${getIotDropdownOptions('pipe_size').map(t=>`<option value="${t}" ${p.pipeSize===t?'selected':''}>${t}</option>`).join('')}</select>
+          <select data-dropcat="pipe_size" onchange="installerSetEquip('${idSafe}','pipeSize',this.value)"><option value="" ${!p.pipeSize?'selected':''}>ยังไม่ระบุ</option>${getIotDropdownOptions('pipe_size').map(t=>`<option value="${t}" ${p.pipeSize===t?'selected':''}>${t}</option>`).join('')}</select>
         </label>
         <label>ขนาดวาล์ว
-          <select onchange="installerSetEquip('${idSafe}','valveSize',this.value)"><option value="" ${!p.valveSize?'selected':''}>ยังไม่ระบุ</option>${getIotDropdownOptions('valve_size').map(t=>`<option value="${t}" ${p.valveSize===t?'selected':''}>${t}</option>`).join('')}</select>
+          <select data-dropcat="valve_size" onchange="installerSetEquip('${idSafe}','valveSize',this.value)"><option value="" ${!p.valveSize?'selected':''}>ยังไม่ระบุ</option>${getIotDropdownOptions('valve_size').map(t=>`<option value="${t}" ${p.valveSize===t?'selected':''}>${t}</option>`).join('')}</select>
         </label>
         ${p.boxType === 'no_button' ? '' : `
         <label class="inst-pay-check"><input type="checkbox" ${paid?'checked':''} onchange="installerSetPaid('${idSafe}',this.checked)"> เก็บเงินแล้ว</label>
@@ -4964,7 +4964,7 @@ async function loadIotLegacyPendingMap() {
   while (true) {
     const { data, error } = await supabaseClient
       .from('iot_farmers_legacy')
-      .select('reference_id, base_code, base_code_no, first_name, last_name, phone, water_pump, pipe_size, payment_status, document_status, photo1_status, photo2_status, photo3_status, photo4_status, handover_video_status, plot_location')
+      .select('reference_id, base_code, base_code_no, first_name, last_name, phone, water_pump, pipe_size, water_source, irrigation_type, payment_status, document_status, photo1_status, photo2_status, photo3_status, photo4_status, handover_video_status, plot_location')
       .not('base_code_no', 'is', null)
       .range(from, from + pageSize - 1);
     if (error) {
@@ -4984,6 +4984,8 @@ async function loadIotLegacyPendingMap() {
       base_code_no: (r.base_code_no === null || r.base_code_no === undefined) ? null : r.base_code_no,
       water_pump: r.water_pump || '',
       pipe_size: r.pipe_size || '',
+      water_source: r.water_source || '',
+      irrigation_type: r.irrigation_type || '',
       payment_status: r.payment_status || '',
       document_status: r.document_status || '',
       photo1_status: r.photo1_status || '',
@@ -6546,10 +6548,10 @@ function iotMapDetailEditorInner(nid) {
         </select>
       </label>
       <label>ทีมติดตั้ง
-        <select onchange="updateIotPlanField('${eid}','installTeam',this.value)"><option value="" ${!entry.installTeam?'selected':''}>ยังไม่ระบุ</option>${opt('install_team', entry.installTeam)}</select>
+        <select data-dropcat="install_team" onchange="updateIotPlanField('${eid}','installTeam',this.value)"><option value="" ${!entry.installTeam?'selected':''}>ยังไม่ระบุ</option>${opt('install_team', entry.installTeam)}</select>
       </label>
       <label>ผู้ดำเนินการ
-        <select onchange="updateIotPlanField('${eid}','operatorName',this.value)"><option value="" ${!entry.operatorName?'selected':''}>ยังไม่ระบุ</option>${opt('operator', entry.operatorName)}</select>
+        <select data-dropcat="operator" onchange="updateIotPlanField('${eid}','operatorName',this.value)"><option value="" ${!entry.operatorName?'selected':''}>ยังไม่ระบุ</option>${opt('operator', entry.operatorName)}</select>
       </label>
       <label>รูปแบบตู้
         <select onchange="updateIotPlanFieldFromMap('${eid}','boxType',this.value,'${nidSafe}')">
@@ -6559,17 +6561,23 @@ function iotMapDetailEditorInner(nid) {
         </select>
       </label>
       <label>ปั๊มน้ำ
-        <select onchange="updateIotPlanField('${eid}','pumpType',this.value)"><option value="" ${!entry.pumpType?'selected':''}>ยังไม่ระบุ</option>${opt('pump_type', entry.pumpType)}</select>
+        <select data-dropcat="pump_type" onchange="updateIotPlanField('${eid}','pumpType',this.value)"><option value="" ${!entry.pumpType?'selected':''}>ยังไม่ระบุ</option>${opt('pump_type', entry.pumpType)}</select>
       </label>
       <label>ขนาดท่อ
-        <select onchange="updateIotPlanField('${eid}','pipeSize',this.value)"><option value="" ${!entry.pipeSize?'selected':''}>ยังไม่ระบุ</option>${opt('pipe_size', entry.pipeSize)}</select>
+        <select data-dropcat="pipe_size" onchange="updateIotPlanField('${eid}','pipeSize',this.value)"><option value="" ${!entry.pipeSize?'selected':''}>ยังไม่ระบุ</option>${opt('pipe_size', entry.pipeSize)}</select>
       </label>
       <label>ขนาดวาล์ว
-        <select onchange="updateIotPlanField('${eid}','valveSize',this.value)"><option value="" ${!entry.valveSize?'selected':''}>ยังไม่ระบุ</option>${opt('valve_size', entry.valveSize)}</select>
+        <select data-dropcat="valve_size" onchange="updateIotPlanField('${eid}','valveSize',this.value)"><option value="" ${!entry.valveSize?'selected':''}>ยังไม่ระบุ</option>${opt('valve_size', entry.valveSize)}</select>
+      </label>
+      <label>แหล่งน้ำ
+        <select data-dropcat="water_source" onchange="updateIotPlanField('${eid}','waterSource',this.value)"><option value="">ยังไม่ระบุ</option>${iotSelectOptionsHtml('water_source', planWaterVal(entry))}</select>
+      </label>
+      <label>รูปแบบการให้น้ำ
+        <select data-dropcat="irrigation_type" onchange="updateIotPlanField('${eid}','irrigationType',this.value)"><option value="">ยังไม่ระบุ</option>${iotSelectOptionsHtml('irrigation_type', planIrrigationVal(entry))}</select>
       </label>
       ${entry.boxType === 'no_button' ? '' : `
       <label>การชำระเงิน
-        <select onchange="updateIotPlanField('${eid}','paymentStatus',this.value)"><option value="" ${!entry.paymentStatus?'selected':''}>ยังไม่ระบุ</option>${opt('payment_status', entry.paymentStatus)}</select>
+        <select data-dropcat="payment_status" onchange="updateIotPlanField('${eid}','paymentStatus',this.value)"><option value="" ${!entry.paymentStatus?'selected':''}>ยังไม่ระบุ</option>${opt('payment_status', entry.paymentStatus)}</select>
       </label>
       <label>ยอดชำระ (บาท)
         <input type="number" min="0" step="1" inputmode="numeric" value="${amountVal}" placeholder="บาท" oninput="updateIotPlanField('${eid}','paymentAmount',this.value)">
@@ -8131,6 +8139,8 @@ function loadIotPlanFromStorage() {
     if (p.installTeam === undefined) { migrated = true; p.installTeam = ''; }
     if (p.planFinalized === undefined) { migrated = true; p.planFinalized = false; }
     if (p.valveSize === undefined) { migrated = true; p.valveSize = ''; }
+    if (p.waterSource === undefined) { migrated = true; p.waterSource = ''; }
+    if (p.irrigationType === undefined) { migrated = true; p.irrigationType = ''; }
     if (p.paymentAmount === undefined) { migrated = true; p.paymentAmount = ''; }
   });
   if (migrated) saveIotPlanToStorage();
@@ -8160,6 +8170,8 @@ function iotPlanEntryToSupabaseRow(entry) {
     pump_type: entry.pumpType || null,
     pipe_size: entry.pipeSize || null,
     valve_size: entry.valveSize || null,
+    water_source: entry.waterSource || null,
+    irrigation_type: entry.irrigationType || null,
     payment_status: entry.paymentStatus || null,
     payment_amount: (entry.paymentAmount === '' || entry.paymentAmount === undefined || entry.paymentAmount === null) ? null : Number(entry.paymentAmount),
     map_link: entry.mapLink || null,
@@ -8236,6 +8248,8 @@ async function syncIotPlanFromSupabase(opts) {
         pumpType: row.pump_type || '',
         pipeSize: row.pipe_size || '',
         valveSize: row.valve_size || '',
+        waterSource: row.water_source || '',
+        irrigationType: row.irrigation_type || '',
         paymentStatus: row.payment_status || '',
         paymentAmount: (row.payment_amount === null || row.payment_amount === undefined) ? '' : String(row.payment_amount),
         mapLink: row.map_link || '',
@@ -8278,6 +8292,8 @@ function addPersonToIotPlan(p) {
     pumpType: '',
     pipeSize: '',
     valveSize: '',
+    waterSource: '',
+    irrigationType: '',
     paymentStatus: '',
     paymentAmount: '',
     mapLink: '',
@@ -8366,6 +8382,8 @@ const IOT_PIPE_SIZES = ['1 นิ้ว', '2 นิ้ว', '3 นิ้ว'];
 const IOT_PAYMENT_STATUSES = ['ชำระแล้ว', 'ยังไม่ชำระ'];
 const IOT_OPERATORS = ['Admin', 'นพดล']; // รายชื่อผู้ดำเนินการสำเร็จรูป แก้/เพิ่มชื่อได้ตรงนี้
 const IOT_VALVE_SIZES = ['1/2 นิ้ว', '1 นิ้ว', '2 นิ้ว']; // ขนาดวาล์วพื้นฐาน (เพิ่มเองได้ผ่านหน้าเว็บ)
+const IOT_WATER_SOURCES = ['บ่อน้ำ', 'ถังเก็บน้ำ', 'บ่อบาดาล', 'ไม่มีแหล่งน้ำ']; // แหล่งน้ำพื้นฐาน (เพิ่มเองได้)
+const IOT_IRRIGATION_TYPES = ['ระบบสปริงเกอร์', 'ระบบน้ำหยด', 'สายยาง', 'ไม่มีระบบน้ำ']; // รูปแบบการให้น้ำพื้นฐาน (เพิ่มเองได้)
 
 // ===== ดรอปดาวน์ที่เพิ่มตัวเลือกเองได้ (เก็บตัวเลือกที่เพิ่มใหม่ลง Supabase ตาราง dropdown_options) =====
 // ตัวเลือกพื้นฐาน (default) ยังฝังในโค้ด ตารางฐานข้อมูลเก็บเฉพาะที่แอดมินเพิ่มเข้ามาใหม่ -> รายการที่ใช้จริง = default + ที่เพิ่ม
@@ -8373,15 +8391,18 @@ const IOT_DROPDOWN_DEFAULTS = {
   pump_type: IOT_PUMP_TYPES,
   pipe_size: IOT_PIPE_SIZES,
   valve_size: IOT_VALVE_SIZES,
+  water_source: IOT_WATER_SOURCES,
+  irrigation_type: IOT_IRRIGATION_TYPES,
   payment_status: IOT_PAYMENT_STATUSES,
   install_team: IOT_INSTALL_TEAMS,
   operator: IOT_OPERATORS
 };
 const IOT_DROPDOWN_CATEGORY_LABELS = {
   pump_type: 'ปั๊มน้ำ', pipe_size: 'ขนาดท่อ', valve_size: 'ขนาดวาล์ว',
+  water_source: 'แหล่งน้ำ', irrigation_type: 'รูปแบบการให้น้ำ',
   payment_status: 'การชำระเงิน', install_team: 'ทีมติดตั้ง', operator: 'ผู้ดำเนินการ'
 };
-let customDropdownOptions = { pump_type: [], pipe_size: [], valve_size: [], payment_status: [], install_team: [], operator: [] };
+let customDropdownOptions = { pump_type: [], pipe_size: [], valve_size: [], water_source: [], irrigation_type: [], payment_status: [], install_team: [], operator: [] };
 
 // รายการตัวเลือกที่ใช้จริงของหมวดนั้น = ตัวเลือกพื้นฐาน + ที่แอดมินเพิ่ม (ตัดซ้ำ คงลำดับ)
 function getIotDropdownOptions(category) {
@@ -8390,12 +8411,42 @@ function getIotDropdownOptions(category) {
   return [...base, ...custom].filter((v, i, a) => a.indexOf(v) === i);
 }
 
+// ===== แหล่งน้ำ / รูปแบบการให้น้ำ: ดึงค่าจากชีต (iot_farmers / iot_farmers_legacy) มาเป็นค่าเริ่มต้น =====
+let _iotNidIndex = null, _iotNidIndexLen = -1;
+function _iotRowByNid(nid) {
+  if (typeof allIotRows === 'undefined' || !allIotRows) return null;
+  if (!_iotNidIndex || _iotNidIndexLen !== allIotRows.length) {
+    _iotNidIndex = new Map();
+    allIotRows.forEach(r => { if (r.national_id) _iotNidIndex.set(r.national_id, r); });
+    _iotNidIndexLen = allIotRows.length;
+  }
+  return _iotNidIndex.get(nid) || null;
+}
+function getPlanWaterDefaults(nid) {
+  const r = _iotRowByNid(nid);
+  if (!r) return { water: '', irr: '' };
+  let w = r.water_source || '', ir = r.irrigation_type || '';
+  const rec = (r.reference_id && typeof iotLegacyByRefId !== 'undefined') ? iotLegacyByRefId.get(r.reference_id) : null;
+  if (rec) { w = w || rec.water_source || ''; ir = ir || rec.irrigation_type || ''; }
+  return { water: w, irr: ir };
+}
+// ค่าที่จะแสดง/ส่งออก = ค่าที่แอดมินเลือกไว้ในแผน ถ้ายังไม่เลือก ใช้ค่าจากชีต
+function planWaterVal(p) { return (p && p.waterSource) ? p.waterSource : getPlanWaterDefaults(p ? p.nationalId : '').water || ''; }
+function planIrrigationVal(p) { return (p && p.irrigationType) ? p.irrigationType : getPlanWaterDefaults(p ? p.nationalId : '').irr || ''; }
+// สร้าง <option> รายการ + กันกรณีค่าปัจจุบัน (จากชีต) ไม่อยู่ในตัวเลือกพื้นฐาน ให้ยังโชว์ได้
+function iotSelectOptionsHtml(category, cur) {
+  const list = getIotDropdownOptions(category); const c = cur || ''; let h = '';
+  if (c && list.indexOf(c) < 0) h += `<option value="${c.replace(/"/g, '&quot;')}" selected>${c}</option>`;
+  h += list.map(t => `<option value="${t.replace(/"/g, '&quot;')}" ${c === t ? 'selected' : ''}>${t}</option>`).join('');
+  return h;
+}
+
 async function loadDropdownOptions() {
   if (!supabaseClient) return;
   try {
     const { data, error } = await supabaseClient.from('dropdown_options').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: true });
     if (error) { console.warn('โหลดตัวเลือกดรอปดาวน์ไม่สำเร็จ:', error.message); return; }
-    const next = { pump_type: [], pipe_size: [], valve_size: [], payment_status: [], install_team: [], operator: [] };
+    const next = { pump_type: [], pipe_size: [], valve_size: [], water_source: [], irrigation_type: [], payment_status: [], install_team: [], operator: [] };
     (data || []).forEach(row => {
       if (next[row.category] && row.value && !next[row.category].includes(row.value)) next[row.category].push(row.value);
     });
@@ -8474,6 +8525,128 @@ function renderDropdownManager() {
       </div>`;
   }).join('');
 }
+
+// ===== เพิ่มตัวเลือกดรอปดาวน์ได้จากในช่องเลือกเลย (แบบ Google Sheet) =====
+const ADD_OPT_SENTINEL = '__ADDOPT__';
+function canAddDropdownOption() { return !isReadOnlyUser; }
+
+// เติมตัวเลือก "➕ เพิ่มตัวเลือกใหม่…" ท้ายดรอปดาวน์ (เฉพาะ select ที่มี data-dropcat)
+function ensureAddOptionItem(sel) {
+  if (!sel || sel.dataset.addoptDone === '1') return;
+  if (!canAddDropdownOption()) return;
+  const o = document.createElement('option');
+  o.value = ADD_OPT_SENTINEL;
+  o.textContent = '➕ เพิ่มตัวเลือกใหม่…';
+  o.className = 'opt-addnew';
+  sel.appendChild(o);
+  sel.dataset.addoptDone = '1';
+}
+function enhanceAddOptionSelects(root) {
+  (root || document).querySelectorAll('select[data-dropcat]:not([data-addopt-done="1"])').forEach(ensureAddOptionItem);
+}
+// วาดตัวเลือกในดรอปดาวน์ตัวนั้นใหม่ (หลังเพิ่มตัวเลือกใหม่) โดยคงตัวเลือกว่างไว้ + เติมปุ่ม ➕ กลับ
+function refillDropdownSelect(sel, category) {
+  const cur = sel.dataset.prevval || '';
+  [...sel.options].forEach(o => { if (o.value !== '') sel.removeChild(o); });
+  getIotDropdownOptions(category).forEach(t => {
+    const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o);
+  });
+  sel.dataset.addoptDone = '';
+  ensureAddOptionItem(sel);
+  sel.value = cur;
+}
+
+// บันทึกตัวเลือกใหม่ได้หลายตัวพร้อมกัน (คั่นด้วยขึ้นบรรทัดใหม่ หรือ , ) -> คืน array ที่เพิ่มจริง
+async function saveNewDropdownOptions(category, raw) {
+  const parts = (raw || '').split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+  const seen = {}; const uniq = [];
+  parts.forEach(v => { if (!seen[v]) { seen[v] = 1; uniq.push(v); } });
+  const existing = getIotDropdownOptions(category);
+  const toAdd = uniq.filter(v => !existing.includes(v));
+  if (!toAdd.length) { showToast('ไม่มีตัวเลือกใหม่ (ซ้ำหรือว่าง)', 'info'); return []; }
+  customDropdownOptions[category] = [...(customDropdownOptions[category] || []), ...toAdd];
+  if (supabaseClient) {
+    const baseLen = (IOT_DROPDOWN_DEFAULTS[category] || []).length;
+    const rows = toAdd.map(v => ({ category, value: v, sort_order: baseLen + customDropdownOptions[category].indexOf(v), created_by: currentUserName || null }));
+    const { error } = await supabaseClient.from('dropdown_options').upsert(rows, { onConflict: 'category,value' });
+    if (error) showToast('บันทึกขึ้นระบบไม่สำเร็จ: ' + error.message + ' (รัน dropdown_options_setup.sql แล้วหรือยัง?)', 'warn');
+    else showToast(`เพิ่ม ${toAdd.length} ตัวเลือกใน "${IOT_DROPDOWN_CATEGORY_LABELS[category] || category}" แล้ว`, 'success');
+  }
+  return toAdd;
+}
+
+// กล่องกรอกตัวเลือกใหม่ (พิมพ์ได้หลายตัว) -> คืน string หรือ null ถ้ายกเลิก
+function promptAddDropdownOptions(catLabel) {
+  return new Promise(resolve => {
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;';
+    const box = document.createElement('div');
+    box.style.cssText = 'background:#fff;border-radius:14px;max-width:440px;width:100%;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.25);font-family:inherit;';
+    box.innerHTML =
+      '<h4 style="margin:0 0 6px;color:#1f6f3d;">➕ เพิ่มตัวเลือกใหม่ — ' + (catLabel || '') + '</h4>' +
+      '<div style="font-size:13px;color:#666;margin-bottom:10px;">พิมพ์ได้หลายตัว — ขึ้นบรรทัดใหม่ หรือคั่นด้วยเครื่องหมายจุลภาค ( , )</div>' +
+      '<textarea rows="4" style="width:100%;box-sizing:border-box;border:1px solid #ccc;border-radius:8px;padding:8px;font-family:inherit;font-size:14px;" placeholder="เช่น&#10;ปั๊มซัมเมอร์ส 2 นิ้ว&#10;ปั๊มหอยโข่ง 3 แรง"></textarea>' +
+      '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;"><button type="button" class="btn btn-outline" data-act="cancel">ยกเลิก</button><button type="button" class="btn btn-brand" data-act="save">บันทึก</button></div>';
+    ov.appendChild(box); document.body.appendChild(ov);
+    const ta = box.querySelector('textarea');
+    const done = v => { if (ov.parentNode) ov.parentNode.removeChild(ov); resolve(v); };
+    box.querySelector('[data-act="cancel"]').onclick = () => done(null);
+    box.querySelector('[data-act="save"]').onclick = () => done(ta.value);
+    ov.addEventListener('click', e => { if (e.target === ov) done(null); });
+    ta.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.preventDefault(); done(null); }
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); done(ta.value); }
+    });
+    setTimeout(() => ta.focus(), 30);
+  });
+}
+
+async function openAddOptionModal(category, triggerEl) {
+  if (!canAddDropdownOption()) { showToast('บัญชีนี้ดูได้อย่างเดียว เพิ่มตัวเลือกไม่ได้ครับ', 'warn'); return; }
+  const raw = await promptAddDropdownOptions(IOT_DROPDOWN_CATEGORY_LABELS[category] || category);
+  if (raw == null) return;
+  const added = await saveNewDropdownOptions(category, raw);
+  if (added && added.length && triggerEl && document.contains(triggerEl)) {
+    refillDropdownSelect(triggerEl, category);
+    triggerEl.value = added[0];
+    triggerEl.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  if (typeof renderDropdownManager === 'function') renderDropdownManager();
+}
+
+// จำค่าก่อนเปลี่ยน + ดักเมื่อผู้ใช้เลือก "➕ เพิ่มตัวเลือกใหม่…"
+(function initAddOptionInterceptors() {
+  const rememberPrev = e => {
+    const el = e.target;
+    if (el && el.tagName === 'SELECT' && el.dataset && el.dataset.dropcat) el.dataset.prevval = el.value;
+  };
+  document.addEventListener('focus', rememberPrev, true);
+  document.addEventListener('mousedown', rememberPrev, true);
+  document.addEventListener('change', function (e) {
+    const el = e.target;
+    if (el && el.tagName === 'SELECT' && el.dataset && el.dataset.dropcat && el.value === ADD_OPT_SENTINEL) {
+      e.stopPropagation();
+      if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+      const cat = el.dataset.dropcat;
+      el.value = el.dataset.prevval || '';
+      openAddOptionModal(cat, el);
+    }
+  }, true);
+  try {
+    const obs = new MutationObserver(muts => {
+      for (const m of muts) {
+        (m.addedNodes || []).forEach(n => {
+          if (n.nodeType !== 1) return;
+          if (n.matches && n.matches('select[data-dropcat]')) ensureAddOptionItem(n);
+          if (n.querySelectorAll) n.querySelectorAll('select[data-dropcat]').forEach(ensureAddOptionItem);
+        });
+      }
+    });
+    const start = () => { if (document.body) { obs.observe(document.body, { childList: true, subtree: true }); enhanceAddOptionSelects(); } };
+    if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+  } catch (e) { console.warn('addopt observer', e); }
+})();
+
 const IOT_TIME_HOURS = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, '0'));
 const IOT_TIME_MINUTES = ['00', '15', '30', '45'];
 
@@ -8655,13 +8828,13 @@ function iotPlanRowHtml(p, i) {
         </select>
       </td>
       <td>
-        <select class="plan-status-select" onchange="updateIotPlanField('${p.id}','installTeam',this.value)">
+        <select data-dropcat="install_team" class="plan-status-select" onchange="updateIotPlanField('${p.id}','installTeam',this.value)">
           <option value="" ${!p.installTeam ? 'selected' : ''}>ยังไม่ระบุ</option>
           ${getIotDropdownOptions('install_team').map(t => `<option value="${t}" ${p.installTeam === t ? 'selected' : ''}>${t}</option>`).join('')}
         </select>
       </td>
       <td>
-        <select class="plan-status-select" onchange="updateIotPlanField('${p.id}','operatorName',this.value)">
+        <select data-dropcat="operator" class="plan-status-select" onchange="updateIotPlanField('${p.id}','operatorName',this.value)">
           <option value="" ${!p.operatorName ? 'selected' : ''}>ยังไม่ระบุ</option>
           ${getIotDropdownOptions('operator').map(t => `<option value="${t}" ${p.operatorName === t ? 'selected' : ''}>${t}</option>`).join('')}
         </select>
@@ -8674,27 +8847,39 @@ function iotPlanRowHtml(p, i) {
         </select>
       </td>
       <td>
-        <select class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','pumpType',this.value)">
+        <select data-dropcat="pump_type" class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','pumpType',this.value)">
           <option value="" ${!p.pumpType ? 'selected' : ''}>ยังไม่ระบุ</option>
           ${getIotDropdownOptions('pump_type').map(t => `<option value="${t}" ${p.pumpType === t ? 'selected' : ''}>${t}</option>`).join('')}
         </select>
       </td>
       <td>
-        <select class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','pipeSize',this.value)">
+        <select data-dropcat="pipe_size" class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','pipeSize',this.value)">
           <option value="" ${!p.pipeSize ? 'selected' : ''}>ยังไม่ระบุ</option>
           ${getIotDropdownOptions('pipe_size').map(t => `<option value="${t}" ${p.pipeSize === t ? 'selected' : ''}>${t}</option>`).join('')}
         </select>
       </td>
       <td>
-        <select class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','valveSize',this.value)">
+        <select data-dropcat="valve_size" class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','valveSize',this.value)">
           <option value="" ${!p.valveSize ? 'selected' : ''}>ยังไม่ระบุ</option>
           ${getIotDropdownOptions('valve_size').map(t => `<option value="${t}" ${p.valveSize === t ? 'selected' : ''}>${t}</option>`).join('')}
         </select>
       </td>
       <td>
+        <select data-dropcat="water_source" class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','waterSource',this.value)">
+          <option value="">ยังไม่ระบุ</option>
+          ${iotSelectOptionsHtml('water_source', planWaterVal(p))}
+        </select>
+      </td>
+      <td>
+        <select data-dropcat="irrigation_type" class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','irrigationType',this.value)">
+          <option value="">ยังไม่ระบุ</option>
+          ${iotSelectOptionsHtml('irrigation_type', planIrrigationVal(p))}
+        </select>
+      </td>
+      <td>
         ${p.boxType === 'no_button'
           ? `<span class="plan-cell-dash" title="ตู้ไม่มีปุ่มกด ไม่ต้องเก็บเงิน">-</span>`
-          : `<select class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','paymentStatus',this.value)">
+          : `<select data-dropcat="payment_status" class="plan-status-select select-compact" onchange="updateIotPlanField('${p.id}','paymentStatus',this.value)">
               <option value="" ${!p.paymentStatus ? 'selected' : ''}>ยังไม่ระบุ</option>
               ${getIotDropdownOptions('payment_status').map(t => `<option value="${t}" ${p.paymentStatus === t ? 'selected' : ''}>${t}</option>`).join('')}
             </select>`}
@@ -9049,7 +9234,7 @@ function renderIotPlanFinalizedSection() {
   const theadRowHtml = `<tr>
       <th></th>
       <th>ลำดับ</th><th>นัดหมาย</th><th>วันที่ / เวลาติดตั้ง</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์ติดต่อ</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th>
-      <th>สถานะ</th><th>ทีมติดตั้ง</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>ขนาดวาล์ว</th><th>การชำระเงิน</th><th>ยอดชำระ</th><th>ตำแหน่ง (Google Maps)</th><th>หมายเหตุ</th><th></th>
+      <th>สถานะ</th><th>ทีมติดตั้ง</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>ขนาดวาล์ว</th><th>แหล่งน้ำ</th><th>รูปแบบการให้น้ำ</th><th>การชำระเงิน</th><th>ยอดชำระ</th><th>ตำแหน่ง (Google Maps)</th><th>หมายเหตุ</th><th></th>
     </tr>`;
 
   const byProvince = {};
@@ -10194,6 +10379,8 @@ function exportIotPlanExcel() {
     'ปั๊มน้ำ': p.pumpType || '',
     'ขนาดท่อ': p.pipeSize || '',
     'ขนาดวาล์ว': p.valveSize || '',
+    'แหล่งน้ำ': planWaterVal(p) || '',
+    'รูปแบบการให้น้ำ': planIrrigationVal(p) || '',
     'การชำระเงิน': p.boxType === 'no_button' ? '-' : (p.paymentStatus || ''),
     'ยอดชำระ (บาท)': p.boxType === 'no_button' ? '-' : ((p.paymentAmount === '' || p.paymentAmount === undefined || p.paymentAmount === null) ? '' : Number(p.paymentAmount)),
     'ตำแหน่ง (Google Maps)': p.mapLink || '',
@@ -10202,7 +10389,7 @@ function exportIotPlanExcel() {
   const ws = XLSX.utils.json_to_sheet(data);
   prettifyExcelSheet(ws, data);
 
-  const mapLinkColIndex = 17;
+  const mapLinkColIndex = 19;
   sortedPlan.forEach((p, i) => {
     if (p.mapLink) {
       const cellRef = XLSX.utils.encode_cell({ r: i + 1, c: mapLinkColIndex });
@@ -10238,13 +10425,13 @@ function buildIotPlanTeamSectionHtml(items, teamName) {
       </div>
       <table class="pdf-table">
         <colgroup>
-          <col style="width:3%;"><col style="width:12%;"><col style="width:8%;"><col style="width:12%;">
-          <col style="width:7%;"><col style="width:6%;"><col style="width:7%;"><col style="width:5%;">
-          <col style="width:5%;"><col style="width:6%;"><col style="width:5%;"><col style="width:5%;">
-          <col style="width:6%;"><col style="width:13%;">
+          <col style="width:3%;"><col style="width:10%;"><col style="width:7%;"><col style="width:9%;">
+          <col style="width:6%;"><col style="width:5%;"><col style="width:6%;"><col style="width:5%;">
+          <col style="width:5%;"><col style="width:6%;"><col style="width:6%;"><col style="width:6%;">
+          <col style="width:5%;"><col style="width:5%;"><col style="width:5%;"><col style="width:8%;">
         </colgroup>
         <thead>
-          <tr><th>#</th><th>ชื่อ-นามสกุล</th><th>เบอร์ติดต่อ</th><th>พื้นที่ (จังหวัด/อำเภอ/ตำบล)</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>ขนาดวาล์ว</th><th>การชำระเงิน</th><th>ยอดชำระ</th><th>พิกัด</th><th>สถานะ</th><th>หมายเหตุ</th></tr>
+          <tr><th>#</th><th>ชื่อ-นามสกุล</th><th>เบอร์ติดต่อ</th><th>พื้นที่ (จังหวัด/อำเภอ/ตำบล)</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>ขนาดวาล์ว</th><th>แหล่งน้ำ</th><th>รูปแบบการให้น้ำ</th><th>การชำระเงิน</th><th>ยอดชำระ</th><th>พิกัด</th><th>สถานะ</th><th>หมายเหตุ</th></tr>
         </thead>
         <tbody>
           ${g.items.map((p, i) => {
@@ -10260,6 +10447,8 @@ function buildIotPlanTeamSectionHtml(items, teamName) {
               <td>${p.pumpType || '-'}</td>
               <td>${p.pipeSize || '-'}</td>
               <td>${p.valveSize || '-'}</td>
+              <td>${planWaterVal(p) || '-'}</td>
+              <td>${planIrrigationVal(p) || '-'}</td>
               <td>${p.boxType === 'no_button' ? '-' : (p.paymentStatus || '-')}</td>
               <td>${p.boxType === 'no_button' ? '-' : ((p.paymentAmount === '' || p.paymentAmount === undefined || p.paymentAmount === null) ? '-' : Number(p.paymentAmount).toLocaleString())}</td>
               <td class="pdf-loc-cell">${p.mapLink ? '<span class="pdf-loc-badge has-loc">มีพิกัด</span>' : '<span class="pdf-loc-badge no-loc">-</span>'}</td>
@@ -10393,6 +10582,8 @@ function exportIotPlanFinalizedExcel() {
     'ปั๊มน้ำ': p.pumpType || '',
     'ขนาดท่อ': p.pipeSize || '',
     'ขนาดวาล์ว': p.valveSize || '',
+    'แหล่งน้ำ': planWaterVal(p) || '',
+    'รูปแบบการให้น้ำ': planIrrigationVal(p) || '',
     'การชำระเงิน': p.boxType === 'no_button' ? '-' : (p.paymentStatus || ''),
     'ยอดชำระ (บาท)': p.boxType === 'no_button' ? '-' : ((p.paymentAmount === '' || p.paymentAmount === undefined || p.paymentAmount === null) ? '' : Number(p.paymentAmount)),
     'ตำแหน่ง (Google Maps)': p.mapLink || '',
@@ -10401,7 +10592,7 @@ function exportIotPlanFinalizedExcel() {
   const ws = XLSX.utils.json_to_sheet(data);
   prettifyExcelSheet(ws, data);
 
-  const mapLinkColIndex = 17;
+  const mapLinkColIndex = 19;
   sortedPlan.forEach((p, i) => {
     if (p.mapLink) {
       const cellRef = XLSX.utils.encode_cell({ r: i + 1, c: mapLinkColIndex });
