@@ -475,6 +475,44 @@
   .inst-group-count { font-size:12px; color:var(--muted); }
   .inst-job-card { border:1px solid var(--border); border-radius:10px; padding:11px 13px; margin:8px 0; background:var(--card); }
   .inst-job-card.row-done { opacity:.72; }
+  /* แถวรายชื่อแบบย่อ (กดเข้าไปดูรายละเอียด) — ใช้ง่ายบนมือถือ */
+  .inst-list-row { display:flex; align-items:center; gap:10px; padding:13px 12px; border:1px solid var(--border); border-radius:10px; margin:7px 0; background:var(--card); cursor:pointer; transition:background .12s ease; }
+  .inst-list-row:active { background:var(--brand-light); }
+  .inst-list-name { font-size:15px; font-weight:700; }
+  .inst-list-sub { font-size:12.5px; color:var(--muted); margin-top:2px; }
+  .inst-list-go { font-size:24px; line-height:1; color:var(--muted); flex-shrink:0; }
+  .inst-list-row.row-done { opacity:.6; }
+  .inst-list-row.row-cancelled { opacity:.6; }
+  .inst-detail-back { margin-bottom:10px; }
+  /* ไฮไลท์หมายเหตุที่มีข้อความ ให้สะดุดตา คนเลื่อนผ่านต้องหยุดอ่าน */
+  .note-flag { display:block; margin-top:6px; background:#fff3cd; color:#7a4e00; border:1px solid #ffd666; border-left:4px solid #f0a500; border-radius:6px; padding:6px 10px; font-size:12.5px; font-weight:600; line-height:1.35; word-break:break-word; }
+  [data-theme="dark"] .note-flag { background:#3a2f12; color:#ffd98a; border-color:#5a4a1e; border-left-color:#c79a2e; }
+  .note-input-filled { background:#fff8e1 !important; border-color:#f0a500 !important; box-shadow:0 0 0 2px rgba(240,165,0,.18); font-weight:600; }
+  [data-theme="dark"] .note-input-filled { background:#3a2f12 !important; border-color:#c79a2e !important; color:var(--text); }
+  /* โหมดโทรนัด (แอดมินบนคอม) แบบ 2 ฝั่ง */
+  .call-wrap { display:grid; grid-template-columns:270px 1fr; gap:14px; align-items:start; margin-top:12px; }
+  .call-list { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:10px; position:sticky; top:8px; max-height:80vh; overflow:auto; }
+  .call-list-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; font-size:13px; font-weight:600; }
+  .call-remain { background:var(--red-light); color:var(--red); font-size:12px; padding:2px 9px; border-radius:20px; }
+  .call-row { padding:8px 9px; border-radius:8px; cursor:pointer; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:2px; }
+  .call-row:hover { background:var(--brand-light); }
+  .call-row.on { background:var(--brand-light); box-shadow:inset 3px 0 0 var(--brand); }
+  .call-row-name { font-size:13px; font-weight:600; }
+  .call-row-area { font-size:11px; color:var(--muted); }
+  .call-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:6px; flex-shrink:0; }
+  .call-form-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 18px; }
+  .call-meter { display:flex; align-items:center; gap:10px; background:var(--brand-light); border-radius:8px; padding:8px 12px; margin:12px 0; font-size:13px; color:var(--brand-dark); font-weight:600; }
+  .call-meter-bar { flex:1; height:8px; background:var(--card); border-radius:20px; overflow:hidden; }
+  .call-meter-fill { height:100%; background:var(--brand); transition:width .2s ease; }
+  .call-sec { font-size:12px; color:var(--muted); margin:14px 0 6px; font-weight:600; }
+  .call-fields { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:9px 12px; }
+  .call-fields label { display:flex; flex-direction:column; gap:3px; font-size:12px; color:var(--muted); }
+  .call-fields label span { color:var(--text); font-weight:600; }
+  .call-field-miss select, .call-field-miss input { border-color:#EF9F27; background:#FDF7EC; }
+  [data-theme="dark"] .call-field-miss select, [data-theme="dark"] .call-field-miss input { background:#3a2f12; }
+  .call-ask { display:inline-block; background:#FAEEDA; color:#854F0B; font-size:10px; font-weight:600; padding:1px 6px; border-radius:20px; margin-left:5px; }
+  .call-empty { color:var(--muted); text-align:center; padding:40px 10px; }
+  @media (max-width:760px){ .call-wrap { grid-template-columns:1fr; } .call-list { position:static; max-height:none; } }
   .inst-job-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap; }
   .inst-job-name { font-size:15.5px; font-weight:700; }
   .inst-job-when { font-size:12.5px; color:var(--muted); white-space:nowrap; }
@@ -851,6 +889,7 @@
       </div>
     </div>
 
+    <div id="installerListWrap">
     <div class="inst-summary" id="installerSummary"></div>
 
     <div class="inst-tabbar">
@@ -884,6 +923,8 @@
 
     <div id="installerTabToday" style="display:none;"></div>
     <div id="installerTabNav" style="display:none;"></div>
+    </div>
+    <div id="installerDetailView" style="display:none;"></div>
   </div>
 
   <nav class="tabbar" id="tabbarTraining">
@@ -1557,6 +1598,7 @@
         <div class="plan-view-toggle">
           <button class="view-toggle-btn active" data-view="table" onclick="switchIotPlanView('table')">📋 ตาราง</button>
           <button class="view-toggle-btn" data-view="calendar" onclick="switchIotPlanView('calendar')">📅 ปฏิทิน</button>
+          <button class="view-toggle-btn" data-view="call" onclick="switchIotPlanView('call')">📞 โทรนัด</button>
         </div>
       </div>
 
@@ -1569,6 +1611,7 @@
         <div class="dropdown-manager-body" id="iotDropdownManagerBody" style="display:none;"></div>
       </div>
 
+      <div id="iotPlanTableControls">
       <div class="filters">
         <div>
           <label>จังหวัด</label>
@@ -1638,6 +1681,7 @@
         <button type="button" class="btn btn-brand" onclick="applyBulkIotPlanOperator()">ตั้งผู้ดำเนินการให้แถวที่เลือก</button>
         <button type="button" class="btn btn-outline" onclick="applyBulkIotPlanFinalize()">✅ ทำเครื่องหมายว่าวางแผนเสร็จแล้ว</button>
       </div>
+      </div>
 
       <div id="iotPlanTableView" class="table-wrap" style="margin-top:12px;">
         <table class="detail-table">
@@ -1653,6 +1697,7 @@
       </div>
 
       <div id="iotPlanCalendarView" class="plan-calendar-view" style="display:none;"></div>
+      <div id="iotPlanCallView" style="display:none;"></div>
 
       <p style="font-size:12px; color:var(--muted); margin-top:10px;">
         หมายเหตุ: ถ้าตั้งค่า Supabase ไว้แล้ว รายการในแผนจะซิงก์ขึ้นอัตโนมัติให้ทีมงานคนอื่นเห็นแผนเดียวกันได้ (กด "🔄 ซิงก์ล่าสุด" เพื่อดึงการเปลี่ยนแปลงจากคนอื่น) ถ้ายังไม่ได้ตั้งค่า Supabase ระบบจะเก็บไว้ในเบราว์เซอร์นี้เท่านั้น กดส่งออก Excel เพื่อแชร์แผนให้คนอื่นได้เสมอ แต่ละพื้นที่ติดตั้งไม่เหมือนกัน จึงไม่มีปุ่ม "ใช้ทั้งตำบล" เหมือนแผนอบรม
@@ -3011,6 +3056,7 @@ function installerJobCardHtml(p) {
         <div class="inst-job-when">${p.installDate ? '🗓️ ' + formatIotPlanWeekLabel(p.installDate) : '<span style="color:var(--muted);">ยังไม่นัด</span>'}</div>
       </div>
       <div class="inst-job-area">📍 ${p.district || '-'} / ${p.subdistrict || '-'}${details ? ' · <span class="inst-job-detail">' + details + '</span>' : ''}</div>
+      ${p.note ? `<div class="note-flag">📝 หมายเหตุ: ${escNoteText(p.note)}</div>` : ''}
       <div class="inst-job-actions">
         ${phoneSafe ? `<a class="inst-act-btn call" href="tel:${phoneSafe}">📞 โทร ${p.phone}</a>` : '<span class="inst-act-btn disabled">ไม่มีเบอร์</span>'}
         ${p.mapLink ? `<a class="inst-act-btn nav" href="${mapLinkSafe}" target="_blank" rel="noopener">🧭 นำทาง</a>` : ''}
@@ -3064,6 +3110,39 @@ function installerJobCardHtml(p) {
     </div>`;
 }
 
+function escNoteText(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+// แถวรายชื่อแบบย่อ (โชว์ก่อน) — กดแล้วเข้าไปดูรายละเอียด/แก้ไขของคนนั้น
+function installerListRowHtml(p) {
+  const status = p.status || 'pending';
+  const idSafe = (p.id || '').replace(/'/g, "\\'");
+  const when = p.installDate ? formatIotPlanWeekLabel(p.installDate) : 'ยังไม่นัด';
+  return `<div class="inst-list-row row-${status}" onclick="openInstallerDetail('${idSafe}')">
+    <div style="flex:1; min-width:0;">
+      <div class="inst-list-name">${p.name || '-'} ${INSTALLER_STATUS_BADGE[status] || ''}</div>
+      <div class="inst-list-sub">📍 ${p.subdistrict || '-'} · 🗓️ ${when}${p.phone ? ' · 📞 ' + p.phone : ''}</div>
+      ${p.note ? `<div class="note-flag">📝 ${escNoteText(p.note)}</div>` : ''}
+    </div>
+    <span class="inst-list-go">›</span>
+  </div>`;
+}
+
+// เปิด/ปิดหน้ารายละเอียดของคน 1 คน (รองรับปุ่มย้อนกลับของมือถือด้วย history)
+let installerDetailId = null;
+function openInstallerDetail(id) {
+  installerDetailId = id;
+  try { history.pushState({ instDetail: id }, ''); } catch (e) {}
+  renderInstallerView();
+  window.scrollTo(0, 0);
+}
+function closeInstallerDetail() {
+  if (!installerDetailId) return;
+  try { history.back(); } catch (e) { installerDetailId = null; renderInstallerView(); }
+}
+window.addEventListener('popstate', function () {
+  if (installerDetailId) { installerDetailId = null; renderInstallerView(); window.scrollTo(0, 0); }
+});
+
 // จัดกลุ่มงานเป็น อำเภอ -> ตำบล แบบพับ/กางได้
 function installerGroupedHtml(jobs) {
   if (!jobs.length) return '<div class="empty-state-cell"><span class="empty-icon">🎉</span><span class="empty-text">ไม่มีงานที่ตรงกับตัวกรองครับ</span></div>';
@@ -3080,7 +3159,7 @@ function installerGroupedHtml(jobs) {
     const distTotal = Object.values(subs).reduce((n, arr) => n + arr.length, 0);
     const subHtml = Object.keys(subs).sort((a, b) => a.localeCompare(b, 'th')).map(s => `
       <div class="inst-group sub" onclick="toggleGroupBody(this)"><span class="chevron open">▶</span><strong>ตำบล${s}</strong> <span class="inst-group-count">${subs[s].length} งาน</span></div>
-      <div>${subs[s].map(installerJobCardHtml).join('')}</div>
+      <div>${subs[s].map(installerListRowHtml).join('')}</div>
     `).join('');
     return `
       <div class="inst-group dist" onclick="toggleGroupBody(this)"><span class="chevron open">▶</span><strong>📍 อำเภอ${d}</strong> <span class="inst-group-count">${distTotal} งาน</span></div>
@@ -3108,6 +3187,23 @@ function renderInstallerSummary() {
 function renderInstallerView() {
   // วาดได้ทั้งกรณีเป็นทีมติดตั้งจริง และกรณี master กำลังพรีวิวหน้าทีม
   if (currentUserRole !== 'installer' && !installerPreviewTeam) return;
+  const _instListWrap = document.getElementById('installerListWrap');
+  const _instDetailBox = document.getElementById('installerDetailView');
+  // โหมดดูรายละเอียดคนเดียว: ซ่อนรายชื่อ แสดงการ์ดเต็ม + ปุ่มย้อนกลับ
+  if (installerDetailId) {
+    const job = iotInstallPlan.find(p => p.id === installerDetailId);
+    if (job) {
+      if (_instListWrap) _instListWrap.style.display = 'none';
+      if (_instDetailBox) {
+        _instDetailBox.style.display = 'block';
+        _instDetailBox.innerHTML = '<button class="btn btn-outline inst-detail-back" onclick="closeInstallerDetail()">← กลับไปรายชื่อ</button>' + installerJobCardHtml(job);
+      }
+      return;
+    }
+    installerDetailId = null;
+  }
+  if (_instListWrap) _instListWrap.style.display = '';
+  if (_instDetailBox) { _instDetailBox.style.display = 'none'; _instDetailBox.innerHTML = ''; }
   renderInstallerSummary();
   populateInstallerFilters();
   if (installerCurrentTab === 'jobs') {
@@ -3186,21 +3282,40 @@ function installerSetEquip(id, field, value) {
 }
 
 // ===== สแกน QR หน้าตู้ (ได้ค่าเป็น SN) ด้วยกล้องมือถือ (ใช้ jsQR) =====
-let _qrStream = null, _qrRAF = null, _qrOverlay = null, _qrTargetId = null;
+let _qrStream = null, _qrRAF = null, _qrOverlay = null, _qrTargetId = null, _qrDetector = null;
+// โหลด jsQR แบบมี fallback หลาย CDN (ที่บอก "ไม่มีเน็ต" เดิม เพราะไฟล์ .min.js ที่ระบุไม่มีจริงบน cdnjs)
 function ensureJsQr() {
   return new Promise((resolve, reject) => {
     if (window.jsQR) return resolve();
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js';
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error('โหลดตัวอ่าน QR ไม่ได้ (เช็คอินเทอร์เน็ต)'));
-    document.head.appendChild(s);
+    const urls = [
+      'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js',
+      'https://unpkg.com/jsqr@1.4.0/dist/jsQR.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js'
+    ];
+    let i = 0;
+    const tryNext = () => {
+      if (window.jsQR) return resolve();
+      if (i >= urls.length) return reject(new Error('โหลดตัวอ่าน QR ไม่ได้'));
+      const s = document.createElement('script');
+      s.src = urls[i++];
+      s.onload = () => (window.jsQR ? resolve() : tryNext());
+      s.onerror = () => tryNext();
+      document.head.appendChild(s);
+    };
+    tryNext();
   });
 }
 async function scanInstallerQr(id) {
   if (isReadOnlyUser) { showToast('บัญชีนี้ดูอย่างเดียว สแกนไม่ได้', 'warn'); return; }
-  try { await ensureJsQr(); } catch (e) { showToast(e.message || 'โหลด QR ไม่ได้', 'warn'); return; }
   _qrTargetId = id;
+  // 1) ใช้ตัวอ่าน QR ในตัวเครื่องก่อน (BarcodeDetector — Android/Chrome/Edge) ไม่ต้องโหลดเน็ตเลย
+  _qrDetector = null;
+  if ('BarcodeDetector' in window) {
+    try { _qrDetector = new window.BarcodeDetector({ formats: ['qr_code'] }); } catch (e) { _qrDetector = null; }
+  }
+  // 2) ถ้าเครื่องไม่มี ค่อยโหลด jsQR (เช่น iOS) — ถ้าโหลดไม่ได้จริงๆ ก็ยังเปิดกล้อง+พิมพ์ SN เองได้
+  let jsqrReady = false;
+  if (!_qrDetector) { try { await ensureJsQr(); jsqrReady = !!window.jsQR; } catch (e) { jsqrReady = false; } }
   const ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;background:#000;z-index:100000;display:flex;flex-direction:column;';
   ov.innerHTML =
@@ -3217,24 +3332,34 @@ async function scanInstallerQr(id) {
     _qrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
     video.srcObject = _qrStream;
     await video.play();
-    ov.querySelector('#qrHint').textContent = 'เล็งให้ QR อยู่กลางจอ ระบบจะอ่านให้อัตโนมัติ';
-    tickQrScan();
+    if (!_qrDetector && !jsqrReady) {
+      ov.querySelector('#qrHint').textContent = 'อ่าน QR อัตโนมัติไม่ได้บนเครื่องนี้ — อ่านตัวเลข SN ที่ใต้ QR แล้วปิดหน้านี้ พิมพ์เองได้เลย';
+    } else {
+      ov.querySelector('#qrHint').textContent = 'เล็งให้ QR อยู่กลางจอ ระบบจะอ่านให้อัตโนมัติ';
+      tickQrScan();
+    }
   } catch (e) {
     ov.querySelector('#qrHint').textContent = 'เปิดกล้องไม่ได้: ' + (e.message || e) + ' — ปิดแล้วพิมพ์ SN เองได้';
   }
 }
-function tickQrScan() {
+async function tickQrScan() {
   const ov = _qrOverlay; if (!ov) return;
-  const video = ov.querySelector('#qrVideo'); const canvas = ov.querySelector('#qrCanvas');
-  if (video && video.readyState === video.HAVE_ENOUGH_DATA && window.jsQR && video.videoWidth) {
-    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = window.jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' });
-    if (code && code.data && code.data.trim()) { onQrDecoded(code.data.trim()); return; }
-  }
-  _qrRAF = requestAnimationFrame(tickQrScan);
+  const video = ov.querySelector('#qrVideo');
+  try {
+    if (_qrDetector && video && video.readyState >= 2 && video.videoWidth) {
+      const codes = await _qrDetector.detect(video);
+      if (codes && codes.length && codes[0].rawValue) { onQrDecoded(String(codes[0].rawValue).trim()); return; }
+    } else if (window.jsQR && video && video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth) {
+      const canvas = ov.querySelector('#qrCanvas');
+      canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = window.jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' });
+      if (code && code.data && code.data.trim()) { onQrDecoded(code.data.trim()); return; }
+    }
+  } catch (e) { /* อ่านเฟรมนี้ไม่ได้ ข้ามไปเฟรมถัดไป */ }
+  if (_qrOverlay) _qrRAF = requestAnimationFrame(tickQrScan);
 }
 function onQrDecoded(text) {
   const id = _qrTargetId;
@@ -6730,7 +6855,7 @@ function iotMapDetailEditorInner(nid) {
         <input type="text" value="${(entry.baseCode||'').replace(/"/g,'&quot;')}" placeholder="เช่น AR_0008" oninput="updateIotPlanField('${eid}','baseCode',this.value)">
       </label>
       <label class="iot-map-detail-wide">หมายเหตุ
-        <input type="text" value="${(entry.note||'').replace(/"/g,'&quot;')}" placeholder="หมายเหตุ" oninput="updateIotPlanField('${eid}','note',this.value)">
+        <input type="text" class="${entry.note ? 'note-input-filled' : ''}" value="${(entry.note||'').replace(/"/g,'&quot;')}" placeholder="หมายเหตุ" oninput="updateIotPlanField('${eid}','note',this.value); this.classList.toggle('note-input-filled', !!this.value.trim())">
       </label>
     </div>
     <div class="iot-map-detail-foot">
@@ -7307,7 +7432,7 @@ function planRowHtml(p, i) {
         </div>
       </td>
       <td>
-        <input class="plan-note-input" type="text" value="${(p.note||'').replace(/"/g,'&quot;')}" placeholder="หมายเหตุ" oninput="updatePlanField('${p.id}','note',this.value)">
+        <input class="plan-note-input${p.note ? ' note-input-filled' : ''}" type="text" value="${(p.note||'').replace(/"/g,'&quot;')}" placeholder="หมายเหตุ" oninput="updatePlanField('${p.id}','note',this.value); this.classList.toggle('note-input-filled', !!this.value.trim())">
         ${p.updatedBy ? `<div class="plan-meta-line" title="แก้ไขล่าสุดโดย ${p.updatedBy}${p.updatedAt ? ' · ' + formatDateTimeThai(p.updatedAt) : ''}">✏️ ${p.updatedBy}${p.updatedAt ? ' · ' + formatRelativeTime(p.updatedAt) : ''}</div>` : ''}
       </td>
       <td><button class="plan-remove-btn" onclick="removePlanEntry('${p.id}')" title="ลบ">✕</button></td>
@@ -9075,7 +9200,7 @@ function iotPlanRowHtml(p, i) {
         ${p.mapLink ? `<div class="plan-map-actions"><a href="${mapLinkSafe}" target="_blank" rel="noopener" class="plan-map-link">📍 เปิดแผนที่</a></div>` : ''}
       </td>
       <td>
-        <input class="plan-note-input" type="text" value="${(p.note||'').replace(/"/g,'&quot;')}" placeholder="หมายเหตุ" oninput="updateIotPlanField('${p.id}','note',this.value)">
+        <input class="plan-note-input${p.note ? ' note-input-filled' : ''}" type="text" value="${(p.note||'').replace(/"/g,'&quot;')}" placeholder="หมายเหตุ" oninput="updateIotPlanField('${p.id}','note',this.value); this.classList.toggle('note-input-filled', !!this.value.trim())">
         ${p.updatedBy ? `<div class="plan-meta-line" title="แก้ไขล่าสุดโดย ${p.updatedBy}${p.updatedAt ? ' · ' + formatDateTimeThai(p.updatedAt) : ''}">✏️ ${p.updatedBy}${p.updatedAt ? ' · ' + formatRelativeTime(p.updatedAt) : ''}</div>` : ''}
       </td>
       <td>
@@ -9638,13 +9763,269 @@ function switchIotPlanView(view) {
   });
   const tableView = document.getElementById('iotPlanTableView');
   const calendarView = document.getElementById('iotPlanCalendarView');
+  const callView = document.getElementById('iotPlanCallView');
+  const controls = document.getElementById('iotPlanTableControls');
   if (tableView) tableView.style.display = view === 'table' ? '' : 'none';
   if (calendarView) calendarView.style.display = view === 'calendar' ? '' : 'none';
+  if (callView) callView.style.display = view === 'call' ? '' : 'none';
+  if (controls) controls.style.display = view === 'call' ? 'none' : '';
   if (view === 'calendar') {
     renderIotPlanCalendar();
+  } else if (view === 'call') {
+    renderIotCallView();
   } else {
     applyIotPlanFilters();
   }
+}
+
+// ===================== โหมดโทรนัด (แอดมินบนคอม): ซ้าย=คิวคนยังไม่นัด · ขวา=ฟอร์มถามครบทุกหัวข้อ =====================
+let iotCallSelectedNid = null;
+let iotCallFilter = { province: '', district: '', subdistrict: '', search: '' };
+const IOT_CALL_DOT = { pending: '#B4B2A9', not_contacted: '#B4B2A9', survey: '#378ADD', site_not_ready: '#EF9F27', ready: '#1D9E75', done: '#639922', cancelled: '#E24B4A' };
+function _callEsc(s) { return (s || '').replace(/"/g, '&quot;'); }
+
+// คนที่ต้อง "โทรนัด" = ยังไม่ติดตั้ง (N) + ไม่ติดบล็อก + ยังไม่นัด (ยังไม่มีทั้งวันและทีม) — เก็บคนที่กำลังเลือกอยู่ไว้เสมอ
+function iotCallBaseRows() {
+  if (typeof allIotRows === 'undefined') return [];
+  return getIotVisibleRows().filter(r =>
+    r && r.national_id &&
+    r[IOT_FIELDS.status] === IOT_FIELDS.notDone &&
+    !getIotInstallBlockerState(r)
+  );
+}
+function iotCallIsScheduled(nid) {
+  const e = iotInstallPlan.find(p => p.nationalId === nid);
+  return !!(e && e.installDate && e.installTeam);
+}
+function iotCallQueue() {
+  const f = iotCallFilter;
+  return iotCallBaseRows().filter(r => {
+    if (iotCallIsScheduled(r.national_id) && r.national_id !== iotCallSelectedNid) return false;
+    const _e = iotInstallPlan.find(p => p.nationalId === r.national_id);
+    if (_e && _e.status === 'cancelled' && r.national_id !== iotCallSelectedNid) return false;
+    if (f.province && normName(r[IOT_FIELDS.province]) !== normName(f.province)) return false;
+    if (f.district && normName(r[IOT_FIELDS.district]) !== normName(f.district)) return false;
+    if (f.subdistrict && normName(r.farm_subdistrict) !== normName(f.subdistrict)) return false;
+    if (f.search) {
+      const hay = `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''} ${r.national_id || ''} ${r.phone || ''}`.toLowerCase();
+      if (!hay.includes(f.search.toLowerCase())) return false;
+    }
+    return true;
+  }).sort((a, b) =>
+    normName(a[IOT_FIELDS.province]).localeCompare(normName(b[IOT_FIELDS.province]), 'th') ||
+    normName(a[IOT_FIELDS.district]).localeCompare(normName(b[IOT_FIELDS.district]), 'th') ||
+    normName(a.farm_subdistrict || '').localeCompare(normName(b.farm_subdistrict || ''), 'th') ||
+    `${a.first_name || ''}`.localeCompare(`${b.first_name || ''}`, 'th')
+  );
+}
+// หา (หรือสร้าง) แถวในแผนติดตั้งของคนนี้ — สร้างตอนแอดมินเริ่มกรอกช่องแรกเท่านั้น
+function iotCallEnsureEntry(nid) {
+  let e = iotInstallPlan.find(p => p.nationalId === nid);
+  if (e) return e;
+  const row = allIotRows.find(r => r.national_id === nid);
+  if (!row) return null;
+  e = addPersonToIotPlan(row);
+  if (e) { saveIotPlanToStorage(); syncIotPlanEntriesToSupabase([e]); }
+  return e || iotInstallPlan.find(p => p.nationalId === nid);
+}
+function iotCallSetField(nid, field, value) {
+  if (blockIfReadOnly()) return;
+  const e = iotCallEnsureEntry(nid); if (!e) return;
+  e[field] = value;
+  if (field === 'boxType' && value === 'no_button') e.paymentStatus = '';
+  saveIotPlanToStorage();
+  scheduleIotPlanEntrySync(e, field === 'status');
+  renderIotCallForm();
+  renderIotCallRowDot(nid);
+}
+function iotCallSetSchedule(nid, part, value) {
+  if (blockIfReadOnly()) return;
+  const e = iotCallEnsureEntry(nid); if (!e) return;
+  updateIotPlanMonthWeek(e.id, part, value);
+  renderIotCallForm();
+}
+function iotCallSetFilter(key, value) {
+  iotCallFilter[key] = value;
+  if (key === 'province') { iotCallFilter.district = ''; iotCallFilter.subdistrict = ''; }
+  if (key === 'district') { iotCallFilter.subdistrict = ''; }
+  renderIotCallView();
+}
+function iotCallOnSearch(v) { iotCallFilter.search = (v || '').trim(); renderIotCallRows(); }
+function iotCallSelect(nid) { iotCallSelectedNid = nid; renderIotCallView(); }
+function iotCallGoRelative(delta) {
+  const q = iotCallQueue();
+  const idx = q.findIndex(r => r.national_id === iotCallSelectedNid);
+  const ni = Math.max(0, Math.min(q.length - 1, (idx < 0 ? 0 : idx) + delta));
+  if (q[ni]) iotCallSelect(q[ni].national_id);
+}
+function iotCallDecline(nid) {
+  if (blockIfReadOnly()) return;
+  iotCallSetField(nid, 'status', 'cancelled');
+  iotCallSaveNext();
+}
+function iotCallSaveNext() {
+  const cur = iotCallSelectedNid;
+  const next = iotCallQueue().find(r => r.national_id !== cur && !iotCallIsScheduled(r.national_id));
+  iotCallSelectedNid = next ? next.national_id : null;
+  renderIotCallView();
+  showToast(iotCallSelectedNid ? 'บันทึกแล้ว → คนถัดไป' : 'บันทึกแล้ว — หมดคิวในตัวกรองนี้แล้วครับ', 'success');
+}
+
+function renderIotCallView() {
+  const box = document.getElementById('iotPlanCallView');
+  if (!box) return;
+  const q = iotCallQueue();
+  if (!iotCallSelectedNid && q.length) iotCallSelectedNid = q[0].national_id;
+  box.innerHTML = `<div class="call-wrap">
+    <div class="call-list" id="iotCallListPane"></div>
+    <div id="iotCallFormPane"></div>
+  </div>`;
+  renderIotCallListShell();
+  renderIotCallForm();
+}
+function renderIotCallListShell() {
+  const pane = document.getElementById('iotCallListPane'); if (!pane) return;
+  const base = iotCallBaseRows();
+  const provinces = [...new Set(base.map(r => r[IOT_FIELDS.province]).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'th'));
+  const districts = [...new Set(base.filter(r => !iotCallFilter.province || normName(r[IOT_FIELDS.province]) === normName(iotCallFilter.province)).map(r => r[IOT_FIELDS.district]).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'th'));
+  const subs = [...new Set(base.filter(r => (!iotCallFilter.province || normName(r[IOT_FIELDS.province]) === normName(iotCallFilter.province)) && (!iotCallFilter.district || normName(r[IOT_FIELDS.district]) === normName(iotCallFilter.district))).map(r => r.farm_subdistrict).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'th'));
+  const opt = (v, cur) => `<option value="${_callEsc(v)}" ${normName(cur) === normName(v) ? 'selected' : ''}>${v}</option>`;
+  const remain = base.filter(r => !iotCallIsScheduled(r.national_id)).length;
+  pane.innerHTML = `
+    <div class="call-list-head"><span><i class="dummy"></i>📞 คิวโทรนัด</span><span class="call-remain">เหลือ ${remain.toLocaleString()} คน</span></div>
+    <input type="text" id="iotCallSearch" value="${_callEsc(iotCallFilter.search)}" placeholder="ค้นหาชื่อ / เบอร์ / เลขบัตร" style="width:100%; margin-bottom:6px;" oninput="iotCallOnSearch(this.value)">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:6px;">
+      <select onchange="iotCallSetFilter('province',this.value)"><option value="">ทุกจังหวัด</option>${provinces.map(p => opt(p, iotCallFilter.province)).join('')}</select>
+      <select onchange="iotCallSetFilter('district',this.value)"><option value="">ทุกอำเภอ</option>${districts.map(d => opt(d, iotCallFilter.district)).join('')}</select>
+    </div>
+    <select style="width:100%; margin-bottom:8px;" onchange="iotCallSetFilter('subdistrict',this.value)"><option value="">ทุกตำบล</option>${subs.map(s => opt(s, iotCallFilter.subdistrict)).join('')}</select>
+    <div id="iotCallRows"></div>`;
+  renderIotCallRows();
+}
+function renderIotCallRows() {
+  const wrap = document.getElementById('iotCallRows'); if (!wrap) return;
+  const q = iotCallQueue();
+  if (!q.length) { wrap.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px 6px; font-size:13px;">🎉 ไม่มีใครค้างต้องนัดในตัวกรองนี้</div>'; return; }
+  wrap.innerHTML = q.map(r => {
+    const nid = r.national_id;
+    const e = iotInstallPlan.find(p => p.nationalId === nid);
+    const st = (e && e.status) ? e.status : 'pending';
+    const nameTxt = `${r.prefix || ''}${r.first_name || ''} ${r.last_name || ''}`.trim();
+    return `<div class="call-row ${nid === iotCallSelectedNid ? 'on' : ''}" id="iotCallRow_${nid}" onclick="iotCallSelect('${nid}')">
+      <span class="call-dot" style="background:${IOT_CALL_DOT[st] || '#B4B2A9'}" title="${IOT_PLAN_STATUS_LABELS[st] || ''}"></span>
+      <span style="flex:1; min-width:0;"><span class="call-row-name">${nameTxt || '-'}</span><div class="call-row-area">${r[IOT_FIELDS.district] || '-'} · ${r.farm_subdistrict || '-'}</div></span>
+    </div>`;
+  }).join('');
+}
+function renderIotCallRowDot(nid) {
+  const row = document.getElementById('iotCallRow_' + nid); if (!row) return;
+  const e = iotInstallPlan.find(p => p.nationalId === nid);
+  const st = (e && e.status) ? e.status : 'pending';
+  const dot = row.querySelector('.call-dot');
+  if (dot) { dot.style.background = IOT_CALL_DOT[st] || '#B4B2A9'; dot.title = IOT_PLAN_STATUS_LABELS[st] || ''; }
+}
+function renderIotCallForm() {
+  const pane = document.getElementById('iotCallFormPane'); if (!pane) return;
+  const nid = iotCallSelectedNid;
+  if (!nid) { pane.innerHTML = '<div class="call-form-card"><div class="call-empty">เลือกคนจากคิวทางซ้ายเพื่อเริ่มโทรนัด</div></div>'; return; }
+  const row = allIotRows.find(r => r.national_id === nid) || {};
+  const e = iotInstallPlan.find(p => p.nationalId === nid) || {};
+  const dis = isReadOnlyUser ? 'disabled' : '';
+  const boxType = e.boxType || '', pumpType = e.pumpType || '', pipeSize = e.pipeSize || '', valveSize = e.valveSize || '';
+  const wd = getPlanWaterDefaults(nid);
+  const waterCur = e.waterSource || wd.water || '', irrCur = e.irrigationType || wd.irr || '';
+  const paymentStatus = e.paymentStatus || '', operatorName = e.operatorName || '', installTeam = e.installTeam || '';
+  const status = e.status || 'pending', note = e.note || '';
+  const amount = (e.paymentAmount === '' || e.paymentAmount === undefined || e.paymentAmount === null) ? '' : String(e.paymentAmount);
+  const planMonth = getIotMonthYearFromDate(e.installDate), planWeek = getIotWeekOfMonthFromDate(e.installDate);
+  const nameTxt = `${row.prefix || ''}${row.first_name || ''} ${row.last_name || ''}`.trim() || (e.name || '-');
+  const phoneSafe = (row.phone || e.phone || '').replace(/[^0-9+]/g, '');
+  const provinceTxt = row[IOT_FIELDS.province] || e.province || '-';
+  const districtTxt = row[IOT_FIELDS.district] || e.district || '-';
+  const subTxt = row.farm_subdistrict || e.subdistrict || '-';
+  const projectTxt = ((typeof IOT_FIELDS !== 'undefined' && IOT_FIELDS.project) ? row[IOT_FIELDS.project] : '') || row.otod_project || '-';
+  const approvalTxt = row.approval_round || '-';
+  const readinessTxt = row.readiness_status || '';
+  const arTxt = (typeof getIotArCodeDisplay === 'function') ? (getIotArCodeDisplay(row) || '') : '';
+
+  const dd = (fieldJs, cat, cur, label) => {
+    const miss = !cur;
+    return `<label class="${miss ? 'call-field-miss' : ''}"><span>${label}${miss ? '<span class="call-ask">ต้องถาม</span>' : ''}</span>
+      <select data-dropcat="${cat}" ${dis} onchange="iotCallSetField('${nid}','${fieldJs}',this.value)"><option value="">— เลือก —</option>${iotSelectOptionsHtml(cat, cur)}</select></label>`;
+  };
+  const topics = [boxType, pumpType, pipeSize, valveSize, waterCur, irrCur]
+    .concat(boxType === 'no_button' ? [] : [amount !== '' ? 'x' : ''])
+    .concat([e.installDate || '', installTeam, operatorName]);
+  const done = topics.filter(Boolean).length, total = topics.length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+
+  const weekOpts = ['1', '2', '3', '4', '5'].map(w => `<option value="${w}" ${planWeek === w ? 'selected' : ''}>สัปดาห์ที่ ${w}</option>`).join('');
+  const statusOpts = Object.keys(IOT_PLAN_STATUS_LABELS).map(k => `<option value="${k}" ${status === k ? 'selected' : ''}>${IOT_PLAN_STATUS_LABELS[k]}</option>`).join('');
+
+  pane.innerHTML = `<div class="call-form-card">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:2px;">
+      <div style="display:flex; gap:6px;">
+        <button class="btn btn-outline" style="padding:5px 10px;" onclick="iotCallGoRelative(-1)">← ก่อนหน้า</button>
+        <button class="btn btn-outline" style="padding:5px 10px;" onclick="iotCallGoRelative(1)">ถัดไป →</button>
+      </div>
+      ${phoneSafe ? `<a class="btn btn-brand" style="text-decoration:none; padding:7px 14px;" href="tel:${phoneSafe}">📞 โทร ${row.phone || e.phone}</a>` : '<span style="color:var(--muted); font-size:12px;">ไม่มีเบอร์</span>'}
+    </div>
+    <div style="margin-top:8px;">
+      <div style="font-size:16px; font-weight:700;">${nameTxt}</div>
+      <div style="font-size:12.5px; color:var(--muted);">📍 ${provinceTxt} · ${districtTxt} · ${subTxt} &nbsp; | &nbsp; เลขบัตร ${row.national_id || '-'}</div>
+      <div style="font-size:12px; margin-top:4px; display:flex; gap:8px; flex-wrap:wrap;">
+        <span style="background:var(--brand-light); color:var(--brand-dark); padding:2px 9px; border-radius:20px;"><b>โครงการ:</b> ${projectTxt}</span>
+        <span style="background:var(--brand-light); color:var(--brand-dark); padding:2px 9px; border-radius:20px;"><b>รอบอนุมัติ:</b> ${approvalTxt}</span>
+        ${readinessTxt ? `<span style="background:var(--bg); border:1px solid var(--border); color:var(--muted); padding:2px 9px; border-radius:20px;"><b>ความพร้อม:</b> ${readinessTxt}</span>` : ''}
+        ${arTxt ? `<span style="background:var(--bg); border:1px solid var(--border); color:var(--muted); padding:2px 9px; border-radius:20px;"><b>เลข AR:</b> ${arTxt}</span>` : ''}
+      </div>
+    </div>
+    <div class="call-meter">
+      <span>ถามครบ ${done} / ${total} หัวข้อ</span>
+      <span class="call-meter-bar"><span class="call-meter-fill" style="width:${pct}%;"></span></span>
+      <span style="font-weight:400; font-size:12px;">${done === total ? 'ครบแล้ว ✓' : 'เหลืออีก ' + (total - done)}</span>
+    </div>
+
+    <div class="call-sec">🔧 อุปกรณ์ (ถามเกษตรกร)</div>
+    <div class="call-fields">
+      <label class="${!boxType ? 'call-field-miss' : ''}"><span>ตู้${!boxType ? '<span class="call-ask">ต้องถาม</span>' : ''}</span>
+        <select ${dis} onchange="iotCallSetField('${nid}','boxType',this.value)"><option value="">— เลือก —</option><option value="no_button" ${boxType === 'no_button' ? 'selected' : ''}>ตู้ไม่มีปุ่มกด</option><option value="with_button" ${boxType === 'with_button' ? 'selected' : ''}>ตู้มีปุ่มกด</option></select></label>
+      ${dd('pumpType', 'pump_type', pumpType, 'ปั๊มน้ำ')}
+      ${dd('pipeSize', 'pipe_size', pipeSize, 'ขนาดท่อ')}
+      ${dd('valveSize', 'valve_size', valveSize, 'ขนาดวาล์ว')}
+      ${dd('waterSource', 'water_source', waterCur, 'แหล่งน้ำ')}
+      ${dd('irrigationType', 'irrigation_type', irrCur, 'รูปแบบการให้น้ำ')}
+    </div>
+
+    ${boxType === 'no_button' ? '' : `<div class="call-sec">💰 การชำระเงิน</div>
+    <div class="call-fields">
+      ${dd('paymentStatus', 'payment_status', paymentStatus, 'การชำระเงิน')}
+      <label><span>ยอดชำระ (บาท)</span><input type="number" min="0" step="1" inputmode="numeric" value="${_callEsc(amount)}" placeholder="บาท" ${dis} onchange="iotCallSetField('${nid}','paymentAmount',this.value)"></label>
+    </div>`}
+
+    <div class="call-sec">📅 ลงนัดหมาย</div>
+    <div class="call-fields">
+      <label class="${!e.installDate ? 'call-field-miss' : ''}"><span>เดือนที่นัด${!e.installDate ? '<span class="call-ask">ต้องนัด</span>' : ''}</span>
+        <select ${dis} onchange="iotCallSetSchedule('${nid}','month',this.value)">${getIotMonthOptionsHtml(planMonth)}</select></label>
+      <label class="${!e.installDate ? 'call-field-miss' : ''}"><span>สัปดาห์</span>
+        <select ${dis} onchange="iotCallSetSchedule('${nid}','week',this.value)"><option value="">— เลือก —</option>${weekOpts}</select></label>
+      <label class="${!installTeam ? 'call-field-miss' : ''}"><span>ทีมติดตั้ง${!installTeam ? '<span class="call-ask">ต้องเลือก</span>' : ''}</span>
+        <select data-dropcat="install_team" ${dis} onchange="iotCallSetField('${nid}','installTeam',this.value)"><option value="">— เลือกทีม —</option>${iotSelectOptionsHtml('install_team', installTeam)}</select></label>
+      ${dd('operatorName', 'operator', operatorName, 'ผู้ดำเนินการ')}
+    </div>
+
+    <div class="call-sec">🏷️ สถานะ &amp; หมายเหตุ</div>
+    <div class="call-fields">
+      <label><span>สถานะ</span><select ${dis} onchange="iotCallSetField('${nid}','status',this.value)">${statusOpts}</select></label>
+      <label style="grid-column:1 / -1;"><span>หมายเหตุ (ที่อยู่สวน/สิ่งที่ต้องเตรียม ฯลฯ)</span><input type="text" class="${note ? 'note-input-filled' : ''}" value="${_callEsc(note)}" placeholder="เช่น ที่อยู่สวนไม่ตรง / สะดวกช่วงบ่าย" ${dis} onchange="iotCallSetField('${nid}','note',this.value)"></label>
+    </div>
+
+    ${isReadOnlyUser ? '' : `<div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+      <span style="flex:1; align-self:center; font-size:11.5px; color:var(--muted);">บันทึกอัตโนมัติทุกช่อง</span>
+      <button class="btn btn-outline" onclick="iotCallDecline('${nid}')" title="ตั้งสละสิทธิ์แล้วข้ามไปคนถัดไป">ไม่รับ / สละสิทธิ์</button>
+      <button class="btn btn-brand" onclick="iotCallSaveNext()">บันทึก + คนถัดไป →</button>
+    </div>`}
+  </div>`;
 }
 
 function changeIotPlanCalendarMonth(delta) {
