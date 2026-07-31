@@ -1,0 +1,71 @@
+# Deploy เว็บขึ้น GitHub Pages อัตโนมัติ
+# ทำงานทุกครั้งที่โค้ดใน branch main เปลี่ยน (รวมถึงตอนลากไฟล์อัปโหลดหน้าเว็บ GitHub)
+# ขั้นตอน: ติดตั้ง dependency -> npm run build -> เอาโฟลเดอร์ dist ขึ้น Pages
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:        # กดรันเองได้จากแท็บ Actions
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# ถ้ากดอัปโหลดรัวๆ ให้ยกเลิกรอบเก่า เอารอบล่าสุดพอ
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ดึงโค้ดล่าสุด
+        uses: actions/checkout@v4
+
+      - name: ติดตั้ง Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: เตรียมค่าเชื่อมต่อ Supabase (.env)
+        env:
+          SB_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SB_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          if [ -n "$SB_URL" ] && [ -n "$SB_KEY" ]; then
+            printf 'VITE_SUPABASE_URL=%s\nVITE_SUPABASE_ANON_KEY=%s\n' "$SB_URL" "$SB_KEY" > .env
+            echo "ใช้ค่าจาก repository variables"
+          elif [ -f .env ]; then
+            echo "ใช้ไฟล์ .env ที่อยู่ใน repo"
+          else
+            echo "::error::ไม่พบไฟล์ .env และยังไม่ได้ตั้ง repository variables (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY) — ตั้งที่ Settings > Secrets and variables > Actions > Variables"
+            exit 1
+          fi
+
+      - name: ติดตั้ง dependency
+        run: npm install --no-audit --no-fund
+
+      - name: Build (Vite)
+        run: npm run build
+
+      - name: ตั้งค่า Pages
+        uses: actions/configure-pages@v5
+
+      - name: อัปโหลดผลลัพธ์จากโฟลเดอร์ dist
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: ปล่อยขึ้น GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
