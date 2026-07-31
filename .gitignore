@@ -1,0 +1,14 @@
+# dependencies / build output
+node_modules/
+dist/
+
+# logs & caches
+npm-debug.log*
+.vite/
+
+# editor / OS
+.DS_Store
+Thumbs.db
+
+# หมายเหตุ: ตอนนี้ยังอยู่ช่วง dev — จงใจ "ไม่" ignore ไฟล์ .env ตามที่ตกลงกัน
+# ถ้าจะขึ้น production ค่อยย้าย .env ออกและเพิ่มบรรทัด `.env` ที่นี่
