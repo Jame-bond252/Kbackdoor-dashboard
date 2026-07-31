@@ -1,0 +1,171 @@
+<div class="tab-content" id="tab-plan">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">แผนอบรมรายสัปดาห์ <span class="chip-pct" id="planCountBadge">0 รายการ</span></h1>
+        <p class="page-sub">โทรนัดเกษตรกร → ใส่วันที่นัดในตาราง → ระบบสรุปนัดหมายให้อัตโนมัติ (เพิ่มคนเข้าแผนได้จากแท็บแผนที่)</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-outline" onclick="syncPlanFromSupabase({showToastOnSuccess:true})"><i data-icon="refresh" data-size="15"></i> ซิงก์ล่าสุด</button>
+        <button class="btn btn-outline" onclick="exportPlanExcel()"><i data-icon="download" data-size="15"></i> Excel</button>
+        <button class="btn btn-outline" onclick="exportPlanPdf()" title="เปิดหน้าต่างพิมพ์ แล้วเลือก &quot;บันทึกเป็น PDF&quot; จากตัวเลือกเครื่องพิมพ์"><i data-icon="print" data-size="15"></i> พิมพ์ / PDF</button>
+      </div>
+    </div>
+
+    <div class="metric-grid appoint-grid">
+      <div class="metric is-today">
+        <div class="metric-top"><i data-icon="pin" data-size="15"></i><span class="metric-label">นัดอบรมวันนี้</span></div>
+        <div class="metric-value" id="planKpiToday">-</div>
+        <div class="metric-sub" id="planKpiTodayDate">-</div>
+      </div>
+      <div class="metric is-accent">
+        <div class="metric-top"><i data-icon="calendar-plain" data-size="15"></i><span class="metric-label">นัดแล้ว กำลังจะมาถึง</span></div>
+        <div class="metric-value" id="planKpiUpcoming">-</div>
+        <div class="metric-sub">นับจากพรุ่งนี้เป็นต้นไป</div>
+      </div>
+      <div class="metric">
+        <div class="metric-top"><i data-icon="pending" data-size="15"></i><span class="metric-label">ผ่านมาแล้ว</span></div>
+        <div class="metric-value" id="planKpiPast">-</div>
+        <div class="metric-sub" id="planKpiPastRange">ย้อนหลัง 7 วัน</div>
+      </div>
+      <div class="metric is-danger is-click" onclick="filterPlanByScheduled('no')" title="คลิกเพื่อดูรายชื่อคนที่ยังไม่นัด">
+        <div class="metric-top"><i data-icon="alert" data-size="15"></i><span class="metric-label">ยังไม่ได้นัด</span></div>
+        <div class="metric-value" id="planKpiNoDate">-</div>
+        <div class="metric-sub">คลิกเพื่อดูรายชื่อแล้วโทรนัดเลย →</div>
+      </div>
+    </div>
+
+    <div class="section">
+
+      <div class="plan-progress-wrap">
+        <div class="plan-progress-label">
+          <span>ความคืบหน้าแผนทั้งหมด</span>
+          <span id="planProgressText">0%</span>
+        </div>
+        <div class="plan-progress-track">
+          <div class="plan-progress-fill done" id="planProgressDone" style="width:0%"></div>
+          <div class="plan-progress-fill cancelled" id="planProgressCancelled" style="width:0%"></div>
+        </div>
+        <div class="plan-progress-legend">
+          <span><i class="dot done"></i>ไปแล้ว <b id="planProgressDoneCount">0</b></span>
+          <span><i class="dot pending"></i>ยังไม่ไป <b id="planProgressPendingCount">0</b></span>
+          <span><i class="dot cancelled"></i>ยกเลิก <b id="planProgressCancelledCount">0</b></span>
+        </div>
+      </div>
+
+      <div class="plan-timeline-cols">
+        <div class="plan-timeline-col">
+          <h3 class="plan-timeline-heading past"><i data-icon="pending" data-size="15"></i> ผ่านมาแล้ว</h3>
+          <div id="planPastList" class="plan-timeline-list"></div>
+        </div>
+        <div class="plan-timeline-col">
+          <h3 class="plan-timeline-heading upcoming"><i data-icon="calendar-plain" data-size="15"></i> วันนี้ &amp; กำลังจะมาถึง</h3>
+          <div id="planUpcomingList" class="plan-timeline-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="plan-toolbar">
+        <div class="plan-view-toggle seg">
+          <button class="view-toggle-btn active" data-view="table" onclick="switchPlanView('table')"><i data-icon="table" data-size="14"></i> ตาราง</button>
+          <button class="view-toggle-btn" data-view="calendar" onclick="switchPlanView('calendar')"><i data-icon="calendar-plain" data-size="14"></i> ปฏิทิน</button>
+        </div>
+        <span style="flex:1;"></span>
+        <button class="btn btn-outline btn-sm" onclick="toggleDateRangeTool()"><i data-icon="calendar-range" data-size="14"></i> ตั้งช่วงวันที่อัตโนมัติ</button>
+        <button class="btn btn-outline btn-sm" onclick="optimizePlanRoute()"><i data-icon="compass" data-size="14"></i> จัดเรียงเส้นทาง</button>
+        <button class="btn btn-quiet btn-sm" onclick="clearPlan()"><i data-icon="trash" data-size="14"></i> ล้างทั้งหมด</button>
+      </div>
+
+      <div id="dateRangeToolPanel" class="section" style="display:none; background:var(--bg); border:1px dashed var(--border); margin:0 0 14px;">
+        <h3 style="margin-top:0;"><i data-icon="calendar" data-size="15"></i> ตั้งช่วงวันที่อัตโนมัติ (แบ่งตามตำบล)</h3>
+        <p style="font-size:12.5px; color:var(--muted); margin-top:-6px;">
+          เลือกจังหวัด-อำเภอ + ช่วงวันที่ที่จะไปอบรม ระบบจะแบ่งแต่ละตำบลในอำเภอนั้นให้คนละวันแบบวนรอบให้อัตโนมัติ (เฉพาะคนที่ยังไม่มีวันนัดในอำเภอนั้น) — เหมาะกับกรณีทีมงานอยู่พื้นที่หลายวัน เช่น 21-25 ก.ค.
+        </p>
+        <div class="filters">
+          <div>
+            <label>จังหวัด</label>
+            <select id="dateRangeToolProvince" onchange="onDateRangeToolProvinceChange()"><option value="">เลือกจังหวัด</option></select>
+          </div>
+          <div>
+            <label>อำเภอ</label>
+            <select id="dateRangeToolDistrict" onchange="previewDateRangeTool()"><option value="">เลือกอำเภอ</option></select>
+          </div>
+          <div>
+            <label>วันเริ่ม</label>
+            <input type="date" id="dateRangeToolStart" onchange="previewDateRangeTool()">
+          </div>
+          <div>
+            <label>วันสิ้นสุด</label>
+            <input type="date" id="dateRangeToolEnd" onchange="previewDateRangeTool()">
+          </div>
+        </div>
+        <div id="dateRangeToolPreview"></div>
+        <div class="plan-toolbar" style="margin-top:10px;">
+          <button class="btn btn-brand" onclick="confirmDateRangeTool()"><i data-icon="check" data-size="15"></i> ยืนยันตั้งวันที่</button>
+          <button class="btn btn-outline" onclick="toggleDateRangeTool(false)">ยกเลิก</button>
+        </div>
+      </div>
+
+      <div class="plan-view-toggle" id="planScheduleTabs" style="margin:0 0 12px;">
+        <button class="view-toggle-btn active" data-schedtab="" onclick="setPlanScheduleTab('')">ทั้งหมด</button>
+        <button class="view-toggle-btn" data-schedtab="no" onclick="setPlanScheduleTab('no')"><i data-icon="pending" data-size="15"></i> ยังไม่นัด</button>
+        <button class="view-toggle-btn" data-schedtab="yes" onclick="setPlanScheduleTab('yes')"><i data-icon="calendar-plain" data-size="15"></i> นัดแล้ว</button>
+      </div>
+
+      <div class="filters">
+        <div>
+          <label>จังหวัด</label>
+          <select id="planFilterProvince"><option value="">ทุกจังหวัด</option></select>
+        </div>
+        <div>
+          <label>อำเภอ</label>
+          <select id="planFilterDistrict"><option value="">ทุกอำเภอ</option></select>
+        </div>
+        <div>
+          <label>ตำบล</label>
+          <select id="planFilterSubdistrict"><option value="">ทุกตำบล</option></select>
+        </div>
+        <div>
+          <label>สถานะ</label>
+          <select id="planFilterStatus">
+            <option value="">ทุกสถานะ</option>
+            <option value="pending">ยังไม่ไป</option>
+            <option value="done">ไปแล้ว</option>
+            <option value="cancelled">ยกเลิก</option>
+          </select>
+        </div>
+        <div>
+          <label>การนัดหมาย</label>
+          <select id="planFilterScheduled">
+            <option value="">ทั้งหมด</option>
+            <option value="yes"><i data-icon="check" data-size="15"></i> นัดแล้ว</option>
+            <option value="no">− ยังไม่นัด</option>
+          </select>
+        </div>
+        <div style="flex:1;">
+          <label>ค้นหาชื่อ / เลขบัตรประชาชน</label>
+          <input id="planFilterSearch" type="text" placeholder="พิมพ์เพื่อค้นหาในรายการที่วางแผนไว้...">
+        </div>
+      </div>
+      <div id="planFilterCountInfo" style="font-size:12px; color:var(--muted); margin:-6px 0 4px;">แสดง 0 จาก 0 รายการ</div>
+      <div id="planDateFilterChip" style="display:none;"></div>
+
+      <div id="planTableView" class="table-wrap" style="margin-top:12px;">
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>ลำดับ</th><th>นัดหมาย</th><th>วันที่นัด</th><th>สถานะ</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th>
+              <th>เบอร์ติดต่อ</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>ตำแหน่ง (Google Maps)</th><th>หมายเหตุ</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="planTbody"></tbody>
+        </table>
+      </div>
+
+      <div id="planCalendarView" class="plan-calendar-view" style="display:none;"></div>
+
+      <p style="font-size:12px; color:var(--muted); margin-top:10px;">
+        หมายเหตุ: ถ้าตั้งค่า Supabase ไว้แล้ว รายการในแผนจะซิงก์ขึ้นอัตโนมัติให้ทีมงานคนอื่นเห็นแผนเดียวกันได้ (กด "<i data-icon="refresh" data-size="15"></i> ซิงก์ล่าสุด" เพื่อดึงการเปลี่ยนแปลงจากคนอื่น) ถ้ายังไม่ได้ตั้งค่า Supabase ระบบจะเก็บไว้ในเบราว์เซอร์นี้เท่านั้น กดส่งออก Excel เพื่อแชร์แผนให้คนอื่นได้เสมอ
+      </p>
+    </div>
+  </div>

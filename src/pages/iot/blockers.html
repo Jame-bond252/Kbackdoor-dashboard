@@ -1,0 +1,58 @@
+<div class="tab-content" id="tab-iot-blockers">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">ทำเครื่องหมายว่าติดตั้งไม่ได้</h1>
+        <p class="page-sub">ใช้เมื่อพบว่าเกษตรกรคนนี้ติดตั้งไม่ได้ด้วยเหตุผลบางอย่าง (เช่น ปั๊มเครื่องยนต์ที่ตู้ไม่รองรับ) — ไม่ว่าจะยังไม่เข้าแผนติดตั้งหรืออยู่ในแผนอยู่แล้วก็ทำเครื่องหมายได้ สถานะนี้แยกอิสระจากสถานะในแผนติดตั้ง แก้ไขเหตุผลหรือยกเลิกเครื่องหมายเมื่อไหร่ก็ได้</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <input type="text" id="iotBlockerSearchInput" placeholder="ค้นหาชื่อ / เลขบัตรประชาชน / เบอร์ เพื่อทำเครื่องหมาย..." oninput="renderIotBlockerSearchResults()" style="margin-bottom:10px;">
+      <div class="table-wrap">
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์มือถือ</th><th>สถานะในระบบ OTOD</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="iotBlockerSearchTbody">
+            <tr><td colspan="5" class="empty-state-cell"><span class="empty-text">พิมพ์ชื่อ/เลขบัตร/เบอร์ด้านบนเพื่อค้นหาคนที่จะทำเครื่องหมายครับ</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section" id="iotCancelledLegacySection" style="display:none;">
+      <h2><i data-icon="warning" data-size="15"></i> เคยกด "สละสิทธิ์" ไว้ แต่ยังไม่มีเหตุผล <span class="badge" id="iotCancelledLegacyBadge">0 รายการ</span></h2>
+      <p style="font-size:13px; color:var(--muted); margin:-6px 0 12px;">
+        คนกลุ่มนี้ถูกกดสละสิทธิ์ไว้ตอนก่อนปรับระบบ เลยยังไม่ได้บันทึกเหตุผลและไม่โผล่ในรายการด้านล่าง — เลือกได้ว่าจะใส่เหตุผลให้เป็น "ติดตั้งไม่ได้" อย่างเป็นทางการ หรือดึงกลับเข้าคิวโทรนัดใหม่
+      </p>
+      <div class="table-wrap">
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์มือถือ</th><th>จังหวัด</th><th>อำเภอ</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="iotCancelledLegacyTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2><i data-icon="clipboard" data-size="15"></i> รายชื่อที่ติดตั้งไม่ได้ตอนนี้ <span class="badge" id="iotBlockerListCountBadge">0 รายการ</span></h2>
+      <input type="text" id="iotBlockerListSearch" placeholder="ค้นหาในรายการนี้..." oninput="renderIotBlockerList()" style="margin-bottom:10px;">
+      <div class="table-wrap">
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์มือถือ</th><th>เหตุผล</th><th>ทำเครื่องหมายโดย</th><th>เมื่อ</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="iotBlockerListTbody">
+            <tr><td colspan="7" class="empty-state-cell"><span class="empty-text">ยังไม่มีใครติดสถานะนี้เลยครับ</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>

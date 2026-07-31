@@ -1,0 +1,49 @@
+<div class="tab-content" id="tab-iot-box">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">แดชบอร์ดทีมผลิตตู้ IoT</h1>
+        <p class="page-sub">สรุปจำนวนตู้ที่ต้องเตรียมจากแผนติดตั้ง IoT ทั้งหมด (ไม่รวมรายการที่สละสิทธิ์) — หน้านี้เป็นแดชบอร์ดสรุปตัวเลขล้วนๆ ไม่มีชื่อ เลขบัตรประชาชน เบอร์ติดต่อ หรือข้อมูลส่วนบุคคลใดๆ ทั้งสิ้น</p>
+      </div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric "><div class="metric-top"><i data-icon="package" data-size="15"></i><span class="metric-label">ตู้ทั้งหมดที่ต้องเตรียม</span></div><div class="metric-value" id="iotBoxKpiTotal">-</div><div class="metric-sub" id="iotBoxKpiProvinces">- จังหวัด</div></div>
+      <div class="metric is-accent"><div class="metric-top"><i data-icon="dot" data-size="15"></i><span class="metric-label">ตู้มีปุ่มกด</span></div><div class="metric-value" id="iotBoxKpiWithButton">-</div><div class="metric-sub" id="iotBoxKpiWithButtonPct">-</div></div>
+      <div class="metric is-danger"><div class="metric-top"><i data-icon="dot" data-size="15"></i><span class="metric-label">ตู้ไม่มีปุ่มกด</span></div><div class="metric-value" id="iotBoxKpiNoButton">-</div><div class="metric-sub" id="iotBoxKpiNoButtonPct">-</div></div>
+      <div class="metric "><div class="metric-top"><i data-icon="help" data-size="15"></i><span class="metric-label">ยังไม่ระบุประเภทตู้</span></div><div class="metric-value" id="iotBoxKpiUnspecified">-</div><div class="metric-sub">ต้องสอบถามเพิ่ม</div></div>
+    </div>
+
+    <div class="section">
+      <h2>สรุปจำนวนตู้แยกรายทีมติดตั้ง</h2>
+      <table class="summary-table">
+        <thead>
+          <tr><th>ทีมติดตั้ง</th><th class="num">ตู้มีปุ่มกด</th><th class="num">ตู้ไม่มีปุ่มกด</th><th class="num">ยังไม่ระบุประเภท</th><th class="num">รวม</th></tr>
+        </thead>
+        <tbody id="iotBoxTeamTbody"></tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>สรุปจำนวนตู้แยกรายจังหวัด</h2>
+      <table class="summary-table">
+        <thead>
+          <tr><th>จังหวัด</th><th class="num">ตู้มีปุ่มกด</th><th class="num">ตู้ไม่มีปุ่มกด</th><th class="num">ยังไม่ระบุประเภท</th><th class="num">รวม</th></tr>
+        </thead>
+        <tbody id="iotBoxProvinceTbody"></tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="plan-toolbar">
+        <h2 style="margin:0; flex:1;">แต่ละทีมติดตั้งไปจังหวัดไหนบ้าง</h2>
+        <button class="btn btn-outline" onclick="exportIotBoxReportPdf()" title="เปิดหน้าต่างพิมพ์ แล้วเลือก &quot;บันทึกเป็น PDF&quot; จากตัวเลือกเครื่องพิมพ์"><i data-icon="print" data-size="15"></i> พิมพ์ / บันทึกเป็น PDF</button>
+      </div>
+      <p style="font-size:13px; color:var(--muted); margin-top:-6px;">รายงานสำหรับทีมผลิตตู้ — จังหวัดไหน ต้องเตรียมกี่ตู้ และเป็นของทีมติดตั้งไหนบ้าง</p>
+      <table class="summary-table">
+        <thead>
+          <tr><th>ทีมติดตั้ง</th><th>จังหวัด</th><th class="num">ตู้มีปุ่มกด</th><th class="num">ตู้ไม่มีปุ่มกด</th><th class="num">ยังไม่ระบุ</th><th class="num">รวม</th></tr>
+        </thead>
+        <tbody id="iotBoxTeamProvinceTbody"></tbody>
+      </table>
+    </div>
+  </div>

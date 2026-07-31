@@ -1,0 +1,41 @@
+<div class="tab-content" id="tab-iot-manual-code">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">กรอกรหัสฐานเอง <span class="chip-pct" id="iotManualCodeCandidateBadge">0 รายการรอ</span></h1>
+        <p class="page-sub">ใช้ตอนเกษตรกรได้รับตู้แล้วจริง แต่บัญชีแอปที่เชื่อมมาชื่อไม่ตรงกับคนที่ได้รับ (เช่น ยืมเบอร์คนอื่นเชื่อม) ทำให้ระบบจับคู่อัตโนมัติไม่เจอ — ด้านล่างนี้ระบบจะดึงรายชื่อคนที่น่าจะรอกรอกรหัสฐานขึ้นมาให้อัตโนมัติ (แผนบอกว่าติดตั้งแล้วแต่ระบบยังไม่อัปเดต หรือติดตั้งแล้วแต่ไม่มี SN เลย) หรือจะพิมพ์ค้นหาคนอื่นเพิ่มเติมก็ได้ — พิมพ์รหัสฐาน (เช่น AR_0008) แล้วบันทึก ระบบจะไปเทียบกับชีตรหัสตู้เพื่อดึง SN ตัวจริง แล้วเปลี่ยนสถานะเป็น "ได้ตู้แล้ว" ให้อัตโนมัติทันที</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <input type="text" id="iotManualCodeSearchInput" placeholder="ค้นหาชื่อ / เลขบัตรประชาชน / เบอร์ เพื่อกรอกรหัสฐาน... (เว้นว่างไว้เพื่อดูรายชื่อที่รออยู่)" oninput="renderIotManualCodeSearchResults()" style="margin-bottom:10px;">
+      <div class="table-wrap">
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์มือถือ</th><th>สถานะปัจจุบัน</th><th>เหตุผล</th><th>รหัสฐาน</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="iotManualCodeSearchTbody">
+            <tr><td colspan="7" class="empty-state-cell"><span class="empty-text">กำลังโหลดรายชื่อ...</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2><i data-icon="clipboard" data-size="15"></i> รายชื่อที่กรอกรหัสฐานไว้แล้ว <span class="badge" id="iotManualCodeListCountBadge">0 รายการ</span></h2>
+      <input type="text" id="iotManualCodeListSearch" placeholder="ค้นหาในรายการที่กรอกแล้ว..." oninput="renderIotManualCodeList()" style="margin-bottom:10px;">
+      <div class="table-wrap">
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์มือถือ</th><th>รหัสฐาน</th><th>SN ตู้</th><th>จังหวัด</th><th>กรอกโดย</th><th>กรอกเมื่อ</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="iotManualCodeListTbody">
+            <tr><td colspan="9" class="empty-state-cell"><span class="empty-text">ยังไม่มีรายการที่กรอกรหัสฐานเองเลยครับ</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>

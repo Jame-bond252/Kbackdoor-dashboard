@@ -1,0 +1,154 @@
+<div class="tab-content" id="tab-iot-dashboard">
+
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">แดชบอร์ดติดตั้ง IoT</h1>
+        <p class="page-sub">ภาพรวมสถานะติดตั้งตู้ IoT ทั้งหมดในระบบ OTOD</p>
+      </div>
+      <div class="page-actions">
+        <div class="iot-project-filter-bar is-inline">
+          <label for="iotProjectFilterDash"><i data-icon="folder" data-size="14"></i> โครงการ</label>
+          <select id="iotProjectFilterDash" onchange="applyIotProjectFilter(this.value)">
+            <option value="">ทุกโครงการ</option>
+          </select>
+        </div>
+        <button class="btn btn-outline" onclick="exportIotCsv()"><i data-icon="download" data-size="15"></i> ส่งออก CSV</button>
+        <button class="btn btn-brand" onclick="loadIotData()"><i data-icon="refresh" data-size="15"></i> ดึงข้อมูลล่าสุด</button>
+      </div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric">
+        <div class="metric-top"><i data-icon="users" data-size="15"></i><span class="metric-label">เกษตรกรทั้งหมด</span></div>
+        <div class="metric-value" id="iotKpiTotal">-</div>
+        <div class="metric-sub" id="iotKpiProvinces">- จังหวัด</div>
+      </div>
+      <div class="metric is-accent">
+        <div class="metric-top"><i data-icon="done" data-size="15"></i><span class="metric-label">ติดตั้งแล้ว</span></div>
+        <div class="metric-value" id="iotKpiY">-</div>
+        <div class="metric-sub" id="iotKpiYPct">-</div>
+        <div class="metric-spark" id="iotKpiYSparkline"></div>
+      </div>
+      <div class="metric is-danger">
+        <div class="metric-top"><i data-icon="not-allowed" data-size="15"></i><span class="metric-label">ยังไม่ติดตั้ง</span></div>
+        <div class="metric-value" id="iotKpiN">-</div>
+        <div class="metric-sub" id="iotKpiNPct">-</div>
+      </div>
+      <div class="metric">
+        <div class="metric-top"><i data-icon="trophy" data-size="15"></i><span class="metric-label">จังหวัดที่ติดตั้งครบ 100%</span></div>
+        <div class="metric-value" id="iotKpiFullProvinces">-</div>
+        <div class="metric-sub">จากทั้งหมด</div>
+      </div>
+    </div>
+
+    <div class="dash-grid" style="margin-top:16px;">
+      <div class="dash-main">
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title"><i data-icon="calendar-plain" data-size="16"></i> นัดติดตั้งรายวัน</h2>
+            <div class="plan-range-row" style="margin:0;">
+              <span class="plan-range-label">ดูย้อนหลัง:</span>
+              <button class="range-btn" data-range="1" onclick="setIotPlanLookback(1)">1 วัน</button>
+              <button class="range-btn" data-range="3" onclick="setIotPlanLookback(3)">3 วัน</button>
+              <button class="range-btn active" data-range="7" onclick="setIotPlanLookback(7)">7 วัน</button>
+              <button class="range-btn" data-range="30" onclick="setIotPlanLookback(30)">30 วัน</button>
+            </div>
+          </div>
+          <div class="panel-body"><div class="chart-wrap plan-chart-wrap"><canvas id="iotPlanTimelineChart"></canvas></div></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title"><i data-icon="chart" data-size="16"></i> เปรียบเทียบสถานะรายจังหวัด</h2>
+            <span class="panel-sub">เขียว = ติดตั้งแล้ว · แดง = ยังไม่ติดตั้ง</span>
+          </div>
+          <div class="panel-body"><div class="chart-wrap"><canvas id="iotProvinceChart"></canvas></div></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title"><i data-icon="table" data-size="16"></i> สรุปจำนวนแยกรายจังหวัด</h2>
+          </div>
+          <div class="panel-body is-flush">
+            <div class="tbl-wrap">
+              <table class="tbl">
+                <thead>
+                  <tr><th>จังหวัด</th><th class="num">ติดตั้งแล้ว</th><th class="num">ยังไม่ติดตั้ง</th><th class="num">รวม</th><th style="width:190px;">ความคืบหน้า</th></tr>
+                </thead>
+                <tbody id="iotProvinceTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <button class="panel-head is-toggle" onclick="toggleDetail('iotDetailBody','iotDetailChevron')">
+            <h2 class="panel-title"><i data-icon="clipboard" data-size="16"></i> รายละเอียดรายบุคคล <span class="chip-pct" id="iotDetailCountBadge">0 รายการ</span></h2>
+            <span class="chevron" id="iotDetailChevron"><i data-icon="right" data-size="17"></i></span>
+          </button>
+
+          <div id="iotDetailBody" style="display:none;">
+            <div class="filterbar">
+              <div class="field">
+                <label>จังหวัด (ที่ตั้งสวน)</label>
+                <select id="iotFilterProvince"><option value="">ทั้งหมด</option></select>
+              </div>
+              <div class="field">
+                <label>สถานะติดตั้ง</label>
+                <select id="iotFilterStatus">
+                  <option value="">ทั้งหมด</option>
+                  <option value="Y">ติดตั้งแล้ว</option>
+                  <option value="N">ยังไม่ติดตั้ง</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>เชื่อมต่อแอป</label>
+                <select id="iotFilterAppConnected">
+                  <option value="">ทั้งหมด</option>
+                  <option value="Y">เชื่อมต่อแล้ว</option>
+                  <option value="N">ยังไม่เชื่อมต่อ</option>
+                </select>
+              </div>
+              <div class="field is-grow">
+                <label>ค้นหาชื่อ / นามสกุล / เลขบัตร</label>
+                <div class="search-field">
+                  <i data-icon="search" data-size="15"></i>
+                  <input id="iotFilterSearch" type="text" placeholder="พิมพ์เพื่อค้นหา...">
+                </div>
+              </div>
+            </div>
+
+            <div class="tbl-wrap">
+              <table class="tbl is-sticky-first">
+                <thead>
+                  <tr>
+                    <th>ชื่อ</th><th>นามสกุล</th><th>สถานะ</th><th>เชื่อมต่อแอป</th><th>รหัสอ้างอิง</th><th>คำนำหน้า</th>
+                    <th>เลขบัตรประชาชน</th><th>เบอร์มือถือ</th><th>จังหวัด</th><th>อำเภอ</th>
+                    <th>ตำบล</th><th>SN ตู้ (จากแอป)</th><th>รอบการอนุมัติ</th>
+                  </tr>
+                </thead>
+                <tbody id="iotTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <aside class="dash-rail">
+        <div class="panel">
+          <div class="panel-head"><h2 class="panel-title">สรุปสถานะ</h2></div>
+          <div class="rail-list" id="iotDashStatusList"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">อันดับจังหวัด</h2>
+            <span class="panel-sub">% ติดตั้งแล้ว</span>
+          </div>
+          <div class="rank-list" id="iotProvinceRankList"></div>
+        </div>
+      </aside>
+    </div>
+  </div>

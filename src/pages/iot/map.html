@@ -1,0 +1,94 @@
+<div class="tab-content" id="tab-iot-map">
+
+  <div class="geo-stage">
+
+    <div class="thailand-map-wrap geo-canvas">
+      <div class="map-loading" id="iotMapLoading"><span class="spinner-inline"></span>กำลังโหลดข้อมูลแผนที่/ข้อมูล IoT...</div>
+      <svg id="iotSvg" viewBox="0 0 460 620" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+        <g id="iotMapG"></g>
+        <g id="iotDistrictLayer"></g>
+        <g id="iotLabelLayer"></g>
+      </svg>
+      <div id="iotMapLabelsHtml"></div>
+    </div>
+
+    <button class="map-back-overlay" id="iotMapBackBtn" onclick="backOneIotLevel()"><i data-icon="left" data-size="15"></i> กลับ</button>
+    <div class="map-title-overlay" id="iotMapTitleOverlay" style="display:none;"></div>
+
+    <div class="geo-zoom">
+      <button onclick="geoZoom('iotSvg', -1)" title="ซูมออก">−</button>
+      <button onclick="geoZoom('iotSvg', 1)" title="ซูมเข้า">+</button>
+    </div>
+
+    <div class="geo-foot">
+      <span class="map-legend"><span class="legend-dot" style="background:var(--brand);"></span>มีข้อมูล · <span class="legend-dot" style="background:var(--surface-3);"></span>ไม่มีข้อมูล</span>
+      <span class="map-caption" id="iotMapCaption">ขอบเขตจริงจาก OpenGISData-Thailand · ตำแหน่งอ้างอิงจากที่ตั้งสวน</span>
+    </div>
+
+    <aside class="geo-panel">
+      <div class="geo-panel-top">
+        <h1 class="geo-title"><i data-icon="iot" data-size="17"></i> แผนที่ติดตั้ง IoT</h1>
+        <p class="geo-sub">คลิกจังหวัด → อำเภอ → รายชื่อคน · กดชื่อคนหรือปุ่ม "โทรนัด" เพื่อไปเมนูโทรนัดทันที</p>
+
+        <div class="iot-project-filter-bar is-inline geo-project">
+          <label for="iotProjectFilterMap"><i data-icon="folder" data-size="14"></i> โครงการ</label>
+          <select id="iotProjectFilterMap" onchange="applyIotProjectFilter(this.value)">
+            <option value="">ทุกโครงการ</option>
+          </select>
+        </div>
+
+        <div class="geo-search">
+          <div class="search-field">
+            <i data-icon="search" data-size="15"></i>
+            <input id="iotPersonSearch" type="text" placeholder="ค้นหา" onkeydown="if(event.key==='Enter') searchAndZoomIotPerson()">
+          </div>
+        </div>
+        <div id="iotMapSearchStatus"></div>
+
+        <div class="scoreboard">
+          <div class="score-side yes">
+            <div class="score-num" id="iotScoreY">-</div>
+            <div class="score-label">ติดตั้งแล้ว</div>
+          </div>
+          <div class="score-mid">
+            <div class="score-bar">
+              <div class="score-bar-fill-y" id="iotScoreBarY" style="width:50%"></div>
+              <div class="score-bar-fill-n" id="iotScoreBarN" style="width:50%"></div>
+            </div>
+            <div class="score-pct-labels">
+              <span id="iotScorePctY">50%</span>
+              <span id="iotScoreScope">ผลรวมทั่วประเทศ</span>
+              <span id="iotScorePctN">50%</span>
+            </div>
+          </div>
+          <div class="score-side no">
+            <div class="score-num" id="iotScoreN">-</div>
+            <div class="score-label">ยังไม่ติดตั้ง</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="geo-panel-scroll">
+        <div class="geo-list-block">
+          <div class="lb-title" id="iotLbTitle">อันดับจังหวัด (% ติดตั้งแล้ว)</div>
+          <button class="btn btn-brand btn-sm" id="iotLbMultiDistrictBtn" style="display:none; width:100%; margin:2px 0 10px;" title="ดูรายชื่อยังไม่ติดตั้งของทุกอำเภอในจังหวัดนี้ รวมหน้าเดียว"><i data-icon="users" data-size="15"></i> ดูรายชื่อทุกอำเภอในจังหวัดนี้</button>
+          <div class="leaderboard" id="iotLeaderboard"></div>
+        </div>
+      </div>
+    </aside>
+
+  
+    <aside class="geo-drawer" id="iotGeoDrawer">
+      <div class="geo-drawer-head">
+        <span class="geo-drawer-title"><i data-icon="users" data-size="15"></i> รายชื่อบุคคล</span>
+        <button class="btn btn-quiet btn-icon btn-sm" onclick="geoDrawerWide('iotGeoDrawer')" title="ขยาย/ย่อความกว้าง"><i data-icon="external" data-size="14"></i></button>
+        <button class="btn btn-quiet btn-icon btn-sm" onclick="geoDrawerMin('iotGeoDrawer', true)" title="พับเก็บ"><i data-icon="right" data-size="15"></i></button>
+      </div>
+      <div class="geo-drawer-body">
+        <div class="people-panel" id="iotPeoplePanel"></div>
+      </div>
+      <button class="geo-drawer-tab" onclick="geoDrawerMin('iotGeoDrawer', false)"><i data-icon="users" data-size="15"></i> รายชื่อ</button>
+    </aside>
+
+</div>
+</div>

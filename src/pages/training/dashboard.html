@@ -1,0 +1,139 @@
+<div class="tab-content active" id="tab-dashboard">
+
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">แดชบอร์ดอบรม</h1>
+      <p class="page-sub">ภาพรวมสถานะอบรมเกษตรกรทั้งหมดในระบบ OTOD</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-outline" onclick="exportCsv()"><i data-icon="download" data-size="15"></i> ส่งออก CSV</button>
+      <button class="btn btn-brand" onclick="loadData()"><i data-icon="refresh" data-size="15"></i> ดึงข้อมูลล่าสุด</button>
+    </div>
+  </div>
+
+  <div class="metric-grid">
+    <div class="metric">
+      <div class="metric-top"><i data-icon="users" data-size="15"></i><span class="metric-label">เกษตรกรทั้งหมด</span></div>
+      <div class="metric-value" id="kpiTotal">-</div>
+      <div class="metric-sub" id="kpiProvinces">- จังหวัด</div>
+    </div>
+    <div class="metric is-accent">
+      <div class="metric-top"><i data-icon="done" data-size="15"></i><span class="metric-label">อบรมแล้ว</span></div>
+      <div class="metric-value" id="kpiY">-</div>
+      <div class="metric-sub" id="kpiYPct">-</div>
+      <div class="metric-spark" id="kpiYSparkline"></div>
+    </div>
+    <div class="metric is-danger">
+      <div class="metric-top"><i data-icon="not-allowed" data-size="15"></i><span class="metric-label">ยังไม่ผ่าน</span></div>
+      <div class="metric-value" id="kpiN">-</div>
+      <div class="metric-sub" id="kpiNPct">-</div>
+    </div>
+    <div class="metric">
+      <div class="metric-top"><i data-icon="trophy" data-size="15"></i><span class="metric-label">จังหวัดที่อบรมครบ 100%</span></div>
+      <div class="metric-value" id="kpiFullProvinces">-</div>
+      <div class="metric-sub">จากทั้งหมด</div>
+    </div>
+  </div>
+
+  <div class="dash-grid" style="margin-top:16px;">
+    <div class="dash-main">
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title"><i data-icon="calendar-plain" data-size="16"></i> นัดอบรมรายวัน</h2>
+          <div class="plan-range-row" style="margin:0;">
+            <span class="plan-range-label">ดูย้อนหลัง:</span>
+            <button class="range-btn" data-range="1" onclick="setPlanLookback(1)">1 วัน</button>
+            <button class="range-btn" data-range="3" onclick="setPlanLookback(3)">3 วัน</button>
+            <button class="range-btn active" data-range="7" onclick="setPlanLookback(7)">7 วัน</button>
+            <button class="range-btn" data-range="30" onclick="setPlanLookback(30)">30 วัน</button>
+          </div>
+        </div>
+        <div class="panel-body"><div class="chart-wrap plan-chart-wrap"><canvas id="planTimelineChart"></canvas></div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title"><i data-icon="chart" data-size="16"></i> เปรียบเทียบสถานะรายจังหวัด</h2>
+          <span class="panel-sub">เขียว = อบรมแล้ว · แดง = ยังไม่ผ่าน</span>
+        </div>
+        <div class="panel-body"><div class="chart-wrap"><canvas id="provinceChart"></canvas></div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title"><i data-icon="table" data-size="16"></i> สรุปจำนวนแยกรายจังหวัด</h2>
+        </div>
+        <div class="panel-body is-flush">
+          <div class="tbl-wrap">
+            <table class="tbl">
+              <thead>
+                <tr><th>จังหวัด</th><th class="num">อบรมแล้ว</th><th class="num">ยังไม่ผ่าน</th><th class="num">รวม</th><th style="width:190px;">ความคืบหน้า</th></tr>
+              </thead>
+              <tbody id="provinceTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <button class="panel-head is-toggle" onclick="toggleDetail()">
+          <h2 class="panel-title"><i data-icon="clipboard" data-size="16"></i> รายละเอียดรายบุคคล <span class="chip-pct" id="detailCountBadge">0 รายการ</span></h2>
+          <span class="chevron" id="detailChevron"><i data-icon="right" data-size="17"></i></span>
+        </button>
+
+        <div id="detailBody" style="display:none;">
+          <div class="filterbar">
+            <div class="field">
+              <label>จังหวัด</label>
+              <select id="filterProvince"><option value="">ทั้งหมด</option></select>
+            </div>
+            <div class="field">
+              <label>สถานะอบรม</label>
+              <select id="filterStatus">
+                <option value="">ทั้งหมด</option>
+                <option value="Y">อบรมแล้ว</option>
+                <option value="N">ยังไม่ผ่าน</option>
+              </select>
+            </div>
+            <div class="field is-grow">
+              <label>ค้นหาชื่อ / นามสกุล / เลขบัตร</label>
+              <div class="search-field"><i data-icon="search" data-size="15"></i>
+                <input id="filterSearch" type="text" placeholder="พิมพ์เพื่อค้นหา...">
+              </div>
+            </div>
+          </div>
+
+          <div class="tbl-wrap">
+            <table class="tbl is-sticky-first">
+              <thead>
+                <tr>
+                  <th>ชื่อ</th><th>นามสกุล</th><th>สถานะอบรม</th><th>เลขที่สมัคร</th><th>คำนำหน้า</th>
+                  <th>เลขบัตรประชาชน</th><th>เบอร์ติดต่อ</th><th>จังหวัด</th><th>อำเภอ</th>
+                  <th>ตำบล</th><th>รอบการอนุมัติ</th><th>เวลาอัพโหลด</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <aside class="dash-rail">
+      <div class="panel">
+        <div class="panel-head"><h2 class="panel-title">สรุปสถานะ</h2></div>
+        <div class="rail-list" id="dashStatusList"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">อันดับจังหวัด</h2>
+          <span class="panel-sub">% อบรมสำเร็จ</span>
+        </div>
+        <div class="rank-list" id="provinceRankList"></div>
+      </div>
+    </aside>
+  </div>
+</div>

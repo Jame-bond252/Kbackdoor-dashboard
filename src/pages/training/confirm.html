@@ -1,0 +1,59 @@
+<div class="tab-content" id="tab-training-confirm">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">ยืนยันว่าอบรมแล้ว (มาร์คเอง) <span class="chip-pct" id="trainingConfirmMarkedBadge">0 คนที่มาร์คเอง</span></h1>
+        <p class="page-sub">ใช้ตอนแอดมินรู้ว่าเกษตรกรอบรมเสร็จแล้วจริง แต่ข้อมูลที่ซิงก์มายังขึ้นว่า "ยังไม่อบรม" อยู่ — ติ๊กเลือกรายคนแล้วกดมาร์ค หรือมาร์คทั้งตำบลทีเดียวก็ได้ (มาร์คเฉพาะคนที่ยังไม่อบรม) พอมาร์คแล้วคนนั้นจะนับเป็น "อบรมแล้ว" ทันทีทุกหน้า (แดชบอร์ด/แผนที่) และกดยกเลิกได้ถ้ามาร์คผิด</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="filters">
+        <div>
+          <label>จังหวัด</label>
+          <select id="trainingConfirmFilterProvince"><option value="">ทุกจังหวัด</option></select>
+        </div>
+        <div>
+          <label>อำเภอ</label>
+          <select id="trainingConfirmFilterDistrict"><option value="">ทุกอำเภอ</option></select>
+        </div>
+        <div>
+          <label>ตำบล</label>
+          <select id="trainingConfirmFilterSubdistrict"><option value="">ทุกตำบล</option></select>
+        </div>
+        <div>
+          <label>สถานะอบรม</label>
+          <select id="trainingConfirmFilterStatus">
+            <option value="">ทุกสถานะ</option>
+            <option value="untrained">ยังไม่อบรม</option>
+            <option value="trained_sync">อบรมแล้ว (จากระบบ)</option>
+            <option value="trained_manual">อบรมแล้ว (มาร์คเอง)</option>
+          </select>
+        </div>
+        <div style="flex:1;">
+          <label>ค้นหาชื่อ / เลขบัตรประชาชน</label>
+          <input id="trainingConfirmFilterSearch" type="text" placeholder="พิมพ์เพื่อค้นหา...">
+        </div>
+      </div>
+      <div id="trainingConfirmCountInfo" style="font-size:12px; color:var(--muted); margin:-6px 0 4px;">แสดง 0 จาก 0 คน</div>
+
+      <div id="trainingConfirmBulkBar" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:6px 0 8px;">
+        <span id="trainingConfirmSelectedCount" style="font-size:12.5px; color:var(--muted);">เลือกแล้ว 0 คน</span>
+        <button type="button" class="btn btn-brand" onclick="markTrainingConfirmSelected()"><i data-icon="check" data-size="15"></i> ทำเครื่องหมายว่าอบรมแล้ว (ที่เลือก)</button>
+        <button type="button" class="btn btn-outline" onclick="markTrainingConfirmFilteredUntrained()"><i data-icon="check" data-size="15"></i> มาร์คทุกคนที่ยังไม่อบรมในรายการนี้</button>
+      </div>
+
+      <div id="trainingConfirmTableWrap" class="table-wrap" style="max-height:560px;">
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th style="width:28px;"><input type="checkbox" id="trainingConfirmSelectAll" onchange="toggleSelectAllTrainingConfirm()" title="เลือกทั้งหมดที่ยังไม่อบรม"></th>
+              <th>ลำดับ</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์ติดต่อ</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>สถานะอบรม</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="trainingConfirmTbody">
+            <tr><td colspan="10" class="empty-state-cell"><span class="empty-text">กำลังโหลดรายชื่อ...</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>

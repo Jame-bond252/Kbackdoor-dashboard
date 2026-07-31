@@ -1,0 +1,103 @@
+<div class="tab-content" id="tab-map">
+
+  <div class="geo-stage">
+
+    <!-- แผนที่เต็มจอ: ลากเลื่อน + สกรอลล์ซูมได้ -->
+    <div class="thailand-map-wrap geo-canvas">
+      <div class="map-loading" id="mapLoading"><span class="spinner-inline"></span>กำลังโหลดข้อมูลแผนที่ (ไฟล์ค่อนข้างใหญ่ อาจใช้เวลาสักครู่)...</div>
+      <svg id="thailandSvg" viewBox="0 0 460 620" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+        <g id="mapG"></g>
+        <g id="districtLayer"></g>
+        <g id="labelLayer"></g>
+      </svg>
+      <div id="mapLabelsHtml"></div>
+    </div>
+
+    <button class="map-back-overlay" id="mapBackBtn" onclick="backOneLevel()"><i data-icon="left" data-size="15"></i> กลับ</button>
+    <div class="map-title-overlay" id="mapTitleOverlay" style="display:none;"></div>
+
+    <div class="geo-zoom">
+      <button onclick="geoZoom('thailandSvg', -1)" title="ซูมออก">−</button>
+      <button onclick="geoZoom('thailandSvg', 1)" title="ซูมเข้า">+</button>
+    </div>
+
+    <div class="geo-foot">
+      <span class="map-legend"><span class="legend-dot" style="background:var(--brand);"></span>มีข้อมูล · <span class="legend-dot" style="background:var(--surface-3);"></span>ไม่มีข้อมูล</span>
+      <span class="map-caption" id="mapCaption">ขอบเขตจริงจาก OpenGISData-Thailand</span>
+    </div>
+
+    <!-- แผงลอยซ้าย: ค้นหา + สรุป + รายการ (จังหวัด → อำเภอ → รายชื่อคน) -->
+    <aside class="geo-panel">
+      <div class="geo-panel-top">
+        <h1 class="geo-title"><i data-icon="training" data-size="17"></i> แผนที่อบรม</h1>
+        <p class="geo-sub">คลิกจังหวัด → อำเภอ → รายชื่อคน · เพิ่มเข้าแผนได้เลย</p>
+
+        <div class="geo-search">
+          <div class="search-field">
+            <i data-icon="search" data-size="15"></i>
+            <input id="mapPersonSearch" type="text" placeholder="ค้นหา" onkeydown="if(event.key==='Enter') searchAndZoomPerson()">
+          </div>
+        </div>
+        <div id="mapSearchStatus"></div>
+
+        <div class="scoreboard">
+          <div class="score-side yes">
+            <div class="score-num" id="scoreY">-</div>
+            <div class="score-label">อบรมแล้ว</div>
+          </div>
+          <div class="score-mid">
+            <div class="score-bar">
+              <div class="score-bar-fill-y" id="scoreBarY" style="width:50%"></div>
+              <div class="score-bar-fill-n" id="scoreBarN" style="width:50%"></div>
+            </div>
+            <div class="score-pct-labels">
+              <span id="scorePctY">50%</span>
+              <span>ผลรวมทั่วประเทศ</span>
+              <span id="scorePctN">50%</span>
+            </div>
+          </div>
+          <div class="score-side no">
+            <div class="score-num" id="scoreN">-</div>
+            <div class="score-label">ยังไม่ผ่าน</div>
+          </div>
+        </div>
+
+        <div class="preschedule-bar">
+          <label class="preschedule-toggle">
+            <input type="checkbox" id="mapPrescheduleToggle" onchange="toggleMapPreschedule(this.checked)"><i data-icon="calendar-range" data-size="14"></i> เลือกวันที่ก่อน แล้วค่อยเลือกคน
+          </label>
+          <span id="mapPrescheduleDates" style="display:none; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span>ตั้งแต่</span>
+            <input type="date" id="mapPrescheduleStart" onchange="updateMapPrescheduleRange()">
+            <span>ถึง</span>
+            <input type="date" id="mapPrescheduleEnd" onchange="updateMapPrescheduleRange()">
+          </span>
+          <span id="mapPrescheduleStatusText" class="preschedule-status"></span>
+        </div>
+      </div>
+
+      <div class="geo-panel-scroll">
+        <div class="geo-list-block">
+          <div class="lb-title" id="lbTitle">อันดับจังหวัด (% อบรมสำเร็จ)</div>
+          <div class="leaderboard" id="leaderboard"></div>
+        </div>
+        <div class="province-detail" id="provinceDetail"></div>
+      </div>
+    </aside>
+
+  
+    <!-- ลิ้นชักรายชื่อบุคคล: โผล่อัตโนมัติเมื่อกดดูรายชื่อ พับเก็บ/ขยายได้ -->
+    <aside class="geo-drawer" id="geoDrawer">
+      <div class="geo-drawer-head">
+        <span class="geo-drawer-title"><i data-icon="users" data-size="15"></i> รายชื่อบุคคล</span>
+        <button class="btn btn-quiet btn-icon btn-sm" onclick="geoDrawerWide('geoDrawer')" title="ขยาย/ย่อความกว้าง"><i data-icon="external" data-size="14"></i></button>
+        <button class="btn btn-quiet btn-icon btn-sm" onclick="geoDrawerMin('geoDrawer', true)" title="พับเก็บ"><i data-icon="right" data-size="15"></i></button>
+      </div>
+      <div class="geo-drawer-body">
+        <div class="people-panel" id="peoplePanel"></div>
+      </div>
+      <button class="geo-drawer-tab" onclick="geoDrawerMin('geoDrawer', false)"><i data-icon="users" data-size="15"></i> รายชื่อ</button>
+    </aside>
+
+</div>
+</div>

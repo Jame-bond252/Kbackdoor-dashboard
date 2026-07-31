@@ -1,0 +1,341 @@
+<div class="tab-content" id="tab-iot-plan">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">แผนติดตั้ง IoT <span class="chip-pct" id="iotPlanCountBadge">0 รายการ</span></h1>
+        <p class="page-sub">โทรนัดเกษตรกร → ใส่วันที่นัดในตาราง → ระบบสรุปนัดหมายให้อัตโนมัติ (เพิ่มคนเข้าแผนได้จากแท็บแผนที่)</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-outline" onclick="syncIotPlanFromSupabase({showToastOnSuccess:true})"><i data-icon="refresh" data-size="15"></i> ซิงก์ล่าสุด</button>
+        <button class="btn btn-outline" onclick="exportIotPlanExcel()"><i data-icon="download" data-size="15"></i> Excel</button>
+        <button class="btn btn-outline" onclick="exportIotPlanPdf()" title="เปิดหน้าต่างพิมพ์ แล้วเลือก &quot;บันทึกเป็น PDF&quot; จากตัวเลือกเครื่องพิมพ์"><i data-icon="print" data-size="15"></i> พิมพ์ / PDF</button>
+      </div>
+    </div>
+
+    <div class="subtabs">
+      <button class="subtab view-toggle-btn active" data-subtab="table" onclick="switchIotPlanSubTab('table')">แผนติดตั้ง</button>
+      <button class="subtab view-toggle-btn" data-subtab="finalized" onclick="switchIotPlanSubTab('finalized')">วางแผนเสร็จแล้ว <span class="chip-pct" id="iotPlanFinalizedTabBadge">0</span></button>
+      <button class="subtab view-toggle-btn" data-subtab="appmatch" onclick="switchIotPlanSubTab('appmatch')">เชื่อมต่อแอป</button>
+      <button class="subtab view-toggle-btn" data-subtab="legacycheck" onclick="switchIotPlanSubTab('legacycheck')">ตรวจสอบเจ้าของตู้</button>
+    </div>
+
+    <div id="iotPlanSubtabTable">
+
+      <!-- ===== การนัดติดตั้ง: ของสำคัญที่สุด อยู่บนสุด เห็นทันที ===== -->
+      <div class="metric-grid appoint-grid">
+        <div class="metric is-today">
+          <div class="metric-top"><i data-icon="pin" data-size="15"></i><span class="metric-label">นัดติดตั้งวันนี้</span></div>
+          <div class="metric-value" id="iotPlanKpiToday">-</div>
+          <div class="metric-sub" id="iotPlanKpiTodayDate">-</div>
+        </div>
+        <div class="metric is-accent">
+          <div class="metric-top"><i data-icon="calendar-plain" data-size="15"></i><span class="metric-label">นัดแล้ว กำลังจะมาถึง</span></div>
+          <div class="metric-value" id="iotPlanKpiUpcoming">-</div>
+          <div class="metric-sub">นับจากพรุ่งนี้เป็นต้นไป</div>
+        </div>
+        <div class="metric">
+          <div class="metric-top"><i data-icon="pending" data-size="15"></i><span class="metric-label">ผ่านมาแล้ว</span></div>
+          <div class="metric-value" id="iotPlanKpiPast">-</div>
+          <div class="metric-sub" id="iotPlanKpiPastRange">ย้อนหลัง 7 วัน</div>
+        </div>
+        <div class="metric is-danger is-click" onclick="filterIotPlanByScheduled('no')" title="คลิกเพื่อดูรายชื่อคนที่ยังไม่นัดติดตั้ง">
+          <div class="metric-top"><i data-icon="alert" data-size="15"></i><span class="metric-label">ยังไม่ได้นัด</span></div>
+          <div class="metric-value" id="iotPlanKpiNoDate">-</div>
+          <div class="metric-sub">คลิกเพื่อดูรายชื่อแล้วโทรนัดเลย →</div>
+        </div>
+      </div>
+
+    <div class="section">
+
+      <div class="plan-progress-wrap">
+        <div class="plan-progress-label">
+          <span>ความคืบหน้าแผนทั้งหมด</span>
+          <span id="iotPlanProgressText">0%</span>
+        </div>
+        <div class="plan-progress-track">
+          <div class="plan-progress-fill done" id="iotPlanProgressDone" style="width:0%"></div>
+          <div class="plan-progress-fill cancelled" id="iotPlanProgressCancelled" style="width:0%"></div>
+        </div>
+        <div class="plan-progress-legend">
+          <span><i class="dot done"></i>ติดตั้งแล้ว <b id="iotPlanProgressDoneCount">0</b></span>
+          <span><i class="dot pending"></i>รอติดตั้ง <b id="iotPlanProgressPendingCount">0</b></span>
+          <span><i class="dot cancelled"></i>สละสิทธิ์ <b id="iotPlanProgressCancelledCount">0</b></span>
+        </div>
+      </div>
+
+      <div class="plan-timeline-cols">
+        <div class="plan-timeline-col">
+          <h3 class="plan-timeline-heading past"><i data-icon="pending" data-size="15"></i> ผ่านมาแล้ว</h3>
+          <div id="iotPlanPastList" class="plan-timeline-list"></div>
+        </div>
+        <div class="plan-timeline-col">
+          <h3 class="plan-timeline-heading upcoming"><i data-icon="calendar-plain" data-size="15"></i> วันนี้ &amp; กำลังจะมาถึง</h3>
+          <div id="iotPlanUpcomingList" class="plan-timeline-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="plan-toolbar">
+        <div class="plan-view-toggle seg">
+          <button class="view-toggle-btn active" data-view="call" onclick="switchIotPlanView('call')"><i data-icon="phone" data-size="14"></i> โทรนัด</button>
+          <button class="view-toggle-btn" data-view="calendar" onclick="switchIotPlanView('calendar')"><i data-icon="calendar-plain" data-size="14"></i> ปฏิทิน</button>
+        </div>
+        <span style="flex:1;"></span>
+        <button class="btn btn-outline btn-sm" onclick="optimizeIotPlanRoute()"><i data-icon="compass" data-size="14"></i> จัดเรียงเส้นทาง</button>
+        <button class="btn btn-quiet btn-sm" onclick="clearIotPlan()"><i data-icon="trash" data-size="14"></i> ล้างทั้งหมด</button>
+      </div>
+
+      <div class="dropdown-manager readonly-hide">
+        <div class="dropdown-manager-header" onclick="toggleDropdownManager()">
+          <span class="chevron" id="iotDropdownManagerChevron">▶</span>
+          <strong><i data-icon="settings" data-size="15"></i> จัดการตัวเลือกดรอปดาวน์</strong>
+          <span style="font-size:12px; color:var(--muted);">เพิ่ม/ลบตัวเลือก ปั๊มน้ำ · ท่อ · วาล์ว · การชำระเงิน · ทีม · ผู้ดำเนินการ — เพิ่มแล้วใช้ได้ทุกแถว ทุกเครื่อง</span>
+        </div>
+        <div class="dropdown-manager-body" id="iotDropdownManagerBody" style="display:none;"></div>
+      </div>
+
+      <div id="iotPlanTableControls" style="display:none;">
+      <div class="filters">
+        <div>
+          <label>จังหวัด</label>
+          <select id="iotPlanFilterProvince"><option value="">ทุกจังหวัด</option></select>
+        </div>
+        <div>
+          <label>อำเภอ</label>
+          <select id="iotPlanFilterDistrict"><option value="">ทุกอำเภอ</option></select>
+        </div>
+        <div>
+          <label>ตำบล</label>
+          <select id="iotPlanFilterSubdistrict"><option value="">ทุกตำบล</option></select>
+        </div>
+        <div>
+          <label>สถานะ</label>
+          <select id="iotPlanFilterStatus">
+            <option value="">ทุกสถานะ</option>
+            <option value="pending">รอติดตั้ง</option>
+            <option value="not_contacted">ยังไม่ติดต่อ</option>
+            <option value="survey">นัดดูหน้างาน</option>
+            <option value="site_not_ready">หน้างานไม่พร้อม</option>
+            <option value="ready">พร้อมติดตั้ง</option>
+            <option value="done">ติดตั้งแล้ว</option>
+            <option value="cancelled">สละสิทธิ์</option>
+          </select>
+        </div>
+        <div>
+          <label>การนัดหมาย</label>
+          <select id="iotPlanFilterScheduled">
+            <option value="">ทั้งหมด</option>
+            <option value="yes"><i data-icon="check" data-size="15"></i> นัดแล้ว</option>
+            <option value="no">− ยังไม่นัด</option>
+          </select>
+        </div>
+        <div>
+          <label>ทีมติดตั้ง</label>
+          <select id="iotPlanFilterTeam">
+            <option value="">ทุกทีม</option>
+            <option value="ทีมติดตั้ง1">ทีมติดตั้ง1</option>
+            <option value="ทีมติดตั้ง2">ทีมติดตั้ง2</option>
+            <option value="ทีมติดตั้ง3">ทีมติดตั้ง3</option>
+            <option value="ทีมติดตั้ง4">ทีมติดตั้ง4</option>
+            <option value="ทีมติดตั้ง5">ทีมติดตั้ง5</option>
+          </select>
+        </div>
+        <div>
+          <label>ประเภทตู้</label>
+          <select id="iotPlanFilterBoxType">
+            <option value="">ทุกประเภทตู้</option>
+            <option value="no_button">ตู้ไม่มีปุ่มกด</option>
+            <option value="with_button">ตู้มีปุ่มกด</option>
+          </select>
+        </div>
+        <div style="flex:1;">
+          <label>ค้นหาชื่อ / เลขบัตรประชาชน</label>
+          <input id="iotPlanFilterSearch" type="text" placeholder="พิมพ์เพื่อค้นหาในรายการที่วางแผนไว้...">
+        </div>
+      </div>
+      <div id="iotPlanFilterCountInfo" style="font-size:12px; color:var(--muted); margin:-6px 0 4px;">แสดง 0 จาก 0 รายการ</div>
+      <div id="iotPlanDateFilterChip" style="display:none;"></div>
+
+      <div id="iotPlanBulkOperatorBar" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:6px 0 4px;">
+        <span id="iotPlanBulkSelectedCount" style="font-size:12.5px; color:var(--muted);">เลือกแล้ว 0 รายการ</span>
+        <select id="iotPlanBulkOperatorSelect">
+          <option value="">— เลือกผู้ดำเนินการ —</option>
+        </select>
+        <button type="button" class="btn btn-brand" onclick="applyBulkIotPlanOperator()">ตั้งผู้ดำเนินการให้แถวที่เลือก</button>
+        <button type="button" class="btn btn-outline" onclick="applyBulkIotPlanFinalize()"><i data-icon="done" data-size="15"></i> ทำเครื่องหมายว่าวางแผนเสร็จแล้ว</button>
+      </div>
+      </div>
+
+      <div id="iotPlanTableView" class="table-wrap" style="margin-top:12px; display:none;">
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="iotPlanBulkSelectAllHeader" onchange="toggleSelectAllIotPlanRows()" title="เลือกทั้งหมด"></th>
+              <th>ลำดับ</th><th>นัดหมาย</th><th>วันที่ / เวลาติดตั้ง</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์ติดต่อ</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th>
+              <th>สถานะ</th><th>ทีมติดตั้ง</th><th>ผู้ดำเนินการ</th><th>ตู้</th><th>ปั๊มน้ำ</th><th>ขนาดท่อ</th><th>ขนาดวาล์ว</th><th>แหล่งน้ำ</th><th>รูปแบบการให้น้ำ</th><th>การชำระเงิน</th><th>ยอดชำระ</th><th>ตำแหน่ง (Google Maps)</th><th>หมายเหตุ</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="iotPlanTbody"></tbody>
+        </table>
+      </div>
+
+      <div id="iotPlanCalendarView" class="plan-calendar-view" style="display:none;"></div>
+      <div id="iotPlanCallView"></div>
+
+      <p style="font-size:12px; color:var(--muted); margin-top:10px;">
+        หมายเหตุ: ถ้าตั้งค่า Supabase ไว้แล้ว รายการในแผนจะซิงก์ขึ้นอัตโนมัติให้ทีมงานคนอื่นเห็นแผนเดียวกันได้ (กด "<i data-icon="refresh" data-size="15"></i> ซิงก์ล่าสุด" เพื่อดึงการเปลี่ยนแปลงจากคนอื่น) ถ้ายังไม่ได้ตั้งค่า Supabase ระบบจะเก็บไว้ในเบราว์เซอร์นี้เท่านั้น กดส่งออก Excel เพื่อแชร์แผนให้คนอื่นได้เสมอ แต่ละพื้นที่ติดตั้งไม่เหมือนกัน จึงไม่มีปุ่ม "ใช้ทั้งตำบล" เหมือนแผนอบรม
+      </p>
+    </div>
+    </div>
+
+    <div id="iotPlanSubtabFinalized" style="display:none;">
+      <div class="section">
+        <h2><i data-icon="done" data-size="15"></i> วางแผนเสร็จแล้ว <span class="badge" id="iotPlanFinalizedCountBadge">0 รายการ</span></h2>
+        <p style="font-size:13px; color:var(--muted); margin-top:-6px;">
+          คนกลุ่มนี้แอดมินจัดคน/ทีม/วันที่ให้ครบพร้อมลงมือแล้ว (ย้ายมาจากแท็บ "<i data-icon="clipboard" data-size="15"></i> แผนติดตั้ง" ตอนติ๊กเลือกแล้วกด "<i data-icon="done" data-size="15"></i> ทำเครื่องหมายว่าวางแผนเสร็จแล้ว") — ยังแก้ไขข้อมูลได้ตามปกติ จัดกลุ่มเป็นจังหวัด/อำเภอเพื่อไม่ให้รกเวลามีหลายพื้นที่ กดปุ่ม "<i data-icon="undo" data-size="15"></i> ย้ายกลับ" ที่แถวไหนก็ได้ถ้ามาร์คผิดหรืออยากแก้แผนใหม่
+        </p>
+        <div class="plan-toolbar">
+          <button class="btn btn-outline" onclick="exportIotPlanFinalizedExcel()"><i data-icon="download" data-size="15"></i> ส่งออก Excel (ตามตัวกรอง)</button>
+          <button class="btn btn-outline" onclick="exportIotPlanFinalizedPdf()" title="เปิดหน้าต่างพิมพ์ แล้วเลือก &quot;บันทึกเป็น PDF&quot; จากตัวเลือกเครื่องพิมพ์"><i data-icon="print" data-size="15"></i> พิมพ์ / บันทึกเป็น PDF (ตามตัวกรอง)</button>
+        </div>
+        <div class="filters">
+          <div>
+            <label>จังหวัด</label>
+            <select id="iotPlanFinalizedFilterProvince"><option value="">ทุกจังหวัด</option></select>
+          </div>
+          <div>
+            <label>อำเภอ</label>
+            <select id="iotPlanFinalizedFilterDistrict"><option value="">ทุกอำเภอ</option></select>
+          </div>
+          <div>
+            <label>ตำบล</label>
+            <select id="iotPlanFinalizedFilterSubdistrict"><option value="">ทุกตำบล</option></select>
+          </div>
+          <div style="flex:1;">
+            <label>ค้นหาชื่อ / เลขบัตรประชาชน</label>
+            <input id="iotPlanFinalizedFilterSearch" type="text" placeholder="พิมพ์เพื่อค้นหาในรายการที่วางแผนเสร็จแล้ว...">
+          </div>
+        </div>
+        <div id="iotPlanFinalizedFilterCountInfo" style="font-size:12px; color:var(--muted); margin:-6px 0 4px;">แสดง 0 จาก 0 รายการ</div>
+        <div id="iotPlanFinalizedGroups" style="margin-top:14px;"></div>
+      </div>
+    </div>
+
+    <div id="iotPlanSubtabAppMatch" style="display:none;">
+      <div class="section">
+        <h2><i data-icon="signal" data-size="15"></i> เชื่อมต่อแอป — แผนติดตั้ง IoT เทียบกับข้อมูลเชื่อมต่อแอป</h2>
+        <p style="font-size:13px; color:var(--muted); margin-top:-6px;">
+          เทียบรายชื่อในแผนติดตั้ง IoT กับข้อมูลเชื่อมต่อแอป เพื่อดูว่าใครในแผนได้รับตู้และเชื่อมต่อแอปแล้วบ้าง — เป็นข้อมูลอ้างอิงเบื้องต้นเท่านั้น สถานะทางการของ OTOD ยังต้องรอแอดมินอัปเดตหลังได้รับเอกสารลายเซ็นยืนยันจากเกษตรกร
+        </p>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric "><div class="metric-top"><i data-icon="clipboard" data-size="15"></i><span class="metric-label">รายชื่อในแผนทั้งหมด</span></div><div class="metric-value" id="iotPlanMatchKpiTotal">-</div><div class="metric-sub">ไม่รวมรายการที่สละสิทธิ์</div></div>
+        <div class="metric is-accent"><div class="metric-top"><i data-icon="signal" data-size="15"></i><span class="metric-label">ยืนยันได้รับตู้แล้ว (จากแอป)</span></div><div class="metric-value" id="iotPlanMatchKpiConfirmed">-</div><div class="metric-sub">รอแอดมินอัปเดต OTOD อย่างเป็นทางการ</div></div>
+        <div class="metric is-danger"><div class="metric-top"><i data-icon="help" data-size="15"></i><span class="metric-label">ยังไม่พบการเชื่อมต่อแอป</span></div><div class="metric-value" id="iotPlanMatchKpiUnconfirmed">-</div><div class="metric-sub">ยังไม่พบชื่อ/เบอร์/เลขบัตรตรงกัน</div></div>
+      </div>
+
+      <div class="section">
+        <h3 style="margin-bottom:8px;">สรุปยืนยันแยกทีมติดตั้ง</h3>
+        <table class="summary-table">
+          <thead>
+            <tr><th>ทีมติดตั้ง</th><th class="num">ยืนยันแล้ว</th><th class="num">รอยืนยัน</th><th class="num">รวม</th></tr>
+          </thead>
+          <tbody id="iotPlanAppConfirmTeamTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <div class="toggle-detail" onclick="toggleDetail('iotPlanMatchConfirmedBody','iotPlanMatchConfirmedChevron')">
+          <h2 style="margin:0;"><i data-icon="signal" data-size="15"></i> ในแผน + ยืนยันได้รับตู้แล้ว (จากแอป) <span class="badge" id="iotPlanMatchConfirmedCountBadge">0 รายการ</span></h2>
+          <span class="chevron open" id="iotPlanMatchConfirmedChevron">▶</span>
+        </div>
+        <div id="iotPlanMatchConfirmedBody" style="margin-top:16px;">
+          <div class="table-wrap">
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th>ลำดับ</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์ติดต่อ</th>
+                  <th>ทีมติดตั้ง</th><th>วันที่ติดตั้ง (แผน)</th><th>สถานะแผน</th><th>ยืนยันจากแอปตั้งแต่</th>
+                </tr>
+              </thead>
+              <tbody id="iotPlanMatchConfirmedTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="toggle-detail" onclick="toggleDetail('iotPlanMatchUnconfirmedBody','iotPlanMatchUnconfirmedChevron')">
+          <h2 style="margin:0;"><i data-icon="help" data-size="15"></i> ในแผน + ยังไม่พบการเชื่อมต่อแอป <span class="badge" id="iotPlanMatchUnconfirmedCountBadge">0 รายการ</span></h2>
+          <span class="chevron" id="iotPlanMatchUnconfirmedChevron">▶</span>
+        </div>
+        <div id="iotPlanMatchUnconfirmedBody" style="display:none; margin-top:16px;">
+          <div class="table-wrap">
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th>ลำดับ</th><th>ชื่อ-นามสกุล</th><th>เลขบัตรประชาชน</th><th>เบอร์ติดต่อ</th>
+                  <th>ทีมติดตั้ง</th><th>วันที่ติดตั้ง (แผน)</th><th>สถานะแผน</th>
+                </tr>
+              </thead>
+              <tbody id="iotPlanMatchUnconfirmedTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="iotPlanSubtabLegacyCheck" style="display:none;">
+      <div class="section">
+        <h2><i data-icon="search" data-size="15"></i> ตรวจสอบเจ้าของตู้ (ข้อมูลเก่าก่อนระบบอัตโนมัติ)</h2>
+        <p style="font-size:13px; color:var(--muted); margin-top:-6px;">
+          เทียบ "เจ้าของที่ตั้งใจ" (จากรายชื่อเกษตรกร IoT ชุดเก่า + ชีตติดตามตู้/SN) กับ "เจ้าของจริงที่เชื่อมต่อแอป" เพื่อดูว่ามีตู้ไหนที่คนใช้งานจริงไม่ตรงกับคนที่ควรได้รับหรือไม่ — ข้อมูลนี้มาจากชีต Google เก่าที่ทีมใช้ก่อนมีระบบนี้ (ยังไม่รวมกับข้อมูล OTOD หลัก) หน้านี้ดูอย่างเดียว แก้ไข/ลบไม่ได้
+        </p>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric "><div class="metric-top"><i data-icon="clipboard" data-size="15"></i><span class="metric-label">มีรหัสฐาน (จับคู่กับตู้ได้)</span></div><div class="metric-value" id="iotLegacyKpiTotal">-</div><div class="metric-sub">จากข้อมูลเกษตรกรชุดเก่า</div></div>
+        <div class="metric is-accent"><div class="metric-top"><i data-icon="done" data-size="15"></i><span class="metric-label">ตรงกัน</span></div><div class="metric-value" id="iotLegacyKpiMatch">-</div><div class="metric-sub">เจ้าของที่ตั้งใจ = คนเชื่อมแอปจริง</div></div>
+        <div class="metric is-danger"><div class="metric-top"><i data-icon="warning" data-size="15"></i><span class="metric-label">ไม่ตรงกัน (ต้องตรวจสอบ)</span></div><div class="metric-value" id="iotLegacyKpiMismatch">-</div><div class="metric-sub">เบอร์คนละคนกับที่ตั้งใจไว้</div></div>
+        <div class="metric "><div class="metric-top"><i data-icon="help" data-size="15"></i><span class="metric-label">ยังไม่เชื่อมแอป</span></div><div class="metric-value" id="iotLegacyKpiNoApp">-</div><div class="metric-sub">ยังไม่พบการเชื่อมต่อแอปเลย</div></div>
+      </div>
+
+      <div class="section">
+        <div class="filters">
+          <div>
+            <label>สถานะตรวจสอบ</label>
+            <select id="iotLegacyFilterStatus" onchange="applyIotLegacyCheckFilters()">
+              <option value="">ทั้งหมด</option>
+              <option value="ตรงกัน"><i data-icon="done" data-size="15"></i> ตรงกัน</option>
+              <option value="ไม่ตรงกัน (ตรวจสอบ)"><i data-icon="warning" data-size="15"></i> ไม่ตรงกัน (ตรวจสอบ)</option>
+              <option value="ยังไม่เชื่อมแอป"><i data-icon="help" data-size="15"></i> ยังไม่เชื่อมแอป</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label>ค้นหาชื่อ / เบอร์ / SN</label>
+            <input id="iotLegacyFilterSearch" type="text" placeholder="พิมพ์เพื่อค้นหา..." oninput="applyIotLegacyCheckFilters()">
+          </div>
+          <div><button class="btn btn-brand" onclick="loadIotOwnershipCheck(true)">รีเฟรช</button></div>
+          <div><button class="btn btn-outline" onclick="exportIotLegacyCheckCsv()">ส่งออก CSV</button></div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>รหัสฐาน</th><th>เจ้าของที่ตั้งใจ</th><th>เบอร์ (ตั้งใจ)</th><th>จังหวัด (ตั้งใจ)</th>
+                <th>SN ตู้</th><th>สถานะตู้</th>
+                <th>เจ้าของจริงในแอป</th><th>เบอร์ (จริง)</th>
+                <th>ผลตรวจสอบ</th>
+              </tr>
+            </thead>
+            <tbody id="iotLegacyCheckTbody"></tbody>
+          </table>
+        </div>
+        <p style="font-size:12px; color:var(--muted); margin-top:10px;">
+          หมายเหตุ: ข้อมูลเก่าไม่มีเลขบัตรประชาชน จึงเทียบด้วยเบอร์โทรเป็นหลัก อาจคลาดเคลื่อนได้บ้างถ้าเกษตรกรเปลี่ยนเบอร์
+        </p>
+      </div>
+    </div>
+  </div>

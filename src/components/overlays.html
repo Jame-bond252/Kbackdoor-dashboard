@@ -1,0 +1,53 @@
+<div id="toastContainer" class="toast-container"></div>
+<div id="confirmModalOverlay" class="confirm-modal-overlay">
+  <div class="confirm-modal">
+    <p id="confirmModalMessage"></p>
+    <div class="confirm-modal-actions">
+      <button id="confirmModalNo" type="button" class="btn btn-outline">ยกเลิก</button>
+      <button id="confirmModalYes" type="button" class="btn btn-brand">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+<div id="docChecklistModalOverlay" class="confirm-modal-overlay" onclick="if(event.target===this) closeIotDocChecklistModal()">
+  <div class="confirm-modal doc-checklist-modal">
+    <h3 id="docChecklistModalName">เช็คลิสต์เอกสาร</h3>
+    <p class="doc-checklist-sub">ติ๊กรายการที่ครบแล้ว บันทึกแล้วจะใช้ค่านี้แทนข้อมูลจากชีตเก่าตลอดไป</p>
+    <div class="doc-checklist-plot-field">
+      <label for="docChecklistModalPlotLocationInput"><i data-icon="pin" data-size="15"></i> ตำแหน่งแปลง</label>
+      <div class="doc-checklist-plot-row">
+        <input type="text" id="docChecklistModalPlotLocationInput" placeholder="วางลิงก์ Google Maps หรือพิกัด/คำอธิบายตำแหน่ง" oninput="updateIotDocChecklistPlotLink(this.value)">
+        <a id="docChecklistModalPlotLocationLink" href="#" target="_blank" rel="noopener" class="btn-linklike" style="display:none;">เปิดแผนที่</a>
+      </div>
+      <span class="doc-checklist-source" id="docChecklistModalPlotLocationSource"></span>
+    </div>
+    <div class="doc-checklist-items" id="docChecklistModalItems"></div>
+    <div class="confirm-modal-actions">
+      <button id="docChecklistModalCancel" type="button" class="btn btn-outline" onclick="closeIotDocChecklistModal()">ปิด</button>
+      <button id="docChecklistModalSave" type="button" class="btn btn-brand" onclick="saveIotDocChecklistModal()">บันทึก</button>
+    </div>
+  </div>
+</div>
+<div id="installBlockerModalOverlay" class="confirm-modal-overlay" onclick="if(event.target===this) closeIotInstallBlockerModal()">
+  <div class="confirm-modal">
+    <h3 id="installBlockerModalName">ทำเครื่องหมายว่าติดตั้งไม่ได้</h3>
+    <p class="doc-checklist-sub">เลือกเหตุผล แล้วบันทึก — สถานะนี้แยกอิสระจากแผนติดตั้ง ยกเลิกเครื่องหมายเมื่อไหร่ก็ได้</p>
+    <div style="margin-bottom:16px;">
+      <label style="display:block; font-size:12.5px; color:var(--muted); margin-bottom:6px;">เหตุผลที่ติดตั้งไม่ได้</label>
+      <select id="installBlockerReasonSelect" onchange="onInstallBlockerReasonChange()" style="width:100%; margin-bottom:8px; box-sizing:border-box;">
+        <option value="">— เลือกเหตุผล —</option>
+        <option value="ปั๊มเครื่องยนต์ ตู้ไม่รองรับ">ปั๊มเครื่องยนต์ ตู้ไม่รองรับ</option>
+        <option value="ไฟฟ้าไม่พอ/ไม่มีไฟฟ้า">ไฟฟ้าไม่พอ/ไม่มีไฟฟ้า</option>
+        <option value="ไม่มีแหล่งน้ำ/น้ำไม่เพียงพอ">ไม่มีแหล่งน้ำ/น้ำไม่เพียงพอ</option>
+        <option value="พื้นที่ไม่เหมาะสม/เข้าถึงยาก">พื้นที่ไม่เหมาะสม/เข้าถึงยาก</option>
+        <option value="เกษตรกรไม่ต้องการติดตั้งแล้ว">เกษตรกรไม่ต้องการติดตั้งแล้ว</option>
+        <option value="__custom__">อื่นๆ (พิมพ์เอง)</option>
+      </select>
+      <input type="text" id="installBlockerReasonCustom" placeholder="พิมพ์เหตุผล" style="width:100%; display:none; box-sizing:border-box;">
+    </div>
+    <div class="confirm-modal-actions">
+      <button id="installBlockerModalRemove" type="button" class="btn btn-outline" style="color:var(--red); display:none; margin-right:auto;" onclick="removeIotInstallBlockerModal()">ยกเลิกเครื่องหมาย</button>
+      <button type="button" class="btn btn-outline" onclick="closeIotInstallBlockerModal()">ปิด</button>
+      <button type="button" class="btn btn-brand" onclick="saveIotInstallBlockerModal()">บันทึก</button>
+    </div>
+  </div>
+</div>

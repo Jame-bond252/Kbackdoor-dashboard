@@ -1,0 +1,78 @@
+<header class="topbar">
+  <div class="header-top-row">
+    <div class="header-brand">
+      <img src="Kasetkorn-logo-removebg-preview.png" alt="Kasetkorn" class="brand-logo">
+      <h1>Kasetkorn OTOD</h1>
+    </div>
+
+    <div class="module-switcher">
+      <button class="module-btn active" data-module="training" onclick="switchModule('training')"><i data-icon="training" data-size="15"></i> อบรม</button>
+      <button class="module-btn" data-module="iot" onclick="switchModule('iot')"><i data-icon="iot" data-size="15"></i> ติดตั้ง IoT</button>
+    </div>
+
+    <div class="global-search-wrap"><i data-icon="search" data-size="15"></i>
+      <input id="globalSearchInput" type="text" class="global-search-input" placeholder="ค้นหาชื่อ / เลขบัตร / เบอร์ ทุกระบบ..." oninput="onGlobalSearchInput(this.value)" onfocus="onGlobalSearchInput(this.value)">
+      <div id="globalSearchResults" class="global-search-results" style="display:none;"></div>
+    </div>
+
+    <div class="header-actions">
+      <span id="readOnlyBadge" class="readonly-badge" style="display:none;" title="บัญชีนี้ดูข้อมูลและส่งออกไฟล์ได้ แต่แก้ไขข้อมูลไม่ได้"><i data-icon="eye" data-size="13"></i> ดูอย่างเดียว</span>
+      <button id="userMgmtBtn" class="btn btn-outline btn-sm" style="display:none;" onclick="openUserMgmt()" title="จัดการผู้ใช้และสิทธิ์ (เฉพาะ master)"><i data-icon="crown" data-size="14"></i> ผู้ใช้</button>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="สลับโหมดมืด/สว่าง"><i data-icon="moon" data-size="16"></i></button>
+      <div class="header-user">
+        <span id="authUserEmailLabel" class="header-user-mail"></span>
+        <button class="btn btn-quiet btn-icon btn-sm" onclick="handleLogout()" title="ออกจากระบบ"><i data-icon="logout" data-size="15"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <button id="qaBubbleBtn" class="qa-bubble-btn" onclick="toggleQaBubble()" title="ถาม-ตอบ">
+    <img src="Kasetkorn-logo-removebg-preview.png" alt="ถาม-ตอบ">
+  </button>
+
+  <div id="fieldSubModal" class="um-overlay" style="display:none;">
+    <div class="um-modal fs-modal">
+      <div class="um-head"><h3><i data-icon="camera" data-size="17"></i> ส่งงานหน้างาน</h3><button class="btn btn-outline btn-sm" onclick="closeFieldSubmission()"><i data-icon="close" data-size="14"></i> ปิด</button></div>
+      <div id="fieldSubBody"></div>
+    </div>
+  </div>
+
+  <div id="userMgmtModal" class="um-overlay" style="display:none;">
+    <div class="um-modal">
+      <div class="um-head"><h3><i data-icon="crown" data-size="17"></i> จัดการผู้ใช้และสิทธิ์</h3><button class="btn btn-outline btn-sm" onclick="closeUserMgmt()"><i data-icon="close" data-size="14"></i> ปิด</button></div>
+      <p class="um-note">เพิ่ม/เปลี่ยนสิทธิ์ได้จากหน้านี้เลย — <b>แต่การตั้งรหัสผ่าน</b>ทำที่นี่ไม่ได้ (เพื่อความปลอดภัย) ให้คนใหม่กด "สมัคร" ในหน้าล็อกอินตั้งรหัสเอง แล้วค่อยมาให้สิทธิ์ที่นี่ หรือสร้างบัญชีในหน้า Supabase Dashboard</p>
+      <div class="um-section"><h4><i data-icon="plus" data-size="15"></i> เพิ่ม / อัปเดตสิทธิ์ผู้ใช้</h4>
+        <div class="um-addform">
+          <input type="text" id="umEmail" placeholder="อีเมล (ต้องสมัครไว้แล้ว)">
+          <input type="text" id="umName" placeholder="ชื่อที่แสดง">
+          <select id="umRole" onchange="onUmRoleChange()"><option value="admin">admin (ซูเปอร์ ทั้ง 2 ฝั่ง)</option><option value="admin_training">admin_training (อบรมเท่านั้น)</option><option value="admin_iot">admin_iot (IoT เท่านั้น)</option><option value="master">master (แอดมินสูงสุด)</option><option value="viewer">viewer (ดูอย่างเดียว)</option><option value="installer">installer (ทีมติดตั้ง)</option></select>
+          <input type="text" id="umTeam" placeholder="ชื่อทีม (เฉพาะ installer)" style="display:none;">
+          <button class="btn btn-brand" onclick="umAddOrUpdate()">บันทึก</button>
+        </div>
+      </div>
+      <div class="um-section"><h4><i data-icon="users" data-size="15"></i> รายชื่อผู้ใช้ทั้งหมด</h4><div id="umUserList" class="um-list"><div style="opacity:.6;">กำลังโหลด...</div></div></div>
+      <div class="um-section" id="umLockedSection" style="display:none;"><h4><i data-icon="lock" data-size="15"></i> บัญชีที่ถูกล็อก (กรอกรหัสผิดเกิน 5 ครั้ง)</h4><div id="umLockedList" class="um-list"></div></div>
+      <div class="um-section"><h4><i data-icon="eye" data-size="15"></i> พรีวิวหน้าทีมติดตั้ง (ดูว่าทีมเห็นอะไร ไม่ต้องสลับรหัส)</h4>
+        <div class="um-addform"><select id="umPreviewTeam"><option value="">— เลือกทีม —</option></select><button class="btn btn-outline" onclick="enterInstallerPreviewFromSelect()">ดูหน้าทีมนี้</button></div>
+      </div>
+    </div>
+  </div>
+
+  @@INSTALLER@@
+
+  <nav class="tabbar" id="tabbarTraining">
+    <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')"><i data-icon="dashboard" data-size="15"></i> แดชบอร์ด</button>
+    <button class="tab-btn" data-tab="map" onclick="switchTab('map')"><i data-icon="map" data-size="15"></i> แผนที่</button>
+    <button class="tab-btn" data-tab="plan" onclick="switchTab('plan')"><i data-icon="calendar" data-size="15"></i> แผนอบรม</button>
+    <button class="tab-btn" data-tab="training-confirm" onclick="switchTab('training-confirm')"><i data-icon="done" data-size="15"></i> ยืนยันอบรมแล้ว</button>
+  </nav>
+  <nav class="tabbar" id="tabbarIot" style="display:none;">
+    <button class="tab-btn active" data-tab="iot-dashboard" onclick="switchTab('iot-dashboard')"><i data-icon="dashboard" data-size="15"></i> แดชบอร์ด</button>
+    <button class="tab-btn" data-tab="iot-map" onclick="switchTab('iot-map')"><i data-icon="map" data-size="15"></i> แผนที่</button>
+    <button class="tab-btn" data-tab="iot-plan" onclick="switchTab('iot-plan')"><i data-icon="calendar" data-size="15"></i> แผนติดตั้ง IoT</button>
+    <button class="tab-btn" data-tab="iot-box" onclick="switchTab('iot-box')"><i data-icon="factory" data-size="15"></i> ทีมผลิตตู้</button>
+    <button class="tab-btn" data-tab="iot-app-match" onclick="switchTab('iot-app-match')"><i data-icon="link" data-size="15"></i> ตรวจสอบเชื่อมต่อแอป</button>
+    <button class="tab-btn" data-tab="iot-manual-code" onclick="switchTab('iot-manual-code')"><i data-icon="pen-line" data-size="15"></i> กรอกรหัสฐานเอง</button>
+    <button class="tab-btn" data-tab="iot-blockers" onclick="switchTab('iot-blockers')"><i data-icon="blocked" data-size="15"></i> ติดตั้งไม่ได้</button>
+  </nav>
+</header>

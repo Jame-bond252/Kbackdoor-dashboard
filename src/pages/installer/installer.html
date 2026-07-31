@@ -1,0 +1,51 @@
+<div id="installerShell" style="display:none;">
+    <div id="installerPreviewBanner" class="inst-preview-banner" style="display:none;">
+      <span><i data-icon="crown" data-size="15"></i> กำลังพรีวิวหน้าทีมติดตั้ง: <b id="installerPreviewTeamName">-</b> (ดูเฉยๆ ในฐานะ master)</span>
+      <button class="btn btn-brand btn-xs" onclick="exitInstallerPreview()">← กลับหน้าแอดมิน</button>
+    </div>
+    <div class="inst-topbar">
+      <div class="inst-team-name"><i data-icon="wrench" data-size="15"></i> ทีมติดตั้ง: <b id="installerTeamName">-</b></div>
+      <div class="inst-actions">
+        <button class="btn btn-outline" onclick="syncIotPlanFromSupabase({showToastOnSuccess:true})"><i data-icon="refresh" data-size="15"></i> รีเฟรชงาน</button>
+        <button class="btn btn-outline" onclick="exportIotPlanExcel()"><i data-icon="download" data-size="15"></i> ใบงาน Excel</button>
+        <button class="btn btn-outline" onclick="exportIotPlanPdf()"><i data-icon="print" data-size="15"></i> ใบงาน PDF</button>
+      </div>
+    </div>
+
+    <div id="installerListWrap">
+    <div class="inst-summary" id="installerSummary"></div>
+
+    <div class="inst-tabbar">
+      <button class="inst-tab-btn active" data-itab="jobs" onclick="switchInstallerTab('jobs')"><i data-icon="clipboard" data-size="15"></i> งานของทีม</button>
+      <button class="inst-tab-btn" data-itab="today" onclick="switchInstallerTab('today')"><i data-icon="calendar-range" data-size="15"></i> วันนี้ / สัปดาห์นี้</button>
+      <button class="inst-tab-btn" data-itab="nav" onclick="switchInstallerTab('nav')"><i data-icon="map" data-size="15"></i> นำทาง</button>
+    </div>
+
+    <div id="installerTabJobs">
+      <div class="filters">
+        <div><label>อำเภอ</label><select id="instFilterDistrict"><option value="">ทุกอำเภอ</option></select></div>
+        <div><label>ตำบล</label><select id="instFilterSubdistrict"><option value="">ทุกตำบล</option></select></div>
+        <div><label>สัปดาห์นัด</label><select id="instFilterWeek"><option value="">ทุกช่วง</option></select></div>
+        <div><label>สถานะ</label>
+          <select id="instFilterStatus">
+            <option value="">ทุกสถานะ</option>
+            <option value="pending">รอติดตั้ง</option>
+            <option value="not_contacted">ยังไม่ติดต่อ</option>
+            <option value="survey">นัดดูหน้างาน</option>
+            <option value="site_not_ready">หน้างานไม่พร้อม</option>
+            <option value="ready">พร้อมติดตั้ง</option>
+            <option value="done">ติดตั้งแล้ว</option>
+            <option value="cancelled">สละสิทธิ์</option>
+          </select>
+        </div>
+        <div style="flex:1;"><label>ค้นหาชื่อ / เบอร์</label><input id="instFilterSearch" type="text" placeholder="พิมพ์เพื่อค้นหา..."></div>
+      </div>
+      <div id="instFilterCountInfo" style="font-size:12px; color:var(--muted); margin:-6px 0 6px;"></div>
+      <div id="installerJobGroups"></div>
+    </div>
+
+    <div id="installerTabToday" style="display:none;"></div>
+    <div id="installerTabNav" style="display:none;"></div>
+    </div>
+    <div id="installerDetailView" style="display:none;"></div>
+  </div>

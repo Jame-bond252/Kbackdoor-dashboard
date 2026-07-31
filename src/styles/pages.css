@@ -1,0 +1,849 @@
+/* ===== Pages: restyle คลาสเดิมทุกหน้าให้เป็นระบบดีไซน์ใหม่ =====
+   โหลดท้ายสุด — ทับ main.css (legacy) ทั้งหมด markup เดิมไม่ต้องแก้ก็ได้หน้าตาใหม่ */
+
+/* ---------- .section เดิม -> การ์ดแบบ panel ---------- */
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: none;
+  padding: 18px;
+  margin-bottom: var(--s4);
+}
+.section .section { border: 0; padding: 0; margin-bottom: 12px; }
+.section h2 {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: var(--fs-md); font-weight: 600; color: var(--text);
+  margin: 0 0 12px; padding: 0; border: 0;
+}
+.section h2 .ico { color: var(--text-3); }
+.section h3 { font-size: var(--fs-base); font-weight: 600; color: var(--text); }
+.section h2 .badge, .badge {
+  display: inline-flex; align-items: center;
+  background: var(--surface-3); color: var(--muted);
+  border-radius: var(--r-pill); padding: 2px 9px;
+  font-size: var(--fs-xs); font-weight: 600;
+}
+
+/* ---------- .filters เดิม -> แถวตัวกรองแบบใหม่ ---------- */
+.filters {
+  display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  margin: 0 0 12px;
+}
+.filters > div { display: flex; flex-direction: column; gap: 5px; min-width: 130px; }
+.filters label { font-size: var(--fs-xs); font-weight: 500; color: var(--text-3); margin: 0; }
+.filters select, .filters input[type=text], .filters input[type=date] { width: 100%; height: 34px; }
+
+/* ---------- ตารางเดิมทุกที่ (.detail-table / .summary-table) ---------- */
+.table-wrap { border: 1px solid var(--border); border-radius: var(--r-md); overflow: auto; max-height: 66vh; background: var(--surface); }
+table.detail-table, table.summary-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: var(--fs-base); }
+table.detail-table th, table.summary-table th {
+  position: sticky; top: 0; z-index: 2;
+  background: var(--surface) !important; color: var(--text-3);
+  font-size: var(--fs-sm); font-weight: 500; text-align: left; white-space: nowrap;
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+}
+table.detail-table td, table.summary-table td {
+  padding: 10px 12px; border-bottom: 1px solid var(--divider);
+  background: transparent; color: var(--text); vertical-align: middle;
+}
+table.detail-table tbody tr:nth-child(even) td, table.summary-table tbody tr:nth-child(even) td { background: transparent; }
+table.detail-table tbody tr:hover td, table.summary-table tbody tr:hover td { background: var(--surface-2); }
+table.detail-table tbody tr:last-child td, table.summary-table tbody tr:last-child td { border-bottom: 0; }
+[data-theme="dark"] table.detail-table th { background: var(--surface) !important; }
+[data-theme="dark"] table.detail-table tbody tr:hover td { background: var(--surface-2); }
+[data-theme="dark"] .lb-row, [data-theme="dark"] .district-row { background: var(--surface-2); }
+
+/* ป้าย Y/N เดิม */
+.tag { border-radius: var(--r-pill); font-weight: 500; font-size: var(--fs-sm); padding: 3px 10px; }
+.tag-Y { background: var(--ok-soft); color: var(--ok); }
+.tag-N { background: var(--danger-soft); color: var(--danger); }
+
+/* ---------- ปุ่มสลับมุมมอง (ตาราง/ปฏิทิน/โทรนัด + แท็บย่อยต่างๆ) ---------- */
+.plan-view-toggle { display: inline-flex; gap: 3px; padding: 3px; background: var(--surface-3); border-radius: var(--r-md); }
+.view-toggle-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 0; background: transparent; color: var(--muted);
+  padding: 6px 12px; border-radius: calc(var(--r-md) - 3px);
+  font-size: var(--fs-sm); font-weight: 500; line-height: 1.4; cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.view-toggle-btn:hover { color: var(--text); }
+.view-toggle-btn.active { background: var(--surface); color: var(--text); box-shadow: var(--sh-1); }
+
+/* แท็บย่อยแบบขีดเส้นใต้ (หน้าแผนติดตั้ง) — ทับสไตล์ view-toggle เดิม */
+.subtabs { padding: 0 2px; }
+.subtabs .view-toggle-btn {
+  background: none; box-shadow: none; border-radius: 0;
+  padding: 0 2px 10px; margin-bottom: -1px;
+  color: var(--text-3); font-size: var(--fs-base);
+  border-bottom: 2px solid transparent;
+}
+.subtabs .view-toggle-btn:hover { color: var(--text); }
+.subtabs .view-toggle-btn.active { color: var(--text); border-bottom-color: var(--brand); background: none; }
+.subtabs .chip-pct { margin-left: 4px; }
+
+/* ---------- แถบเครื่องมือแผน ---------- */
+.plan-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 12px; }
+
+/* ปุ่มช่วงเวลาย้อนหลัง */
+.plan-range-row { display: flex; align-items: center; gap: 6px; margin: 12px 0 4px; }
+.plan-range-label { font-size: var(--fs-sm); color: var(--text-3); margin-right: 2px; }
+.range-btn {
+  border: 1px solid var(--border-strong); background: var(--surface); color: var(--muted);
+  border-radius: var(--r-pill); padding: 4px 12px; font-size: var(--fs-sm); font-weight: 500; cursor: pointer;
+}
+.range-btn:hover { background: var(--surface-2); color: var(--text); }
+.range-btn.active { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+
+/* ---------- แถบความคืบหน้าแผน ---------- */
+.plan-progress-wrap { margin: 2px 0 4px; }
+.plan-progress-label { display: flex; justify-content: space-between; font-size: var(--fs-sm); color: var(--muted); font-weight: 500; margin-bottom: 7px; }
+.plan-progress-track { display: flex; height: 8px; border-radius: 999px; background: var(--surface-3); overflow: hidden; }
+.plan-progress-fill.done { background: var(--brand); }
+.plan-progress-fill.cancelled { background: var(--danger); opacity: .75; }
+.plan-progress-legend { display: flex; gap: 16px; margin-top: 8px; font-size: var(--fs-sm); color: var(--muted); }
+.plan-progress-legend .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; background: var(--neutral); }
+.plan-progress-legend .dot.done { background: var(--brand); }
+.plan-progress-legend .dot.pending { background: var(--wait); }
+.plan-progress-legend .dot.cancelled { background: var(--danger); }
+
+/* ---------- ไทม์ไลน์นัดหมาย (ผ่านมาแล้ว / กำลังจะมาถึง) ---------- */
+.plan-timeline-cols { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); margin-top: var(--s4); }
+@media (max-width: 900px) { .plan-timeline-cols { grid-template-columns: 1fr; } }
+.plan-timeline-col { border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); overflow: hidden; }
+.plan-timeline-heading {
+  display: flex; align-items: center; gap: 7px; margin: 0;
+  padding: 11px 14px; font-size: var(--fs-base); font-weight: 600; color: var(--text);
+  border-bottom: 1px solid var(--divider); background: var(--surface-2);
+}
+.plan-timeline-heading.upcoming { color: var(--brand-strong); }
+.plan-timeline-heading .ico { color: currentColor; }
+.plan-timeline-list { max-height: 330px; overflow: auto; padding: 6px 0; }
+.plan-timeline-empty { padding: 26px 14px; text-align: center; color: var(--text-3); font-size: var(--fs-sm); }
+.plan-day-group { padding: 4px 14px 8px; }
+.plan-day-header {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: var(--fs-sm); font-weight: 600; color: var(--muted);
+  padding: 7px 0 5px;
+}
+.plan-day-header.is-today { color: var(--brand-strong); }
+.plan-day-header.is-today::after { content: 'วันนี้'; margin-left: 8px; background: var(--brand-soft); color: var(--brand-strong); border-radius: var(--r-pill); padding: 1px 8px; font-size: var(--fs-xs); }
+.plan-day-people { display: flex; flex-direction: column; }
+.plan-day-person {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 6px 0; border-top: 1px solid var(--divider); font-size: var(--fs-base);
+}
+.plan-day-person-loc { color: var(--text-3); font-size: var(--fs-sm); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- สถานะในตารางแผน (dropdown สี) ---------- */
+.plan-status-select {
+  height: 30px; padding: 0 26px 0 10px; border-radius: var(--r-pill);
+  font-size: var(--fs-sm); font-weight: 500; border: 1px solid transparent;
+}
+.plan-status-select.status-pending { background: var(--wait-soft); color: var(--wait); }
+.plan-status-select.status-done { background: var(--ok-soft); color: var(--ok); }
+.plan-status-select.status-cancelled { background: var(--neutral-soft); color: var(--neutral); text-decoration: line-through; }
+.plan-status-select.status-ready { background: var(--info-soft); color: var(--info); }
+.plan-status-select.status-site_not_ready { background: var(--attn-soft); color: var(--attn); }
+.plan-status-select.status-survey { background: var(--info-soft); color: var(--info); }
+.plan-status-select.status-not_contacted { background: var(--neutral-soft); color: var(--neutral); }
+
+/* วันที่นัดในตาราง — เด่นชัด ไม่ต้องเพ่ง */
+.plan-date-chip { display: inline-flex; align-items: center; gap: 6px; }
+.plan-date-chip input[type=date] { height: 32px; border-radius: var(--r-sm); font-weight: 500; }
+input[type=date]:not([value=""]) { color: var(--text); }
+
+/* ---------- ปฏิทิน ---------- */
+.plan-calendar-view { border: 1px solid var(--border); border-radius: var(--r-md); padding: 14px; background: var(--surface); }
+.plan-calendar-grid { gap: 6px; }
+.plan-calendar-dow { color: var(--text-3); font-size: var(--fs-xs); font-weight: 600; }
+.plan-calendar-day { border: 1px solid var(--divider); border-radius: var(--r-sm); background: var(--surface); }
+.plan-calendar-day:hover { border-color: var(--brand); background: var(--brand-soft); }
+.plan-calendar-day.is-today { border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
+.plan-calendar-day.is-selected { background: var(--brand-soft); border-color: var(--brand); }
+.plan-calendar-day .day-badge { background: var(--brand); color: #fff; border-radius: var(--r-pill); font-size: var(--fs-xs); }
+.plan-calendar-nav button { border: 1px solid var(--border-strong); background: var(--surface); border-radius: var(--r-sm); color: var(--text); padding: 4px 10px; }
+
+/* ---------- dropdown manager ---------- */
+.dropdown-manager { border: 1px dashed var(--border-strong); border-radius: var(--r-md); margin-bottom: 12px; background: var(--surface-2); }
+.dropdown-manager-header { display: flex; align-items: center; gap: 8px; padding: 10px 12px; cursor: pointer; font-size: var(--fs-sm); color: var(--muted); }
+.dropdown-manager-header strong { color: var(--text); font-weight: 600; }
+
+/* ---------- toast ---------- */
+.toast-container { z-index: 300; }
+.toast {
+  display: flex; align-items: center; gap: 9px;
+  background: var(--ink); color: var(--surface);
+  border: 0; border-radius: var(--r-md); box-shadow: var(--sh-3);
+  padding: 11px 15px; font-size: var(--fs-base);
+}
+.toast-icon { display: inline-flex; }
+.toast-success .toast-icon { color: #5fe0b2; }
+.toast-error .toast-icon { color: #ff8a80; }
+.toast-warn .toast-icon { color: #ffd54f; }
+.toast-info .toast-icon { color: #90caf9; }
+
+/* ---------- โมดัลยืนยัน + เช็คลิสต์ ---------- */
+.confirm-modal, .um-modal {
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--sh-3);
+}
+.um-head { display: flex; align-items: center; justify-content: space-between; }
+.um-head h3 { display: flex; align-items: center; gap: 8px; font-size: var(--fs-lg); }
+.um-section h4 { display: flex; align-items: center; gap: 7px; font-size: var(--fs-base); color: var(--text); }
+.um-note { color: var(--muted); font-size: var(--fs-sm); }
+
+/* ---------- QA popup ---------- */
+.qa-popup-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--sh-3); }
+.qa-popup-header { background: var(--surface-2); border-bottom: 1px solid var(--divider); }
+.qa-popup-header h2 { font-size: var(--fs-md); display: flex; align-items: center; gap: 7px; }
+.qa-chip { border: 1px solid var(--border-strong); background: var(--surface); color: var(--muted); border-radius: var(--r-pill); font-size: var(--fs-sm); }
+.qa-chip:hover { background: var(--brand-soft); color: var(--brand-strong); border-color: var(--brand); }
+.qa-msg { border-radius: var(--r-md); font-size: var(--fs-base); line-height: var(--lh); }
+.qa-user { background: var(--brand); color: #fff; }
+.qa-bot { background: var(--surface-2); color: var(--text); border: 1px solid var(--divider); }
+.qa-bubble-btn { box-shadow: var(--sh-2); border: 1px solid var(--border); background: var(--surface); }
+
+/* ---------- global search results ---------- */
+.global-search-item { border-bottom: 1px solid var(--divider); }
+.global-search-item:hover { background: var(--surface-2); }
+.global-search-item .gs-title { color: var(--text); font-weight: 550; }
+.global-search-item .gs-sub { color: var(--text-3); }
+.global-search-item .gs-tag { background: var(--brand-soft); color: var(--brand-strong); border-radius: var(--r-pill); font-size: var(--fs-xs); font-weight: 600; }
+
+/* ---------- หน้า auth ---------- */
+.auth-gate { background: var(--bg); }
+.auth-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-xl); box-shadow: var(--sh-2);
+}
+.auth-card h1 { font-size: var(--fs-xl); letter-spacing: -0.02em; }
+.auth-card .auth-sub { color: var(--text-3); }
+.auth-field input { height: 40px; }
+.auth-submit-btn {
+  height: 40px; border-radius: var(--r-md);
+  background: var(--brand); border: 0; color: #fff; font-weight: 600; font-size: var(--fs-md);
+}
+.auth-submit-btn:hover { background: var(--brand-strong); }
+[data-theme="dark"] .auth-submit-btn { color: #0b1f1a; }
+.auth-toggle-link a { color: var(--brand-strong); font-weight: 500; }
+
+/* ---------- scoreboard / leaderboard (หน้าแผนที่) ---------- */
+.scoreboard { border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: none; }
+.score-num { font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.leaderboard, .province-detail, .people-panel { border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: none; }
+.lb-title { color: var(--text); font-weight: 600; }
+.lb-row, .district-row { border-radius: var(--r-sm); background: var(--surface-2); }
+.lb-row:hover, .district-row:hover { background: var(--surface-3); }
+.lb-bar-fill, .dr-bar-fill { background: var(--brand); border-radius: 999px; }
+.map-back-overlay, .map-title-overlay { border-radius: var(--r-md); box-shadow: var(--sh-2); border: 1px solid var(--border); }
+
+/* ---------- config box (แจ้งเตือนตั้งค่า) ---------- */
+.config-box { border-radius: var(--r-md); border: 1px solid var(--wait); background: var(--wait-soft); color: var(--text); }
+
+/* ---------- แถบเลือกโปรเจกต์ IoT ---------- */
+.iot-project-filter-bar { background: var(--surface-2); border: 1px solid var(--divider); border-radius: var(--r-md); }
+
+/* ---------- toggle-detail เดิม (หัวข้อกาง/พับ) ---------- */
+.toggle-detail {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  cursor: pointer; user-select: none;
+  margin: -18px; margin-bottom: 0; padding: 14px 18px;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+.toggle-detail:hover { background: var(--surface-2); }
+.toggle-detail h2 { margin: 0; }
+
+/* ---------- หน้าทีมติดตั้ง (มือถือ) ---------- */
+#installerShell { border: 1px solid var(--border); box-shadow: var(--sh-2); border-radius: var(--r-xl); }
+.inst-topbar { border-bottom: 1px solid var(--divider); }
+.inst-tab-btn {
+  border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+  border-radius: var(--r-pill); padding: 9px 14px; font-size: var(--fs-base); font-weight: 500; min-height: 40px;
+}
+.inst-tab-btn.active { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.inst-kpi { border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); }
+.inst-kpi-num { font-variant-numeric: tabular-nums; }
+.inst-job-actions .inst-act-btn { border-radius: var(--r-md); min-height: 40px; font-weight: 500; }
+
+/* ---------- โหมดโทรนัด ---------- */
+.call-queue-item, .call-form-card { border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); }
+
+/* ---------- อื่นๆ ---------- */
+.soon-card { border: 1px dashed var(--border-strong); border-radius: var(--r-lg); background: var(--surface-2); color: var(--text-3); }
+.empty-state-cell .empty-icon { filter: grayscale(1); opacity: .5; }
+.chart-wrap { border: 0; }
+.metric.is-click { cursor: pointer; transition: background .15s; }
+.metric.is-click:hover { background: var(--surface-2); }
+.metric.is-today { position: relative; }
+.metric.is-today::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--brand); }
+.metric.is-today .metric-value { color: var(--brand-strong); }
+.appoint-grid .metric-sub { min-height: 1.4em; }
+
+/* ---------- ตัวเลือกโครงการแบบ inline ใน page-head ---------- */
+.iot-project-filter-bar.is-inline {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: var(--r-md); padding: 0 4px 0 11px; height: 36px; margin: 0;
+}
+.iot-project-filter-bar.is-inline label {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: var(--fs-sm); color: var(--text-3); white-space: nowrap; margin: 0;
+}
+.iot-project-filter-bar.is-inline select { border: 0; height: 32px; background-color: transparent; min-width: 130px; }
+.iot-project-filter-bar.is-inline select:focus { box-shadow: none; }
+
+/* ================= แผนที่โฉมใหม่ (สไตล์ election69: เต็มจอ + แผงลอยซ้าย) ================= */
+.geo-stage {
+  position: relative;
+  height: calc(100vh - 205px);
+  min-height: 560px;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background:
+    radial-gradient(1100px 520px at 78% 12%, var(--brand-soft) 0%, transparent 55%),
+    linear-gradient(160deg, var(--surface) 0%, var(--surface-2) 100%);
+}
+
+.geo-stage .thailand-map-wrap.geo-canvas {
+  position: absolute; inset: 0;
+  margin: 0; padding: 0;
+  background: none; border: 0; border-radius: 0; box-shadow: none;
+  max-width: none; width: auto; height: auto; aspect-ratio: auto;
+  cursor: grab;
+}
+.geo-stage .thailand-map-wrap.geo-canvas:active { cursor: grabbing; }
+.geo-stage #thailandSvg, .geo-stage #iotSvg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  display: block;
+}
+.geo-stage #mapLabelsHtml, .geo-stage #iotMapLabelsHtml {
+  position: absolute; inset: 0; pointer-events: none;
+}
+[data-theme="dark"] .geo-stage {
+  background:
+    radial-gradient(1100px 520px at 78% 12%, rgba(79, 214, 176, .08) 0%, transparent 55%),
+    linear-gradient(160deg, var(--surface) 0%, var(--bg) 100%);
+}
+
+/* ป้ายชื่ออำเภอ — พิลสีขาวเล็กๆ (ตำแหน่งเป็น px จาก geopan) */
+.geo-stage .html-label {
+  position: absolute; transform: translate(-50%, -50%);
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--r-pill);
+  box-shadow: var(--sh-1);
+  padding: 2px 9px; font-size: 11.5px; font-weight: 550; white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ปุ่มกลับ + ชื่อพื้นที่ (มุมบนขวาของแผนที่ ไม่ชนแผงซ้าย) */
+.geo-stage .map-back-overlay {
+  position: absolute; top: 16px; right: 16px; left: auto; z-index: 6;
+  display: none; align-items: center; gap: 6px;
+  height: 36px; padding: 0 14px;
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--r-pill);
+  box-shadow: var(--sh-2); font-size: var(--fs-base); font-weight: 500; cursor: pointer;
+}
+.geo-stage .map-back-overlay.visible { display: inline-flex; }
+.geo-stage .map-title-overlay {
+  position: absolute; top: 16px; right: 120px; left: auto; z-index: 5;
+  padding: 7px 14px; background: var(--ink); color: var(--surface);
+  border: 0; border-radius: var(--r-pill); box-shadow: var(--sh-2);
+  font-size: var(--fs-base); font-weight: 600;
+}
+
+/* ปุ่มซูม (ล่างขวา แบบเว็บอ้างอิง) */
+.geo-zoom {
+  position: absolute; right: 16px; bottom: 16px; z-index: 6;
+  display: flex; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--r-md);
+  box-shadow: var(--sh-2); overflow: hidden;
+}
+.geo-zoom button {
+  width: 42px; height: 38px; border: 0; background: none; color: var(--text);
+  font-size: 19px; line-height: 1; cursor: pointer;
+}
+.geo-zoom button:first-child { border-right: 1px solid var(--divider); }
+.geo-zoom button:hover { background: var(--surface-2); }
+
+.geo-foot {
+  position: absolute; left: 428px; bottom: 14px; z-index: 5;
+  display: flex; align-items: center; gap: 14px;
+  font-size: var(--fs-xs); color: var(--text-3);
+}
+.geo-foot .map-legend { display: inline-flex; align-items: center; gap: 5px; margin: 0; }
+.geo-foot .legend-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.geo-foot .map-caption { margin: 0; }
+
+/* ---------- แผงลอยซ้าย ---------- */
+.geo-panel {
+  position: absolute; top: 14px; left: 14px; bottom: 14px; z-index: 7;
+  width: 392px; max-width: calc(100% - 28px);
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--r-lg);
+  box-shadow: var(--sh-3);
+  overflow: hidden;
+}
+.geo-panel-top { padding: 16px 16px 12px; border-bottom: 1px solid var(--divider); }
+.geo-title { display: flex; align-items: center; gap: 8px; font-size: var(--fs-lg); font-weight: 650; letter-spacing: -0.015em; }
+.geo-title .ico { color: var(--brand-strong); }
+.geo-sub { margin: 2px 0 12px; font-size: var(--fs-sm); color: var(--text-3); }
+.geo-search { display: flex; gap: 8px; }
+.geo-search .search-field { flex: 1; }
+.geo-project { margin-bottom: 10px; width: 100%; }
+.geo-project select { flex: 1; }
+#mapSearchStatus, #iotMapSearchStatus { font-size: var(--fs-sm); color: var(--attn); margin-top: 6px; }
+#mapSearchStatus:empty, #iotMapSearchStatus:empty { display: none; }
+
+/* สกอร์บอร์ดแบบกะทัดรัดในแผง */
+.geo-panel .scoreboard {
+  display: flex; align-items: center; gap: 12px;
+  margin: 12px 0 0; padding: 11px 14px;
+  background: var(--surface-2); border: 1px solid var(--divider); border-radius: var(--r-md);
+  box-shadow: none;
+}
+.geo-panel .score-side { text-align: center; flex: none; }
+.geo-panel .score-num { font-size: var(--fs-lg); font-weight: 650; }
+.geo-panel .score-side.yes .score-num { color: var(--ok); }
+.geo-panel .score-side.no .score-num { color: var(--danger); }
+.geo-panel .score-label { font-size: var(--fs-xs); color: var(--text-3); }
+.geo-panel .score-mid { flex: 1; }
+.geo-panel .score-bar { display: flex; height: 7px; border-radius: 999px; overflow: hidden; background: var(--surface-3); }
+.geo-panel .score-bar-fill-y { background: var(--brand); }
+.geo-panel .score-bar-fill-n { background: var(--danger); }
+.geo-panel .score-pct-labels { display: flex; justify-content: space-between; margin-top: 5px; font-size: var(--fs-xs); color: var(--text-3); }
+
+/* แถบเลือกวันที่ก่อน (ฝั่งอบรม) */
+.geo-panel .preschedule-bar {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-top: 10px; padding: 8px 11px;
+  background: var(--wait-soft); border: 1px dashed var(--wait); border-radius: var(--r-md);
+  font-size: var(--fs-sm);
+}
+.geo-panel .preschedule-toggle { display: flex; align-items: center; gap: 6px; font-weight: 550; cursor: pointer; }
+.geo-panel .preschedule-bar input[type=date] { height: 30px; }
+.geo-panel .preschedule-status { font-size: var(--fs-xs); color: var(--muted); }
+
+/* ส่วนเลื่อนของแผง: อันดับจังหวัด / อำเภอ / รายชื่อคน */
+.geo-panel-scroll { flex: 1; overflow-y: auto; padding: 12px 16px 16px; }
+.geo-panel-scroll .lb-title { margin: 2px 0 8px; font-size: var(--fs-sm); font-weight: 600; color: var(--muted); }
+.geo-panel-scroll .leaderboard { display: flex; flex-direction: column; gap: 6px; }
+.geo-panel-scroll .province-detail, .geo-panel-scroll .people-panel {
+  border: 0; border-radius: 0; background: none; box-shadow: none; padding: 0; margin-top: 12px;
+}
+.geo-panel-scroll .detail-header { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+.geo-panel-scroll .detail-header h3 { font-size: var(--fs-base); }
+.geo-panel-scroll .district-row { padding: 9px 11px; }
+
+/* จอเล็ก: แผงกลายเป็นชั้นล่างใต้แผนที่ */
+@media (max-width: 860px) {
+  .geo-stage { height: auto; min-height: 0; }
+  .geo-stage .thailand-map-wrap.geo-canvas { position: relative; height: 420px; }
+  .geo-panel { position: relative; inset: auto; width: auto; max-width: none; margin: 0; border: 0; border-top: 1px solid var(--border); border-radius: 0; box-shadow: none; }
+  .geo-panel-scroll { max-height: none; }
+  .geo-foot { left: 14px; bottom: auto; top: 380px; }
+}
+
+.geo-stage .map-loading {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  z-index: 4; padding: 14px 20px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md);
+  box-shadow: var(--sh-2); white-space: nowrap;
+}
+
+/* สกอร์บอร์ดในแผง: กันข้อความกลางตกบรรทัด */
+.geo-panel .score-pct-labels { white-space: nowrap; gap: 8px; }
+.geo-panel .score-pct-labels span:nth-child(2) { overflow: hidden; text-overflow: ellipsis; }
+/* ตาราง/ลิสต์คนในแผง: เลื่อนแนวนอนได้ในตัวเอง */
+.geo-panel-scroll .table-wrap { max-height: 46vh; }
+
+/* ================= แผนที่: แก้เสถียรภาพ + ลิ้นชักรายชื่อ + คลื่นน้ำ ================= */
+
+/* ลำดับชั้น: ป้ายอำเภอ (1) < ปุ่ม/ชื่อพื้นที่ (8) < แผงซ้าย/ลิ้นชักขวา (10) */
+.geo-stage .html-label { z-index: 1; font-size: 11px; padding: 2px 8px; }
+.geo-stage .map-back-overlay { z-index: 8; }
+.geo-stage .map-title-overlay { z-index: 8; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.geo-stage .geo-zoom { z-index: 8; }
+.geo-stage .geo-foot { z-index: 2; }
+.geo-panel { z-index: 10; }
+
+/* สกอร์บอร์ดในแผง: กันตัวเลข/ข้อความหลุดกรอบทุกกรณี */
+.geo-panel .scoreboard { min-width: 0; }
+.geo-panel .score-side { flex: none; min-width: 54px; }
+.geo-panel .score-num { font-size: var(--fs-md); }
+.geo-panel .score-mid { min-width: 0; overflow: hidden; }
+.geo-panel .score-pct-labels { display: flex; align-items: center; }
+.geo-panel .score-pct-labels span { flex: none; }
+.geo-panel .score-pct-labels span:nth-child(2) {
+  flex: 1; min-width: 0; text-align: center;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* คลื่นน้ำจริงสร้างใน fillClipMarkup (core/ui.js) — เส้นแบ่งเขียว/แดงเป็นลูกคลื่นเคลื่อนที่ */
+
+/* ---------- ลิ้นชักรายชื่อบุคคล (ขวา) ---------- */
+.geo-drawer {
+  position: absolute; top: 14px; right: 14px; bottom: 14px; z-index: 10;
+  width: 470px; max-width: calc(100% - 440px);
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--r-lg);
+  box-shadow: var(--sh-3);
+  transform: translateX(calc(100% + 24px));
+  transition: transform .28s cubic-bezier(.2, .8, .2, 1), width .28s cubic-bezier(.2, .8, .2, 1);
+  overflow: hidden;
+}
+.geo-drawer.open { transform: translateX(0); }
+.geo-drawer.is-wide { width: min(920px, calc(100% - 440px)); }
+.geo-drawer.open.is-min { transform: translateX(calc(100% + 24px)); }
+.geo-drawer-head {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 12px 10px 16px; border-bottom: 1px solid var(--divider); flex: none;
+}
+.geo-drawer-title { display: flex; align-items: center; gap: 7px; font-size: var(--fs-base); font-weight: 600; margin-right: auto; }
+.geo-drawer-title .ico { color: var(--brand-strong); }
+.geo-drawer-body { flex: 1; overflow-y: auto; padding: 14px 16px; }
+.geo-drawer-body .people-panel { border: 0; border-radius: 0; background: none; box-shadow: none; padding: 0; margin: 0; }
+.geo-drawer-body .table-wrap { max-height: 44vh; }
+/* หัวลิ้นชักรายชื่อ: ปุ่ม "โทรนัดอำเภอนี้" อยู่ข้างชื่อ ปุ่มปิดชิดขวาเสมอ */
+.geo-drawer-body .detail-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.geo-drawer-body .detail-header h3 { flex: 1 1 auto; min-width: 0; }
+
+/* ชื่อคนบนแผนที่ = ทางลัดไปเมนูโทรนัดของคนนั้น */
+.iot-map-name-call {
+  cursor: pointer; color: var(--brand-strong); font-weight: 600;
+  text-decoration: underline; text-decoration-style: dotted;
+  text-underline-offset: 3px; text-decoration-color: var(--border-strong, var(--border));
+}
+.iot-map-name-call:hover { color: var(--brand); text-decoration-style: solid; }
+
+/* แถบเรียกกลับตอนพับเก็บ */
+.geo-drawer-tab {
+  display: none; position: absolute; top: 50%; left: -44px; transform: translateY(-50%) rotate(180deg);
+  writing-mode: vertical-rl;
+  align-items: center; gap: 6px;
+  padding: 12px 8px; border: 1px solid var(--border); border-right: 0;
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  background: var(--brand); color: #fff; font-size: var(--fs-sm); font-weight: 600; cursor: pointer;
+  box-shadow: var(--sh-2);
+}
+.geo-drawer.open.is-min .geo-drawer-tab { display: inline-flex; }
+/* ตอนพับ ให้ลิ้นชักโผล่แค่แถบเรียก */
+.geo-drawer.open.is-min { transform: translateX(calc(100% - 0px)); overflow: visible; }
+[data-theme="dark"] .geo-drawer-tab { color: #0b1f1a; }
+
+@media (max-width: 1180px) {
+  .geo-drawer { max-width: calc(100% - 28px); }
+  .geo-drawer.is-wide { width: calc(100% - 28px); }
+}
+
+/* ปุ่มกลับ/ชื่อพื้นที่ ขยับหลบลิ้นชักอัตโนมัติตอนลิ้นชักเปิด */
+.geo-stage { --drawer-w: 0px; }
+.geo-stage:has(.geo-drawer.open:not(.is-min)) { --drawer-w: 484px; }
+.geo-stage:has(.geo-drawer.open.is-wide:not(.is-min)) { --drawer-w: min(934px, calc(100% - 426px)); }
+.geo-stage .map-back-overlay { right: calc(16px + var(--drawer-w)); transition: right .28s cubic-bezier(.2,.8,.2,1); }
+.geo-stage .map-title-overlay { right: calc(120px + var(--drawer-w)); transition: right .28s cubic-bezier(.2,.8,.2,1); }
+.geo-stage .geo-zoom { right: calc(16px + var(--drawer-w)); transition: right .28s cubic-bezier(.2,.8,.2,1); }
+
+/* ลิ้นชักโหมดปกติ: ซ่อนคอลัมน์รอง (กดขยายลิ้นชักเพื่อดูครบ) */
+.geo-drawer:not(.is-wide) .col-extra { display: none; }
+/* ช่องค้นหาในแผง: เต็มความกว้าง กด Enter เพื่อค้นหา */
+.geo-search .search-field input { width: 100%; }
+
+/* ================= แผนที่: ป้าย/สี/ไฮไลท์ (รอบเก็บงาน) ================= */
+
+/* ป้ายชื่อจังหวัดบนแผนที่ — โทนเขียวเข้มเข้าธีม ไม่มีเส้นขอบ ขนาดตามพื้นที่จังหวัด (ตั้งจาก JS) */
+.geo-stage .map-label {
+  stroke: none; paint-order: normal;
+  fill: #1f5748; font-weight: 600; opacity: .82; letter-spacing: .01em;
+}
+[data-theme="dark"] .geo-stage .map-label { fill: #a9dfcc; opacity: .9; }
+
+/* ป้ายชื่ออำเภอ (pill) — โทนเขียวอ่อน ไม่มีขอบเข้ม ขนาดตามพื้นที่อำเภอ (ตั้งจาก JS) */
+.geo-stage .html-label {
+  background: rgba(238, 248, 244, .92); border: 1px solid rgba(63, 158, 136, .28);
+  color: #1d5041; font-weight: 600; box-shadow: 0 1px 4px rgba(31, 87, 72, .14);
+}
+[data-theme="dark"] .geo-stage .html-label {
+  background: rgba(20, 38, 32, .88); border-color: rgba(79, 214, 176, .25); color: #bfe8da;
+}
+
+/* ชื่อจังหวัดที่เลือกอยู่ — ป้ายใหญ่สีแบรนด์ กลางพื้นที่แผนที่ที่มองเห็น เด่นชัด */
+.geo-stage .map-title-overlay {
+  top: 18px; right: auto;
+  left: calc(420px + (100% - 420px - var(--drawer-w)) / 2);
+  transform: translateX(-50%);
+  max-width: none;
+  background: var(--brand); color: #fff;
+  font-size: 16.5px; font-weight: 650; letter-spacing: -0.01em;
+  padding: 10px 24px; border-radius: var(--r-pill);
+  box-shadow: 0 8px 24px rgba(46, 143, 118, .38);
+  transition: left .28s cubic-bezier(.2, .8, .2, 1);
+}
+[data-theme="dark"] .geo-stage .map-title-overlay { color: #0b1f1a; box-shadow: 0 8px 24px rgba(0, 0, 0, .45); }
+
+/* อำเภอที่เลือกอยู่ — ไฮไลท์ในลิสต์ฝั่งซ้าย */
+.geo-panel .lb-row.is-active, .geo-panel .district-row.is-active {
+  background: var(--brand-soft);
+  box-shadow: inset 0 0 0 1.5px var(--brand);
+}
+.geo-panel .lb-row.is-active .lb-name, .geo-panel .district-row.is-active .dr-name {
+  color: var(--brand-strong); font-weight: 650;
+}
+[data-theme="dark"] .geo-panel .lb-row.is-active, [data-theme="dark"] .geo-panel .district-row.is-active { background: var(--brand-soft); }
+
+/* ================= แผนที่: ป้ายสไตล์อ้างอิง + อนิเมชันอำเภอติดสี ================= */
+
+/* ชื่อจังหวัดบนแผนที่ประเทศ — ขาวหนาแบบแผนที่อ้างอิง (มีเงาเขียวเข้มบางๆ ให้อ่านออกทุกพื้นสี) */
+.geo-stage .map-label {
+  fill: #fff; opacity: .96; font-weight: 650;
+  paint-order: stroke; stroke: rgba(23, 62, 52, .32); stroke-width: .55px;
+  letter-spacing: 0;
+}
+[data-theme="dark"] .geo-stage .map-label { fill: #f2fbf7; stroke: rgba(0, 0, 0, .45); }
+
+/* ป้ายจังหวัดเพื่อนบ้านตอนซูมเข้า — จางลง ให้รู้ว่าข้างๆ คือจังหวัดอะไร */
+.geo-stage .map-label.is-dim {
+  fill: #7c948b; opacity: .85; font-weight: 600; stroke: rgba(255, 255, 255, .55); stroke-width: .4px;
+}
+.geo-stage .map-label.is-dim.is-current { opacity: 0; } /* จังหวัดที่เลือกมีป้ายใหญ่ข้างบนแล้ว ไม่ซ้ำ */
+[data-theme="dark"] .geo-stage .map-label.is-dim { fill: #7d918a; stroke: rgba(0, 0, 0, .4); }
+
+/* อำเภอค่อยๆ ติดสีทีละอันตอนซูมเข้าจังหวัด — เฟดขึ้น + วาบสว่างนิดๆ แบบสมูท */
+.geo-stage .dist-appear {
+  opacity: 0;
+  animation: geoDistIn .55s cubic-bezier(.2, .7, .3, 1) forwards;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes geoDistIn {
+  0%   { opacity: 0; filter: brightness(1.5) saturate(.6); }
+  55%  { opacity: 1; filter: brightness(1.22) saturate(1.05); }
+  100% { opacity: 1; filter: brightness(1) saturate(1); }
+}
+
+/* ================= แผนที่: ป้ายครบทั้งประเทศ + โฟกัสจังหวัดเดียว ================= */
+
+/* โชว์ชื่อเฉพาะจังหวัดที่มีข้อมูล (จังหวัดอื่นเป็นพื้นเทาเปล่าๆ ไม่มีชื่อ) */
+
+/* เลือกจังหวัดแล้ว: จังหวัดอื่นดรอปสีลง เหลือจังหวัดที่เลือกเด่นอยู่ตัวเดียว */
+.geo-stage #mapG .prov-path,
+.geo-stage #iotMapG .prov-path {
+  transition: opacity .45s ease, filter .45s ease;
+}
+.geo-stage #mapG.is-focused .prov-path:not(.is-focus),
+.geo-stage #iotMapG.is-focused .prov-path:not(.is-focus) {
+  opacity: .22;
+  filter: saturate(.12) brightness(1.12);
+}
+.geo-stage #mapG.is-focused .prov-path:not(.is-focus):hover,
+.geo-stage #iotMapG.is-focused .prov-path:not(.is-focus):hover {
+  opacity: .5; filter: saturate(.5) brightness(1.05);
+}
+/* ป้ายชื่อจังหวัดอื่นตอนโฟกัส — จางลงตามพื้นที่ */
+.geo-stage #mapG.is-focused ~ #labelLayer .map-label,
+.geo-stage #iotMapG.is-focused ~ #iotLabelLayer .map-label {
+  transition: opacity .45s ease;
+}
+
+/* เส้นขอบจังหวัดที่กำลังเลือกอยู่ — เข้มชัด วาดทับชั้นอำเภอ ให้รู้ขอบเขตจังหวัด */
+.geo-stage .prov-focus-outline {
+  fill: none; pointer-events: none;
+  stroke: #14503f; stroke-width: 1.5px;
+  stroke-linejoin: round; vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 2px rgba(20, 80, 63, .35));
+  animation: geoOutlineIn .5s ease .18s both;
+}
+[data-theme="dark"] .geo-stage .prov-focus-outline {
+  stroke: #7ff0cd; filter: drop-shadow(0 0 3px rgba(127, 240, 205, .35));
+}
+@keyframes geoOutlineIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ================= โหมดโทรนัด: คิวปรับความกว้างได้ + ข้อมูลเด่น ================= */
+
+.call-wrap {
+  display: grid;
+  grid-template-columns: var(--call-list-w, 320px) 6px minmax(0, 1fr);
+  gap: 0; align-items: start; margin-top: 12px;
+}
+.call-list {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
+  padding: 12px; position: sticky; top: 8px; max-height: 78vh; overflow: hidden;
+  display: flex; flex-direction: column; min-height: 0;
+}
+/* หัวคิว/ปุ่มส่งออก/ค้นหา/ตัวกรอง — ตรึงไว้ ไม่เลื่อนหายตามรายชื่อ */
+.call-list-fixed { flex: none; }
+/* เลื่อนเฉพาะรายชื่อ */
+#iotCallRows { flex: 1 1 auto; min-height: 0; overflow: auto; margin: 0 -4px; padding: 2px 4px 0; }
+.call-list-head { font-size: var(--fs-base); font-weight: 600; margin-bottom: 10px; }
+.call-list-head .dummy { display: none; }
+.call-remain { background: var(--wait-soft); color: var(--wait); font-size: var(--fs-xs); font-weight: 600; padding: 3px 10px; border-radius: var(--r-pill); }
+
+/* เส้นลากปรับความกว้าง */
+.call-resizer { position: relative; cursor: col-resize; touch-action: none; align-self: stretch; min-height: 200px; }
+.call-resizer::before {
+  content: ''; position: absolute; inset: 12px 2px auto 2px; height: calc(100% - 24px);
+  border-radius: 999px; background: var(--border); transition: background .15s;
+}
+.call-resizer:hover::before, .call-resizer.is-dragging::before { background: var(--brand); }
+.call-resizer::after {
+  content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 4px; height: 34px; border-radius: 999px; background: var(--border-strong);
+}
+.call-resizer:hover::after, .call-resizer.is-dragging::after { background: var(--brand-strong); }
+body.is-col-resizing { user-select: none; cursor: col-resize; }
+
+/* แถวคิว — โชว์ ลำดับ / ชื่อ / เบอร์ / พื้นที่ */
+.call-row {
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 9px 10px; margin-bottom: 4px;
+  border: 1px solid transparent; border-radius: var(--r-md);
+  cursor: pointer; transition: background .12s, border-color .12s;
+}
+.call-row:hover { background: var(--surface-2); border-color: var(--border); }
+.call-row.on { background: var(--brand-soft); border-color: var(--brand); box-shadow: none; }
+.call-row-no {
+  flex: none; min-width: 22px; height: 22px; padding: 0 5px;
+  display: grid; place-items: center; border-radius: var(--r-sm);
+  background: var(--surface-3); color: var(--text-3);
+  font-size: var(--fs-xs); font-weight: 600; font-variant-numeric: tabular-nums;
+}
+.call-row.on .call-row-no { background: var(--brand); color: #fff; }
+[data-theme="dark"] .call-row.on .call-row-no { color: #0b1f1a; }
+.call-row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.call-row-top { display: flex; align-items: center; gap: 6px; }
+.call-row-name { font-size: var(--fs-base); font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.call-row .call-dot { width: 7px; height: 7px; margin: 0; flex: none; }
+.call-row-phone {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: var(--fs-base); font-weight: 600; color: var(--brand-strong);
+  font-variant-numeric: tabular-nums; letter-spacing: .02em;
+}
+.call-row-nophone { color: var(--text-3); font-weight: 400; font-size: var(--fs-sm); }
+.call-row-area { font-size: var(--fs-xs); color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* หัวฟอร์ม */
+.call-form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 18px; margin-left: 8px; }
+.call-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.call-head-info { flex: 1 1 340px; min-width: 0; }
+.call-head-topline { display: flex; align-items: center; gap: 10px 12px; min-width: 0; flex-wrap: wrap; }
+.call-head-name { font-size: var(--fs-xl); font-weight: 700; letter-spacing: -0.015em; line-height: 1.3; flex: none; }
+.call-head-loc { display: flex; align-items: center; gap: 5px; margin-top: 3px; font-size: var(--fs-base); color: var(--muted); }
+
+/* หมายเหตุจาก master plan (ชีต) — กรอบเหลืองข้างชื่อ บรรทัดเดียวเสมอ ยาวไปก็ย่อตัวอักษรลง */
+.call-note-badge {
+  flex: 1 1 auto; min-width: 0;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 11px; border-radius: var(--r-md);
+  background: #fff8e1; border: 1px solid #f0a500;
+  box-shadow: 0 0 0 2px rgba(240, 165, 0, .16);
+  cursor: default;
+}
+.call-note-badge.is-block { flex: 1 1 100%; width: 100%; }
+.call-note-tag {
+  flex: none; display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 700; color: #8a5b00; white-space: nowrap;
+}
+.call-note-tag .ico { color: #b07a06; }
+.call-note-text {
+  flex: 1 1 auto; min-width: 0; display: block;
+  font-size: 13px; font-weight: 600; line-height: 1.35; color: #4a3405;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+[data-theme="dark"] .call-note-badge { background: #3a2f12; border-color: #c79a2e; box-shadow: 0 0 0 2px rgba(199, 154, 46, .18); }
+[data-theme="dark"] .call-note-tag { color: #e8c877; }
+[data-theme="dark"] .call-note-tag .ico { color: #e8c877; }
+[data-theme="dark"] .call-note-text { color: #f2e4c2; }
+
+/* ธงหมายเหตุเล็กๆ ในคิวซ้าย — เห็นก่อนกดเข้าไปว่าคนนี้มีหมายเหตุ */
+.call-note-flag {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 5px;
+  background: #fff3cd; border: 1px solid #f0a500; color: #8a5b00;
+}
+[data-theme="dark"] .call-note-flag { background: #3a2f12; border-color: #c79a2e; color: #e8c877; }
+
+@media (max-width: 900px) {
+  .call-head-topline { flex-wrap: wrap; }
+  .call-note-badge { flex-basis: 100%; }
+}
+
+/* คอลัมน์หมายเหตุใน PDF คิวโทรนัด */
+.pdf-report .pdf-note-cell { font-size: 10px; line-height: 1.3; }
+.call-head-loc .ico { color: var(--text-3); }
+.call-nav { display: flex; gap: 6px; }
+
+/* แถบเบอร์โทร — ตัวใหญ่ อยู่ซ้าย เลือก/คัดลอกได้ */
+.call-phone-bar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin: 14px 0 12px; padding: 12px 16px;
+  background: var(--brand-soft); border: 1px solid var(--brand); border-radius: var(--r-md);
+}
+.call-phone-label { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-sm); font-weight: 600; color: var(--brand-strong); }
+.call-phone-num {
+  font-size: 26px; font-weight: 700; color: var(--text);
+  font-variant-numeric: tabular-nums; letter-spacing: .04em;
+  user-select: all; cursor: text;
+}
+.call-phone-none { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-base); color: var(--danger); font-weight: 500; }
+.call-phone-nid { margin-left: auto; font-size: var(--fs-sm); color: var(--muted); font-variant-numeric: tabular-nums; }
+.call-phone-nid b { color: var(--text); user-select: all; }
+
+/* ชิปข้อมูลอ้างอิง */
+.call-chips { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 4px; }
+.call-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 11px; border-radius: var(--r-pill);
+  background: var(--surface-2); border: 1px solid var(--divider);
+  font-size: var(--fs-sm); color: var(--text);
+}
+.call-chip b { color: var(--text-3); font-weight: 500; }
+.call-chip.is-key { background: var(--brand-soft); border-color: transparent; color: var(--brand-strong); }
+.call-chip.is-key b { color: var(--brand-strong); opacity: .75; }
+
+@media (max-width: 900px) {
+  .call-wrap { grid-template-columns: 1fr; }
+  .call-resizer { display: none; }
+  .call-list { position: static; max-height: 320px; }
+  .call-form-card { margin-left: 0; margin-top: 12px; }
+}
+
+/* โหมดโทรนัด: ป้ายเตือนยังไม่บันทึก */
+/* ป้าย "ต้องถาม" ข้างหัวข้อ — ต้องชนะ .call-fields label span ที่ตั้ง color ทับไว้ (ไม่งั้นโหมดมืดตัวหนังสือหาย) */
+.call-fields label span.call-ask,
+.call-fields label .call-ask {
+  background: #fdebc8; color: #7a4a05; border: 1px solid #efc178;
+  font-weight: 700; letter-spacing: .01em;
+}
+[data-theme="dark"] .call-fields label span.call-ask,
+[data-theme="dark"] .call-fields label .call-ask {
+  background: #4a3a15; color: #f2d089; border-color: #7d6425;
+}
+
+.call-save-hint { flex: 1; align-self: center; font-size: var(--fs-sm); color: var(--text-3); }
+.call-unsaved {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: var(--r-pill);
+  background: var(--wait-soft); color: var(--wait); font-weight: 600;
+}
+/* ป้ายบอกว่าบันทึกอัตโนมัติแล้ว (ต่างจาก "แผนสำเร็จ" ที่ต้องกดปุ่มยืนยันเอง) */
+.call-autosaved {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: var(--r-pill);
+  background: var(--brand-soft); color: var(--brand-strong); font-weight: 600;
+}
+
+/* ปุ่มส่งออกในแถบคิวโทรนัด */
+.call-export { display: flex; gap: 6px; margin-bottom: 8px; }
+.call-export .btn { flex: 1; }
+
+/* จำนวนรวมท้ายตัวเลขคิว (ตอนกรองอยู่) */
+.call-remain-all { opacity: .65; font-weight: 500; }

@@ -1,0 +1,139 @@
+<div class="tab-content" id="tab-iot-app-match">
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">ตรวจสอบเชื่อมต่อแอป</h1>
+        <p class="page-sub">เทียบคนที่เชื่อมต่อกล่อง IoT ผ่านแอป Kasetkorn แล้ว กับข้อมูลในระบบ OTOD (จับคู่ด้วยเลขบัตรประชาชนหรือเบอร์โทร) เพื่อดูว่าใครใช้งานแล้วแต่ระบบยังไม่อัปเดต หรือข้อมูลไม่ตรงกัน</p>
+      </div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric "><div class="metric-top"><i data-icon="dot" data-size="15"></i><span class="metric-label">เชื่อมต่อแอปทั้งหมด</span></div><div class="metric-value" id="iotMatchKpiTotalApp">-</div><div class="metric-sub">รายชื่อจากแอป</div></div>
+      <div class="metric is-accent"><div class="metric-top"><i data-icon="done" data-size="15"></i><span class="metric-label">ตรงกันแล้ว</span></div><div class="metric-value" id="iotMatchKpiInSync">-</div><div class="metric-sub">เชื่อมต่อแอป + OTOD อัปเดตแล้ว</div></div>
+      <div class="metric "><div class="metric-top"><i data-icon="dot" data-size="15"></i><span class="metric-label">เชื่อมต่อแอป แต่ไม่พบใน OTOD</span></div><div class="metric-value" id="iotMatchKpiAppOnly">-</div><div class="metric-sub">เลขบัตร/เบอร์ไม่ตรงกับใครเลย</div></div>
+      <div class="metric is-danger"><div class="metric-top"><i data-icon="not-allowed" data-size="15"></i><span class="metric-label">OTOD ติดตั้งแล้ว แต่ยังไม่เชื่อมต่อแอป</span></div><div class="metric-value" id="iotMatchKpiOtodOnly">-</div><div class="metric-sub">ต้องตามให้เชื่อมต่อแอป</div></div>
+      <div class="metric is-accent"><div class="metric-top"><i data-icon="done" data-size="15"></i><span class="metric-label">ได้ตู้แล้ว ยืนยันซ้ำจากข้อมูลเก่า</span></div><div class="metric-value" id="iotMatchKpiOtodConfirmed">-</div><div class="metric-sub">OTOD ยืนยันแล้ว + มี SN จากชีตเก่าด้วย ไม่ต้องตามซ้ำ</div></div>
+      <div class="metric is-accent"><div class="metric-top"><i data-icon="dot" data-size="15"></i><span class="metric-label">ได้ตู้แล้ว รอยืนยันเอกสาร</span></div><div class="metric-value" id="iotMatchKpiPendingDoc">-</div><div class="metric-sub">OTOD ยังไม่อัปเดต แต่มีหลักฐานว่าได้ตู้แล้ว</div></div>
+    </div>
+
+    <div class="section">
+      <div class="toggle-detail" onclick="toggleDetail('iotMatchPendingDocBody','iotMatchPendingDocChevron')">
+        <h2 style="margin:0;"> ได้ตู้แล้ว รอยืนยันเอกสาร <span class="badge" id="iotMatchPendingDocCountBadge">0 รายการ</span></h2>
+        <span class="chevron open" id="iotMatchPendingDocChevron">▶</span>
+      </div>
+      <p style="font-size:13px; color:var(--muted); margin:6px 0 0;">
+        คนกลุ่มนี้ OTOD ยังไม่อัปเดตสถานะเป็นติดตั้งแล้วอย่างเป็นทางการ แต่มีหลักฐานว่าได้รับตู้ไปแล้วจริง (จากข้อมูลชุดเก่า หรือเชื่อมต่อแอปแล้ว) — ไม่ต้องเลือกไปติดตั้งซ้ำ แค่รอเอกสารยืนยันจาก OTOD เท่านั้น
+      </p>
+      <div id="iotMatchPendingDocBody" style="margin-top:16px;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+          <input type="text" id="iotMatchPendingDocSearch" placeholder="ค้นหาชื่อ/เบอร์/เลขบัตร/SN..." oninput="applyIotMatchPendingDocSearch()" style="flex:1; min-width:200px;">
+          <select id="iotMatchPendingDocFilter" onchange="applyIotMatchPendingDocSearch()">
+            <option value="all">แสดงทั้งหมด</option>
+            <option value="incomplete">เฉพาะที่ข้อมูลยังไม่ครบ</option>
+            <option value="complete">เฉพาะที่ครบแล้ว</option>
+          </select>
+          <select id="iotMatchPendingDocStatusFilter" onchange="applyIotMatchPendingDocSearch()">
+            <option value="all">สถานะทั้งหมด</option>
+          </select>
+          <button type="button" class="btn btn-outline" onclick="exportIotMatchPendingDocExcel()"><i data-icon="download" data-size="15"></i> ส่งออก Excel (ตามตัวกรอง)</button>
+        </div>
+        <div class="table-wrap">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>ลำดับ</th><th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
+                <th>เบอร์มือถือ</th><th>SN ตู้</th><th>เลข AR</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>สถานะในระบบ OTOD</th><th>เอกสาร/ภาพ/วีดีโอ</th><th>รูป / ส่ง Drive</th>
+              </tr>
+            </thead>
+            <tbody id="iotMatchPendingDocTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="toggle-detail" onclick="toggleDetail('iotMatchAppOnlyBody','iotMatchAppOnlyChevron')">
+        <h2 style="margin:0;"><i data-icon="help" data-size="15"></i> เชื่อมต่อแอปแล้ว แต่ไม่พบข้อมูลในระบบ OTOD <span class="badge" id="iotMatchAppOnlyCountBadge">0 รายการ</span></h2>
+        <span class="chevron" id="iotMatchAppOnlyChevron">▶</span>
+      </div>
+      <div id="iotMatchAppOnlyBody" style="display:none; margin-top:16px;">
+        <input type="text" id="iotMatchAppOnlySearch" placeholder="ค้นหาชื่อ/เบอร์/เลขบัตร/SN..." oninput="applyIotMatchAppOnlySearch()" style="margin-bottom:10px;">
+        <div class="table-wrap">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>ลำดับ</th><th>SN ตู้</th><th>รหัสผู้ใช้แอป</th><th>ชื่อ (จากแอป)</th><th>นามสกุล (จากแอป)</th>
+                <th>เลขบัตรประชาชน (จากแอป)</th><th>เบอร์มือถือ (จากแอป)</th>
+              </tr>
+            </thead>
+            <tbody id="iotMatchAppOnlyTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="toggle-detail" onclick="toggleDetail('iotMatchOtodOnlyBody','iotMatchOtodOnlyChevron')">
+        <h2 style="margin:0;"><i data-icon="not-allowed" data-size="15"></i> OTOD บอกว่าติดตั้งแล้ว แต่ยังไม่เชื่อมต่อแอป <span class="badge" id="iotMatchOtodOnlyCountBadge">0 รายการ</span></h2>
+        <span class="chevron" id="iotMatchOtodOnlyChevron">▶</span>
+      </div>
+      <div id="iotMatchOtodOnlyBody" style="display:none; margin-top:16px;">
+        <input type="text" id="iotMatchOtodOnlySearch" placeholder="ค้นหาชื่อ/เบอร์/เลขบัตร/SN..." oninput="applyIotMatchOtodOnlySearch()" style="margin-bottom:10px;">
+        <div class="table-wrap">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>ลำดับ</th><th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
+                <th>เบอร์มือถือ</th><th>SN ตู้</th><th>เลข AR</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th>
+              </tr>
+            </thead>
+            <tbody id="iotMatchOtodOnlyTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="toggle-detail" onclick="toggleDetail('iotMatchOtodConfirmedBody','iotMatchOtodConfirmedChevron')">
+        <h2 style="margin:0;"><i data-icon="done" data-size="15"></i> ได้ตู้แล้ว ยืนยันซ้ำจากข้อมูลชุดเก่า <span class="badge" id="iotMatchOtodConfirmedCountBadge">0 รายการ</span></h2>
+        <span class="chevron" id="iotMatchOtodConfirmedChevron">▶</span>
+      </div>
+      <p style="font-size:13px; color:var(--muted); margin:6px 0 0;">
+        คนกลุ่มนี้ OTOD ยืนยันติดตั้งเสร็จอย่างเป็นทางการแล้ว (ไม่ใช่ข้อมูลที่ระบบอนุมานเอง) และมีข้อมูลจากชีตติดตามตู้/Serial Board ชุดเก่ายืนยันซ้ำอีกชั้นว่าได้ตู้ (SN) ไหนไปจริง — ยืนยันครบทั้งสองทางแล้ว ไม่ต้องตามให้เชื่อมต่อแอปด่วนเหมือนกลุ่มบน
+      </p>
+      <div id="iotMatchOtodConfirmedBody" style="display:none; margin-top:16px;">
+        <input type="text" id="iotMatchOtodConfirmedSearch" placeholder="ค้นหาชื่อ/เบอร์/เลขบัตร/SN..." oninput="applyIotMatchOtodConfirmedSearch()" style="margin-bottom:10px;">
+        <div class="table-wrap">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>ลำดับ</th><th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
+                <th>เบอร์มือถือ</th><th>SN ตู้</th><th>เลข AR</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th>
+              </tr>
+            </thead>
+            <tbody id="iotMatchOtodConfirmedTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="toggle-detail" onclick="toggleDetail('iotMatchInSyncBody','iotMatchInSyncChevron')">
+        <h2 style="margin:0;"><i data-icon="done" data-size="15"></i> ตรงกันแล้ว (เชื่อมต่อแอป + OTOD อัปเดตแล้ว) <span class="badge" id="iotMatchInSyncCountBadge">0 รายการ</span></h2>
+        <span class="chevron" id="iotMatchInSyncChevron">▶</span>
+      </div>
+      <div id="iotMatchInSyncBody" style="display:none; margin-top:16px;">
+        <input type="text" id="iotMatchInSyncSearch" placeholder="ค้นหาชื่อ/เบอร์/เลขบัตร/SN..." oninput="applyIotMatchInSyncSearch()" style="margin-bottom:10px;">
+        <div class="table-wrap">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>ลำดับ</th><th>คำนำหน้า</th><th>ชื่อ</th><th>นามสกุล</th><th>เลขบัตรประชาชน</th>
+                <th>เบอร์มือถือ</th><th>SN ตู้</th><th>เลข AR</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>สถานะในระบบ OTOD</th>
+              </tr>
+            </thead>
+            <tbody id="iotMatchInSyncTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,102 @@
+/* ===== Design tokens =====
+   สีแบรนด์เดิม (#3ba68a) คงไว้ทั้งหมด แต่เปลี่ยนบทบาท:
+   เดิม = สีพื้นหลังหัวเว็บ (ใช้เยอะจนหมดพลัง)
+   ใหม่ = สีเน้นเฉพาะปุ่มหลัก/สถานะสำเร็จ/จุดที่ต้องการให้คนกด
+   ตัวแปรชุดเดิม (--brand --bg --card --border --text --muted) ยังอยู่ครบ
+   โค้ด/CSS เก่าจึงทำงานต่อได้ทันทีโดยได้สีชุดใหม่ไปด้วย */
+
+:root {
+  /* --- แบรนด์ --- */
+  --brand: #3ba68a;
+  --brand-hover: #32907780;
+  --brand-strong: #2e8f76;
+  --brand-dark: #2c7f68;
+  --brand-soft: #e8f6f1;
+  --brand-ring: rgba(59, 166, 138, .18);
+
+  /* --- พื้นผิว --- */
+  --bg: #f1f2f4;
+  --surface: #ffffff;
+  --surface-2: #f7f8fa;
+  --surface-3: #eef0f3;
+  --card: #ffffff;
+  --ink: #16181d;
+
+  /* --- เส้นขอบ --- */
+  --border: #e9ebef;
+  --border-strong: #dcdfe4;
+  --divider: #eef0f3;
+
+  /* --- ตัวหนังสือ --- */
+  --text: #14171a;
+  --text-2: #5f6b76;
+  --muted: #5f6b76;
+  --text-3: #98a2ad;
+
+  /* --- สถานะ (ชุดเดียวใช้ทั้งเว็บ) --- */
+  --ok: #2e9e78;         --ok-soft: #e4f5ef;
+  --info: #3b7ddd;       --info-soft: #e9f1fd;
+  --wait: #b6820a;       --wait-soft: #fcf4e2;
+  --attn: #d9670f;       --attn-soft: #fdefe3;
+  --danger: #d94a40;     --danger-soft: #fdecea;
+  --neutral: #6b7681;    --neutral-soft: #f0f2f4;
+  --red: #d94a40;        --red-light: #fdecea;
+  --amber: #b6820a;      --amber-light: #fcf4e2;
+
+  /* --- มุมโค้ง --- */
+  --r-xs: 6px; --r-sm: 8px; --r-md: 10px; --r-lg: 14px; --r-xl: 20px; --r-pill: 999px;
+
+  /* --- เงา (บางมาก ตามสไตล์อ้างอิง) --- */
+  --sh-1: 0 1px 2px rgba(16, 24, 40, .05);
+  --sh-2: 0 4px 14px rgba(16, 24, 40, .07);
+  --sh-3: 0 20px 52px rgba(16, 24, 40, .16);
+
+  /* --- ระยะห่าง --- */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --s6: 24px; --s7: 32px;
+
+  /* --- ตัวอักษร (ไทยต้องการ line-height สูงกว่าอังกฤษ) --- */
+  --font: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --fs-xs: 11.5px; --fs-sm: 12.5px; --fs-base: 13.5px; --fs-md: 15px;
+  --fs-lg: 18px; --fs-xl: 22px; --fs-2xl: 27px;
+  --lh: 1.6;
+
+  --topbar-h: 60px;
+}
+
+[data-theme="dark"] {
+  --brand: #4fd6b0;
+  --brand-hover: #3fc39e;
+  --brand-strong: #6ee3c2;
+  --brand-dark: #7fe8c9;
+  --brand-soft: #16352e;
+  --brand-ring: rgba(79, 214, 176, .22);
+
+  --bg: #0d1012;
+  --surface: #16191d;
+  --surface-2: #1b1f24;
+  --surface-3: #22272d;
+  --card: #16191d;
+  --ink: #f4f6f8;
+
+  --border: #262b31;
+  --border-strong: #333a42;
+  --divider: #21262c;
+
+  --text: #e6eaee;
+  --text-2: #98a3ae;
+  --muted: #98a3ae;
+  --text-3: #6d7883;
+
+  --ok: #43c895;         --ok-soft: #15342a;
+  --info: #63a0f0;       --info-soft: #14263c;
+  --wait: #d6a52f;       --wait-soft: #332813;
+  --attn: #ef8542;       --attn-soft: #362013;
+  --danger: #ef6b60;     --danger-soft: #371c1a;
+  --neutral: #8b959f;    --neutral-soft: #22272d;
+  --red: #ef6b60;        --red-light: #371c1a;
+  --amber: #d6a52f;      --amber-light: #332813;
+
+  --sh-1: 0 1px 2px rgba(0, 0, 0, .3);
+  --sh-2: 0 4px 14px rgba(0, 0, 0, .34);
+  --sh-3: 0 20px 52px rgba(0, 0, 0, .5);
+}

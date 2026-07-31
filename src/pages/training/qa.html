@@ -1,0 +1,22 @@
+<div class="qa-popup-panel" id="tab-qa">
+    <div class="qa-popup-header">
+      <h2><i data-icon="help" data-size="15"></i> ถามคำถามเกี่ยวกับข้อมูลอบรม</h2>
+      <button type="button" class="qa-popup-close" onclick="closeQaBubble()">×</button>
+    </div>
+    <div class="qa-popup-body">
+      <div class="qa-presets">
+        <button class="qa-chip" onclick="askPreset('ภาพรวมทั้งหมด')">ภาพรวมทั้งหมด</button>
+        <button class="qa-chip" onclick="askPreset('จังหวัดไหนอบรมน้อยที่สุด')">จังหวัดไหนอบรมน้อยที่สุด</button>
+        <button class="qa-chip" onclick="askPreset('จังหวัดไหนอบรมมากที่สุด')">จังหวัดไหนอบรมมากที่สุด</button>
+        <button class="qa-chip" onclick="askPreset('ตอนนี้อยู่กรุงเทพ ไปอบรมที่ไหนดี')">วางแผนเดินทางไปอบรม</button>
+      </div>
+      <div class="qa-log" id="qaLog"></div>
+      <div class="qa-input-row">
+        <input type="text" id="qaInput" placeholder="พิมพ์คำถาม เช่น จังหวัดสุโขทัยอบรมไปกี่คน" onkeydown="if(event.key==='Enter') askQuestion()">
+        <button class="btn btn-brand" onclick="askQuestion()">ถาม</button>
+      </div>
+      <p style="font-size:12px; color:var(--muted); margin-top:10px;">
+        หมายเหตุ: คำถามทั่วไปตอบจากข้อมูลในระบบโดยตรง (ฟรี ไม่มีค่าใช้จ่าย) ถ้าคำถามซับซ้อนเกินจะลองส่งให้ AI (Gemini ผ่าน Supabase Edge Function ที่ตั้งค่าไว้) ช่วยตอบต่อโดยอัตโนมัติ — ถ้ายังไม่ได้ตั้งค่า AI ไว้ ระบบจะข้ามส่วนนี้ไปเฉยๆ ไม่ error ส่วนคำถามเรื่องวางแผนเดินทางไปอบรมจะแนะนำเส้นทางได้จริงเมื่อมีข้อมูลสถานที่/วันเวลาจัดอบรมเพิ่มเข้าระบบ
+      </p>
+    </div>
+  </div>
