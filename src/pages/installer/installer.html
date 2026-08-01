@@ -6,15 +6,20 @@
     <div class="inst-topbar">
       <div class="inst-team-name"><i data-icon="wrench" data-size="15"></i> ทีมติดตั้ง: <b id="installerTeamName">-</b></div>
       <div class="inst-actions">
-        <button class="btn btn-outline" onclick="syncIotPlanFromSupabase({showToastOnSuccess:true})"><i data-icon="refresh" data-size="15"></i> รีเฟรชงาน</button>
-        <button class="btn btn-outline" onclick="exportIotPlanExcel()"><i data-icon="download" data-size="15"></i> ใบงาน Excel</button>
-        <button class="btn btn-outline" onclick="exportIotPlanPdf()"><i data-icon="print" data-size="15"></i> ใบงาน PDF</button>
+        <button class="btn btn-outline inst-act-refresh" onclick="syncIotPlanFromSupabase({showToastOnSuccess:true})"><i data-icon="refresh" data-size="15"></i> รีเฟรชงาน</button>
+        <!-- ใบงาน Excel/PDF ช่างแทบไม่ใช้บนมือถือ — ซ่อนไว้หลังปุ่มนี้ ไม่ให้กินพื้นที่ก่อนเห็นงาน -->
+        <button class="btn btn-outline inst-act-more" onclick="this.closest('.inst-actions').classList.toggle('show-export')" aria-label="ใบงาน">
+          <i data-icon="file" data-size="15"></i> ใบงาน
+        </button>
+        <button class="btn btn-outline inst-act-export" onclick="exportIotPlanExcel()"><i data-icon="download" data-size="15"></i> ใบงาน Excel</button>
+        <button class="btn btn-outline inst-act-export" onclick="exportIotPlanPdf()"><i data-icon="print" data-size="15"></i> ใบงาน PDF</button>
       </div>
     </div>
 
     <div id="installerListWrap">
     <div class="inst-summary" id="installerSummary"></div>
 
+    <!-- แถบเมนูบนจอใหญ่ — มือถือจะซ่อนอันนี้ แล้วใช้แถบล่างแทน -->
     <div class="inst-tabbar">
       <button class="inst-tab-btn active" data-itab="jobs" onclick="switchInstallerTab('jobs')"><i data-icon="clipboard" data-size="15"></i> งานของทีม</button>
       <button class="inst-tab-btn" data-itab="today" onclick="switchInstallerTab('today')"><i data-icon="calendar-range" data-size="15"></i> วันนี้ / สัปดาห์นี้</button>
@@ -22,24 +27,33 @@
     </div>
 
     <div id="installerTabJobs">
-      <div class="filters">
-        <div><label>อำเภอ</label><select id="instFilterDistrict"><option value="">ทุกอำเภอ</option></select></div>
-        <div><label>ตำบล</label><select id="instFilterSubdistrict"><option value="">ทุกตำบล</option></select></div>
-        <div><label>สัปดาห์นัด</label><select id="instFilterWeek"><option value="">ทุกช่วง</option></select></div>
-        <div><label>สถานะ</label>
-          <select id="instFilterStatus">
-            <option value="">ทุกสถานะ</option>
-            <option value="pending">รอติดตั้ง</option>
-            <option value="not_contacted">ยังไม่ติดต่อ</option>
-            <option value="survey">นัดดูหน้างาน</option>
-            <option value="site_not_ready">หน้างานไม่พร้อม</option>
-            <option value="ready">พร้อมติดตั้ง</option>
-            <option value="done">ติดตั้งแล้ว</option>
-            <option value="cancelled">สละสิทธิ์</option>
-          </select>
+      <!-- มือถือ: ยุบตัวกรองเป็นปุ่มเดียว กดแล้วแผ่นเลื่อนขึ้นมาจากด้านล่าง -->
+      <button type="button" class="inst-filter-open" onclick="openInstFilterSheet()">
+        <span class="inst-filter-open-l"><i data-icon="filter" data-size="16"></i> ตัวกรอง
+          <span class="inst-filter-badge" id="instFilterBadge" style="display:none;">0</span>
+        </span>
+        <span class="inst-filter-open-count" id="instFilterOpenCount"></span>
+      </button>
+
+      <div class="inst-filter-sheet" id="instFilterSheet">
+        <div class="inst-sheet-backdrop" onclick="closeInstFilterSheet()"></div>
+        <div class="inst-sheet-body">
+          <div class="inst-sheet-grip"></div>
+          <div class="inst-sheet-head">
+            <b><i data-icon="filter" data-size="16"></i> ตัวกรองงาน</b>
+            <button type="button" class="btn btn-outline btn-sm" onclick="clearInstFilters()">ล้างทั้งหมด</button>
+          </div>
+          <div class="filters">
+            <div><label>อำเภอ</label><select id="instFilterDistrict"><option value="">ทุกอำเภอ</option></select></div>
+            <div><label>ตำบล</label><select id="instFilterSubdistrict"><option value="">ทุกตำบล</option></select></div>
+            <div><label>สัปดาห์นัด</label><select id="instFilterWeek"><option value="">ทุกช่วง</option></select></div>
+            <div><label>สถานะ</label><select id="instFilterStatus"><option value="">ทุกสถานะ</option></select></div>
+            <div style="flex:1;"><label>ค้นหาชื่อ / เบอร์</label><input id="instFilterSearch" type="text" placeholder="พิมพ์เพื่อค้นหา..."></div>
+          </div>
+          <button type="button" class="btn btn-brand inst-sheet-apply" onclick="closeInstFilterSheet()">ดูงาน <span id="instSheetApplyCount"></span></button>
         </div>
-        <div style="flex:1;"><label>ค้นหาชื่อ / เบอร์</label><input id="instFilterSearch" type="text" placeholder="พิมพ์เพื่อค้นหา..."></div>
       </div>
+
       <div id="instFilterCountInfo" style="font-size:12px; color:var(--muted); margin:-6px 0 6px;"></div>
       <div id="installerJobGroups"></div>
     </div>
@@ -48,4 +62,17 @@
     <div id="installerTabNav" style="display:none;"></div>
     </div>
     <div id="installerDetailView" style="display:none;"></div>
+
+    <!-- แถบเมนูล่างสำหรับมือถือ — นิ้วโป้งเอื้อมถึง ถือมือเดียวได้ -->
+    <nav class="inst-bottomnav" id="instBottomNav">
+      <button type="button" class="inst-bn-btn active" data-itab="jobs" onclick="switchInstallerTab('jobs')">
+        <i data-icon="clipboard" data-size="21"></i><span>งานของทีม</span>
+      </button>
+      <button type="button" class="inst-bn-btn" data-itab="today" onclick="switchInstallerTab('today')">
+        <i data-icon="calendar-range" data-size="21"></i><span>วันนี้</span>
+      </button>
+      <button type="button" class="inst-bn-btn" data-itab="nav" onclick="switchInstallerTab('nav')">
+        <i data-icon="map" data-size="21"></i><span>นำทาง</span>
+      </button>
+    </nav>
   </div>

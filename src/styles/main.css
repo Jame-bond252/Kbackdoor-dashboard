@@ -640,6 +640,7 @@
   .plan-status-select.status-site_not_ready { background:#fde7d6; color:#b5650f; }
   .plan-status-select.status-survey { background:#dce9fd; color:#2f6bd6; }
   .plan-status-select.status-not_contacted { background:#eceff1; color:#6b7a72; }
+  .plan-status-select.status-done_pending_docs { background:#eaf4dd; color:#5d7c22; font-style:italic; }
   .plan-row-pending, .plan-row-done, .plan-row-cancelled { transition:opacity .2s ease; }
   .plan-row-cancelled { opacity:.55; }
   .plan-row-cancelled .plan-status-select { opacity:1; }
@@ -709,6 +710,7 @@
   .pdf-status-badge.status-site_not_ready { background:#fde7d6; color:#b5650f; }
   .pdf-status-badge.status-survey { background:#dce9fd; color:#2f6bd6; }
   .pdf-status-badge.status-not_contacted { background:#eceff1; color:#6b7a72; }
+  .pdf-status-badge.status-done_pending_docs { background:#eaf4dd; color:#5d7c22; }
   .pdf-signoff { display:flex; justify-content:space-between; gap:40px; margin:32px 30px 0; page-break-inside:avoid; }
   .pdf-signoff-box { flex:1; text-align:center; }
   .pdf-signoff-line { border-bottom:1px solid #9aa8a0; height:40px; margin-bottom:6px; }

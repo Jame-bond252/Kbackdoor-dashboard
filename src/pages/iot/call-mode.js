@@ -97,7 +97,7 @@ const _iotCallSyncPending = new Set();
 function iotCallAutoSave(nid) {
   const e = iotInstallPlan.find(p => p.nationalId === nid);
   // ประทับเวลาที่แก้ในเครื่อง — syncIotPlanFromSupabase จะไม่เอาข้อมูลเก่ากว่านี้มาทับ
-  if (e) e._localTouchedAt = Date.now();
+  if (e && typeof markIotPlanLocalEdit === 'function') markIotPlanLocalEdit(e);
   saveIotPlanToStorage();
   iotCallSavedAt = Date.now();
   _iotCallSyncPending.add(nid);
@@ -206,6 +206,7 @@ function iotCallAfterDecline(nid) {
   if (e) {
     e.status = 'cancelled';
     e.planFinalized = false;
+    if (typeof markIotPlanLocalEdit === 'function') markIotPlanLocalEdit(e);
     saveIotPlanToStorage();
     syncIotPlanEntriesToSupabase([e]);
   }
@@ -223,6 +224,7 @@ function iotCallSaveNext() {
   const e = cur ? iotInstallPlan.find(p => p.nationalId === cur) : null;
   if (!e) { showToast('ยังไม่ได้กรอกอะไรเลยครับ', 'warn'); return; }
   if (e.status !== 'cancelled') e.planFinalized = true;
+  if (typeof markIotPlanLocalEdit === 'function') markIotPlanLocalEdit(e);
   saveIotPlanToStorage();
   syncIotPlanEntriesToSupabase([e]);
   iotCallSnapshot = null;

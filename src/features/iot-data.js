@@ -530,6 +530,7 @@ async function restoreIotCancelledToQueue(nid) {
   if (!ok) return;
   entry.status = 'pending';
   entry.planFinalized = false;
+  if (typeof markIotPlanLocalEdit === 'function') markIotPlanLocalEdit(entry);
   saveIotPlanToStorage();
   syncIotPlanEntriesToSupabase([entry]);
   renderIotCancelledLegacyList();

@@ -16,6 +16,7 @@ import './features/global-search.js';
 import './features/ask-ai.js';
 import './pages/auth/auth.js';
 import './pages/installer/installer.js';
+import './pages/installer/qr-scan.js';
 import './features/user-mgmt.js';
 import './pages/auth/session.js';
 import './pages/training/dashboard.js';

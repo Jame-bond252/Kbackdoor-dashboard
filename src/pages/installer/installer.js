@@ -4,7 +4,7 @@
 
 function switchInstallerTab(tab) {
   installerCurrentTab = tab;
-  document.querySelectorAll('.inst-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.itab === tab));
+  document.querySelectorAll('.inst-tab-btn, .inst-bn-btn').forEach(b => b.classList.toggle('active', b.dataset.itab === tab));
   document.getElementById('installerTabJobs').style.display = tab === 'jobs' ? '' : 'none';
   document.getElementById('installerTabToday').style.display = tab === 'today' ? '' : 'none';
   document.getElementById('installerTabNav').style.display = tab === 'nav' ? '' : 'none';
@@ -54,6 +54,45 @@ function populateInstallerFilters() {
   const weeks = [...new Set(jobs.map(p => p.installDate ? formatIotPlanWeekLabel(p.installDate) : 'ยังไม่นัด'))];
   weekSel.innerHTML = '<option value="">ทุกช่วง</option>' + weeks.map(w => `<option value="${w}">${w}</option>`).join('');
   weekSel.value = weeks.includes(curW) ? curW : '';
+  // สถานะ: สร้างจากรายการกลาง จะได้ไม่ตกหล่นเวลาเพิ่มสถานะใหม่
+  const stSel = document.getElementById('instFilterStatus');
+  if (stSel && stSel.options.length <= 1) {
+    const curSt = stSel.value;
+    stSel.innerHTML = '<option value="">ทุกสถานะ</option>' + iotPlanStatusOptionsHtml(curSt);
+    stSel.value = curSt;
+  }
+}
+
+/* ===== ตัวกรองแบบแผ่นเลื่อนขึ้นจากด้านล่าง (มือถือ) ===== */
+function instActiveFilterCount() {
+  return ['instFilterDistrict', 'instFilterSubdistrict', 'instFilterWeek', 'instFilterStatus', 'instFilterSearch']
+    .filter(id => ((document.getElementById(id) || {}).value || '').trim() !== '').length;
+}
+function openInstFilterSheet() {
+  const sh = document.getElementById('instFilterSheet');
+  if (!sh) return;
+  sh.classList.add('open');
+  document.body.classList.add('inst-sheet-lock');
+}
+function closeInstFilterSheet() {
+  const sh = document.getElementById('instFilterSheet');
+  if (sh) sh.classList.remove('open');
+  document.body.classList.remove('inst-sheet-lock');
+}
+function clearInstFilters() {
+  ['instFilterDistrict', 'instFilterSubdistrict', 'instFilterWeek', 'instFilterStatus', 'instFilterSearch']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  renderInstallerView();
+}
+/** อัปเดตป้ายจำนวนตัวกรองที่เปิดอยู่ + จำนวนงานที่เหลือ (เรียกทุกครั้งที่วาดใหม่) */
+function refreshInstFilterChrome(shown, total) {
+  const n = instActiveFilterCount();
+  const badge = document.getElementById('instFilterBadge');
+  if (badge) { badge.textContent = String(n); badge.style.display = n ? '' : 'none'; }
+  const cnt = document.getElementById('instFilterOpenCount');
+  if (cnt) cnt.textContent = n ? `${shown.toLocaleString()} / ${total.toLocaleString()} งาน` : `${total.toLocaleString()} งาน`;
+  const applyCnt = document.getElementById('instSheetApplyCount');
+  if (applyCnt) applyCnt.textContent = `(${shown.toLocaleString()})`;
 }
 
 window.INSTALLER_STATUS_BADGE = {
@@ -76,6 +115,12 @@ function installerJobCardHtml(p) {
     p.pipeSize ? 'ท่อ: ' + p.pipeSize : null,
     p.valveSize ? 'วาล์ว: ' + p.valveSize : null
   ].filter(Boolean).join(' · ');
+  // สถานะที่ช่างกดบ่อยที่สุดหน้างาน — ทำเป็นปุ่มกดทีเดียวติด ไม่ต้องเปิดดรอปดาวน์ 2 จังหวะ
+  const quick = [
+    { v: 'ready', t: 'พร้อมติดตั้ง', ic: 'check' },
+    { v: 'done', t: 'ติดตั้งแล้ว', ic: 'done' },
+    { v: 'site_not_ready', t: 'หน้างานไม่พร้อม', ic: 'warning' },
+  ];
   return `
     <div class="inst-job-card row-${status}">
       <div class="inst-job-top">
@@ -84,20 +129,28 @@ function installerJobCardHtml(p) {
       </div>
       <div class="inst-job-area"><i data-icon="pin" data-size="15"></i> ${p.district || '-'} / ${p.subdistrict || '-'}${details ? ' · <span class="inst-job-detail">' + details + '</span>' : ''}</div>
       ${p.note ? `<div class="note-flag"><i data-icon="edit-square" data-size="15"></i> หมายเหตุ: ${escNoteText(p.note)}</div>` : ''}
+
+      <!-- ของที่ใช้จริงตอนไปถึงหน้างาน ดันขึ้นมาไว้บนสุด ไม่ต้องเลื่อนหา -->
       <div class="inst-job-actions">
-        ${phoneSafe ? `<a class="inst-act-btn call" href="tel:${phoneSafe}"><i data-icon="phone" data-size="15"></i> โทร ${p.phone}</a>` : '<span class="inst-act-btn disabled">ไม่มีเบอร์</span>'}
-        ${p.mapLink ? `<a class="inst-act-btn nav" href="${mapLinkSafe}" target="_blank" rel="noopener"><i data-icon="compass" data-size="15"></i> นำทาง</a>` : ''}
+        ${phoneSafe ? `<a class="inst-act-btn call" href="tel:${phoneSafe}"><i data-icon="phone" data-size="17"></i> โทร ${p.phone}</a>` : '<span class="inst-act-btn disabled">ไม่มีเบอร์</span>'}
+        ${p.mapLink ? `<a class="inst-act-btn nav" href="${mapLinkSafe}" target="_blank" rel="noopener"><i data-icon="compass" data-size="17"></i> นำทาง</a>` : ''}
+        <button type="button" class="inst-act-btn scan" onclick="scanInstallerQr('${idSafe}')"><i data-icon="camera" data-size="17"></i> สแกน SN</button>
       </div>
-      <div class="inst-job-edit">
-        <label>สถานะ
+      ${p.scannedSn ? `<div class="inst-sn-done"><i data-icon="check" data-size="15"></i> SN ที่สแกนไว้: <b>${(p.scannedSn || '').replace(/</g, '&lt;')}</b></div>` : ''}
+
+      <div class="inst-quick-label">แตะเพื่อเปลี่ยนสถานะ</div>
+      <div class="inst-quick-status">
+        ${quick.map(q => `<button type="button" class="inst-qs ${q.v}${status === q.v ? ' on' : ''}" onclick="installerSetStatus('${idSafe}','${q.v}')"><i data-icon="${q.ic}" data-size="16"></i> ${q.t}</button>`).join('')}
+      </div>
+
+      <button type="button" class="inst-more-btn" onclick="toggleInstJobDetail(this)">
+        <span><i data-icon="wrench" data-size="15"></i> รายละเอียดอุปกรณ์ / เก็บเงิน / หมายเหตุ</span>
+        <span class="chevron">▾</span>
+      </button>
+      <div class="inst-job-edit" hidden>
+        <label>สถานะ (ทั้งหมด)
           <select onchange="installerSetStatus('${idSafe}',this.value)">
-            <option value="pending" ${status==='pending'?'selected':''}>รอติดตั้ง</option>
-            <option value="not_contacted" ${status==='not_contacted'?'selected':''}>ยังไม่ติดต่อ</option>
-            <option value="survey" ${status==='survey'?'selected':''}>นัดดูหน้างาน</option>
-            <option value="site_not_ready" ${status==='site_not_ready'?'selected':''}>หน้างานไม่พร้อม</option>
-            <option value="ready" ${status==='ready'?'selected':''}>พร้อมติดตั้ง</option>
-            <option value="done" ${status==='done'?'selected':''}>ติดตั้งแล้ว</option>
-            <option value="cancelled" ${status==='cancelled'?'selected':''}>สละสิทธิ์</option>
+            ${iotPlanStatusOptionsHtml(status)}
           </select>
         </label>
         <label>ตู้
@@ -138,6 +191,15 @@ function installerJobCardHtml(p) {
 }
 
 function escNoteText(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+/** กาง/พับกล่องรายละเอียดอุปกรณ์ในการ์ดงาน (ปกติพับไว้ ให้ปุ่มที่ใช้บ่อยอยู่ใกล้มือ) */
+function toggleInstJobDetail(btn) {
+  const box = btn.parentElement.querySelector('.inst-job-edit');
+  if (!box) return;
+  const open = box.hasAttribute('hidden');
+  if (open) box.removeAttribute('hidden'); else box.setAttribute('hidden', '');
+  btn.classList.toggle('open', open);
+}
 
 // แถวรายชื่อแบบย่อ (โชว์ก่อน) — กดแล้วเข้าไปดูรายละเอียด/แก้ไขของคนนั้น
 function installerListRowHtml(p) {
@@ -235,8 +297,10 @@ function renderInstallerView() {
   populateInstallerFilters();
   if (installerCurrentTab === 'jobs') {
     const jobs = getFilteredInstallerJobs();
+    const total = getInstallerTeamJobs().length;
     const info = document.getElementById('instFilterCountInfo');
-    if (info) info.textContent = `แสดง ${jobs.length.toLocaleString()} จาก ${getInstallerTeamJobs().length.toLocaleString()} งาน`;
+    if (info) info.textContent = `แสดง ${jobs.length.toLocaleString()} จาก ${total.toLocaleString()} งาน`;
+    refreshInstFilterChrome(jobs.length, total);
     const box = document.getElementById('installerJobGroups');
     if (box) box.innerHTML = installerGroupedHtml(jobs);
   } else if (installerCurrentTab === 'today') {
@@ -308,103 +372,7 @@ function installerSetEquip(id, field, value) {
   showToast('อัปเดตอุปกรณ์แล้ว', 'success');
 }
 
-// ===== สแกน QR หน้าตู้ (ได้ค่าเป็น SN) ด้วยกล้องมือถือ (ใช้ jsQR) =====
-window._qrStream = null;
-window._qrRAF = null;
-window._qrOverlay = null;
-window._qrTargetId = null;
-window._qrDetector = null;
-// โหลด jsQR แบบมี fallback หลาย CDN (ที่บอก "ไม่มีเน็ต" เดิม เพราะไฟล์ .min.js ที่ระบุไม่มีจริงบน cdnjs)
-function ensureJsQr() {
-  return new Promise((resolve, reject) => {
-    if (window.jsQR) return resolve();
-    const urls = [
-      'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js',
-      'https://unpkg.com/jsqr@1.4.0/dist/jsQR.js',
-      'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js'
-    ];
-    let i = 0;
-    const tryNext = () => {
-      if (window.jsQR) return resolve();
-      if (i >= urls.length) return reject(new Error('โหลดตัวอ่าน QR ไม่ได้'));
-      const s = document.createElement('script');
-      s.src = urls[i++];
-      s.onload = () => (window.jsQR ? resolve() : tryNext());
-      s.onerror = () => tryNext();
-      document.head.appendChild(s);
-    };
-    tryNext();
-  });
-}
-async function scanInstallerQr(id) {
-  if (isReadOnlyUser) { showToast('บัญชีนี้ดูอย่างเดียว สแกนไม่ได้', 'warn'); return; }
-  _qrTargetId = id;
-  // 1) ใช้ตัวอ่าน QR ในตัวเครื่องก่อน (BarcodeDetector — Android/Chrome/Edge) ไม่ต้องโหลดเน็ตเลย
-  _qrDetector = null;
-  if ('BarcodeDetector' in window) {
-    try { _qrDetector = new window.BarcodeDetector({ formats: ['qr_code'] }); } catch (e) { _qrDetector = null; }
-  }
-  // 2) ถ้าเครื่องไม่มี ค่อยโหลด jsQR (เช่น iOS) — ถ้าโหลดไม่ได้จริงๆ ก็ยังเปิดกล้อง+พิมพ์ SN เองได้
-  let jsqrReady = false;
-  if (!_qrDetector) { try { await ensureJsQr(); jsqrReady = !!window.jsQR; } catch (e) { jsqrReady = false; } }
-  const ov = document.createElement('div');
-  ov.style.cssText = 'position:fixed;inset:0;background:#000;z-index:100000;display:flex;flex-direction:column;';
-  ov.innerHTML =
-    '<div style="color:#fff;padding:12px;display:flex;justify-content:space-between;align-items:center;">' +
-    '<b><i data-icon="camera" data-size="15"></i> เล็งกล้องไปที่ QR หน้าตู้</b>' +
-    '<button class="btn btn-outline" style="background:#fff;color:#111;" onclick="closeQrScan()">ปิด <i data-icon="close" data-size="15"></i></button></div>' +
-    '<video id="qrVideo" playsinline muted style="flex:1;width:100%;object-fit:cover;background:#000;"></video>' +
-    '<canvas id="qrCanvas" style="display:none;"></canvas>' +
-    '<div id="qrHint" style="color:#fff;text-align:center;padding:12px;font-size:14px;">กำลังเปิดกล้อง...</div>';
-  document.body.appendChild(ov);
-  _qrOverlay = ov;
-  const video = ov.querySelector('#qrVideo');
-  try {
-    _qrStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
-    video.srcObject = _qrStream;
-    await video.play();
-    if (!_qrDetector && !jsqrReady) {
-      ov.querySelector('#qrHint').textContent = 'อ่าน QR อัตโนมัติไม่ได้บนเครื่องนี้ — อ่านตัวเลข SN ที่ใต้ QR แล้วปิดหน้านี้ พิมพ์เองได้เลย';
-    } else {
-      ov.querySelector('#qrHint').textContent = 'เล็งให้ QR อยู่กลางจอ ระบบจะอ่านให้อัตโนมัติ';
-      tickQrScan();
-    }
-  } catch (e) {
-    ov.querySelector('#qrHint').textContent = 'เปิดกล้องไม่ได้: ' + (e.message || e) + ' — ปิดแล้วพิมพ์ SN เองได้';
-  }
-}
-async function tickQrScan() {
-  const ov = _qrOverlay; if (!ov) return;
-  const video = ov.querySelector('#qrVideo');
-  try {
-    if (_qrDetector && video && video.readyState >= 2 && video.videoWidth) {
-      const codes = await _qrDetector.detect(video);
-      if (codes && codes.length && codes[0].rawValue) { onQrDecoded(String(codes[0].rawValue).trim()); return; }
-    } else if (window.jsQR && video && video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth) {
-      const canvas = ov.querySelector('#qrCanvas');
-      canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const code = window.jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' });
-      if (code && code.data && code.data.trim()) { onQrDecoded(code.data.trim()); return; }
-    }
-  } catch (e) { /* อ่านเฟรมนี้ไม่ได้ ข้ามไปเฟรมถัดไป */ }
-  if (_qrOverlay) _qrRAF = requestAnimationFrame(tickQrScan);
-}
-function onQrDecoded(text) {
-  const id = _qrTargetId;
-  closeQrScan();
-  if (!id) return;
-  installerSetEquip(id, 'scannedSn', text);
-  showToast('สแกน SN ได้: ' + text, 'success');
-}
-function closeQrScan() {
-  if (_qrRAF) { cancelAnimationFrame(_qrRAF); _qrRAF = null; }
-  if (_qrStream) { try { _qrStream.getTracks().forEach(t => t.stop()); } catch (e) {} _qrStream = null; }
-  if (_qrOverlay && _qrOverlay.parentNode) _qrOverlay.parentNode.removeChild(_qrOverlay);
-  _qrOverlay = null; _qrTargetId = null;
-}
+// ===== สแกน QR หน้าตู้ ย้ายไปไฟล์ qr-scan.js แล้ว (ใช้ qr-scanner + Web Worker) =====
 
 // ===================== ส่งงานหน้างาน: รูป/วีดีโอ/หมุดแปลง (iot_field_submissions) =====================
 window.FIELD_PHOTO_SLOTS = [
@@ -779,9 +747,10 @@ function openUserMgmt() {
 // expose ฟังก์ชันของโมดูลนี้ให้ inline handlers และโมดูลอื่นเรียกผ่าน window ได้
 Object.assign(window, {
   switchInstallerTab, installerActiveTeam, getInstallerTeamJobs, getFilteredInstallerJobs, populateInstallerFilters, installerJobCardHtml,
-  escNoteText, installerListRowHtml, openInstallerDetail, closeInstallerDetail, installerGroupedHtml, renderInstallerSummary,
+  escNoteText, toggleInstJobDetail, installerListRowHtml, openInstallerDetail, closeInstallerDetail, installerGroupedHtml, renderInstallerSummary,
+  instActiveFilterCount, openInstFilterSheet, closeInstFilterSheet, clearInstFilters, refreshInstFilterChrome,
   renderInstallerView, renderInstallerToday, renderInstallerNav, installerFindJob, installerSyncJob, installerSetEquip,
-  ensureJsQr, scanInstallerQr, tickQrScan, onQrDecoded, closeQrScan, loadFieldSubmissions,
+  loadFieldSubmissions,
   fieldSubContext, fieldSubCanEdit, fieldSubProgress, openFieldSubmission, closeFieldSubmission, renderFieldSubmissionModal,
   resizeImageFile, fieldSubUpload, fieldSubDeleteFile, fieldSubUseGps, fieldSubSave, canSendToDrive,
   loadGoogleGsi, ensureGoogleToken, driveFindFolder, driveCreateFolder, driveFindOrCreateFolder, driveUploadBlob,

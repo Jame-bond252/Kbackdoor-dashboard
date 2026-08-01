@@ -3,7 +3,38 @@
 
 
 function saveIotPlanToStorage() {
-  localStorage.setItem(IOT_PLAN_STORAGE_KEY, JSON.stringify(iotInstallPlan));
+  // ตัดฟิลด์ที่ขึ้นต้นด้วย _ ออก (เป็นสถานะชั่วคราวของเซสชันนี้เท่านั้น เช่น _localTouchedAt)
+  // ห้ามให้ค้างใน localStorage เด็ดขาด ไม่งั้นข้อมูลเก่าจากเซสชันก่อนจะไปชนะข้อมูลจริงบนเซิร์ฟเวอร์ตอนโหลดใหม่
+  const clean = iotInstallPlan.map(p => {
+    const o = {};
+    Object.keys(p).forEach(k => { if (k[0] !== '_') o[k] = p[k]; });
+    return o;
+  });
+  localStorage.setItem(IOT_PLAN_STORAGE_KEY, JSON.stringify(clean));
+}
+
+/* ===== กันข้อมูล "เด้งกลับ" ระหว่างที่แก้ในเครื่องยังขึ้นเซิร์ฟเวอร์ไม่เสร็จ =====
+   ทั้งสองตัวนี้อยู่ในหน่วยความจำอย่างเดียว (ไม่เก็บลง localStorage)
+   พอรีเฟรช/ล็อกอินใหม่จะว่างเสมอ = ข้อมูลบนเซิร์ฟเวอร์เป็นความจริงเสมอ */
+window.iotPlanPendingLocal = new Set();      // nationalId ที่แก้ในเครื่องแล้วยังไม่ยืนยันว่าขึ้นเซิร์ฟเวอร์
+window.iotPlanRecentlyDeleted = new Map();   // nationalId -> เวลาที่กดลบ (กันการ pull ดึงกลับมา)
+window.IOT_PLAN_GUARD_MS = 60 * 1000;
+
+/** ประทับว่าแถวนี้เพิ่งถูกแก้ในเครื่อง — เรียกทุกครั้งที่เปลี่ยนค่า entry แล้วจะซิงก์ขึ้นไป */
+function markIotPlanLocalEdit(entry) {
+  if (!entry) return;
+  entry._localTouchedAt = Date.now();
+  if (entry.nationalId) {
+    iotPlanPendingLocal.add(entry.nationalId);
+    iotPlanRecentlyDeleted.delete(entry.nationalId);   // แก้ใหม่ = ไม่ถือว่าถูกลบแล้ว
+  }
+}
+
+/** ประทับว่าคนนี้ถูกลบออกจากแผน — กันไม่ให้การดึงข้อมูลที่ค้างอยู่เอาชื่อกลับมา */
+function markIotPlanDeleted(nid) {
+  if (!nid) return;
+  iotPlanRecentlyDeleted.set(nid, Date.now());
+  iotPlanPendingLocal.delete(nid);
 }
 
 // ----- ซิงก์แผนติดตั้ง IoT ขึ้น Supabase (ตาราง iot_install_plan) -----
@@ -49,6 +80,8 @@ async function syncIotPlanEntriesToSupabase(entries) {
     const rows = entries.map(iotPlanEntryToSupabaseRow);
     const { error } = await supabaseClient.from('iot_install_plan').upsert(rows);
     if (error) throw error;
+    // ขึ้นเซิร์ฟเวอร์เรียบร้อยแล้ว เลิกกันข้อมูลเซิร์ฟเวอร์ทับได้
+    entries.forEach(e => { if (e && e.nationalId) iotPlanPendingLocal.delete(e.nationalId); });
   } catch (e) {
     showToast('ซิงก์แผนติดตั้ง IoT ขึ้น Supabase ไม่สำเร็จ: ' + e.message, 'error');
   }
@@ -93,9 +126,22 @@ async function syncIotPlanFromSupabase(opts) {
     const { data, error } = await supabaseClient.from('iot_install_plan').select('*');
     if (error) throw error;
 
+    // เซิร์ฟเวอร์ไม่มีข้อมูลเลย แต่ในเครื่องมี — ต้องแยกให้ออกว่าเป็นกรณีไหน
+    // 1) แถวที่ยังไม่เคยขึ้นเซิร์ฟเวอร์ (ไม่มี updatedAt) = ของใหม่ อัปโหลดขึ้นไปให้
+    // 2) แถวที่เคยขึ้นไปแล้ว (มี updatedAt) แต่ตอนนี้เซิร์ฟเวอร์ไม่มี = "ถูกลบไปจริงๆ" ต้องลบตามในเครื่องด้วย
+    //    (ของเดิมอัปโหลดกลับขึ้นไปหมด ทำให้ชื่อที่ลบไปแล้วฟื้นกลับมาทุกครั้งที่ล็อกอินใหม่)
     if (data && data.length === 0 && iotInstallPlan.length > 0) {
-      await syncIotPlanEntriesToSupabase(iotInstallPlan);
-      if (opts.showToastOnSuccess) showToast('อัปโหลดแผนติดตั้ง IoT เดิมขึ้น Supabase แล้ว', 'success');
+      const neverSynced = iotInstallPlan.filter(p => !p.updatedAt);
+      if (neverSynced.length) {
+        await syncIotPlanEntriesToSupabase(neverSynced);
+        if (opts.showToastOnSuccess) showToast(`อัปโหลดแผนติดตั้ง IoT ${neverSynced.length.toLocaleString()} รายการที่ยังไม่เคยซิงก์ขึ้น Supabase แล้ว`, 'success');
+      } else {
+        iotInstallPlan = [];
+        saveIotPlanToStorage();
+        renderIotPlanTable();
+        if (iotPlanCurrentView === 'calendar') renderIotPlanCalendar();
+        if (opts.showToastOnSuccess) showToast('แผนติดตั้ง IoT บน Supabase ว่างแล้ว — ล้างข้อมูลค้างในเครื่องนี้ตามให้แล้วครับ', 'info');
+      }
       return;
     }
 
@@ -135,24 +181,29 @@ async function syncIotPlanFromSupabase(opts) {
         updatedAt: row.updated_at || ''
       }));
 
-      // ถ้าแถวไหนถูกแก้ในเครื่องนี้ "หลัง" เวลาที่เซิร์ฟเวอร์บันทึกไว้ = ของในเครื่องใหม่กว่า ให้ใช้ของเครื่องนี้
-      // (จำกัดไม่เกิน 5 นาที กัน _localTouchedAt เก่าค้างใน localStorage ข้ามเซสชันมาชนะข้อมูลจริง)
-      const FRESH_MS = 5 * 60 * 1000;
       const nowMs = Date.now();
+
+      // คนที่เพิ่งกดลบไปเมื่อกี้ ถ้าข้อมูลชุดนี้ถูกอ่านก่อนที่คำสั่งลบจะถึงเซิร์ฟเวอร์ ต้องไม่ให้ชื่อกลับมา
+      iotInstallPlan = iotInstallPlan.filter(e => {
+        const t = e.nationalId ? iotPlanRecentlyDeleted.get(e.nationalId) : null;
+        return !(t && nowMs - t <= IOT_PLAN_GUARD_MS);
+      });
+
+      // ถ้าแถวไหน "ยังแก้ค้างอยู่ในเซสชันนี้" และแก้หลังเวลาที่เซิร์ฟเวอร์บันทึกไว้ = ของในเครื่องใหม่กว่า ให้ใช้ของในเครื่อง
+      // ต้องอยู่ใน iotPlanPendingLocal (หน่วยความจำ) ด้วย — พอรีเฟรช/ล็อกอินใหม่ Set นี้ว่าง ข้อมูลเซิร์ฟเวอร์จึงชนะเสมอ
       const seenNids = new Set();
       iotInstallPlan = iotInstallPlan.map(e => {
         if (e.nationalId) seenNids.add(e.nationalId);
         const prev = e.nationalId ? prevByNid.get(e.nationalId) : null;
-        if (!prev || !prev._localTouchedAt) return e;
-        if (nowMs - prev._localTouchedAt > FRESH_MS) return e;
+        if (!prev || !prev._localTouchedAt || !iotPlanPendingLocal.has(e.nationalId)) return e;
         const serverAt = Date.parse(e.updatedAt || '') || 0;
         if (prev._localTouchedAt <= serverAt) return e;
         return { ...prev, id: e.id };   // ของในเครื่องใหม่กว่า — เก็บไว้ แต่ใช้ id ฝั่งเซิร์ฟเวอร์
       });
-      // แถวที่เพิ่งสร้างในเครื่องแต่ยัง upsert ไม่ถึงเซิร์ฟเวอร์ ต้องไม่หายไป
+      // แถวที่เพิ่งสร้าง/แก้ในเซสชันนี้แต่ยัง upsert ไม่ถึงเซิร์ฟเวอร์ ต้องไม่หายไป
       prevByNid.forEach((prev, nid) => {
-        if (seenNids.has(nid)) return;
-        if (prev._localTouchedAt && nowMs - prev._localTouchedAt <= FRESH_MS) iotInstallPlan.push(prev);
+        if (seenNids.has(nid) || !iotPlanPendingLocal.has(nid)) return;
+        iotInstallPlan.push(prev);
       });
 
       saveIotPlanToStorage();
@@ -271,13 +322,20 @@ function toggleSelectAllIotPeople(groupId) {
   boxes.forEach(b => { b.checked = !allChecked; });
 }
 
-window.IOT_PLAN_STATUS_LABELS = { not_contacted: 'ยังไม่ได้ติดต่อ', pending: 'รอติดตั้ง', survey: 'นัดดูหน้างาน', site_not_ready: 'หน้างานไม่พร้อม', ready: 'พร้อมติดตั้ง', done: 'ติดตั้งแล้ว', cancelled: 'สละสิทธิ์' };
+window.IOT_PLAN_STATUS_LABELS = { not_contacted: 'ยังไม่ได้ติดต่อ', pending: 'รอติดตั้ง', survey: 'นัดดูหน้างาน', site_not_ready: 'หน้างานไม่พร้อม', ready: 'พร้อมติดตั้ง', done_pending_docs: 'ติดตั้งแล้ว รอยืนยันเอกสาร', done: 'ติดตั้งแล้ว', cancelled: 'สละสิทธิ์' };
+// done_pending_docs = ทีมติดตั้งตู้ไปแล้วจริง (ตามชีตเก่า) แต่ระบบ OTOD ยังไม่อนุมัติเอกสารส่งมอบ
+// จึงยัง "ไม่นับเป็นติดตั้งแล้ว" ในสถิติ — ต้องรอ OTOD อนุมัติก่อนถึงเปลี่ยนเป็น done
+/** ตัวเลือก <option> ของสถานะแผน สร้างจาก IOT_PLAN_STATUS_LABELS ที่เดียว จะได้ไม่ตกหล่นเวลาเพิ่มสถานะใหม่ */
+window.iotPlanStatusOptionsHtml = function (cur) {
+  return Object.keys(IOT_PLAN_STATUS_LABELS)
+    .map(k => `<option value="${k}" ${cur === k ? 'selected' : ''}>${IOT_PLAN_STATUS_LABELS[k]}</option>`).join('');
+};
 // KPI "ติดตั้งแล้ว" นับเฉพาะ done เท่านั้น · cancelled = สละสิทธิ์ (ไม่นับ) · ที่เหลือทั้งหมด = ยังไม่ติดตั้ง
 window.IOT_BOX_TYPE_LABELS = { no_button: 'ตู้ไม่มีปุ่มกด', with_button: 'ตู้มีปุ่มกด' };
 window.IOT_INSTALL_TEAMS = ['ทีมโก้', 'ทีมนพดล', 'ทีม Aero'];
 window.IOT_PUMP_TYPES = ['ไม่เกิน 5 แรงม้า', 'โซล่าเซลล์', 'เกิน 5 แรงม้า', 'เครื่องยนต์'];
 window.IOT_PIPE_SIZES = ['1 นิ้ว', '2 นิ้ว', '3 นิ้ว'];
-window.IOT_PAYMENT_STATUSES = ['ชำระแล้ว', 'ยังไม่ชำระ'];
+window.IOT_PAYMENT_STATUSES = ['ชำระแล้ว', 'ยังไม่ชำระ', 'ไม่ต้องชำระ'];
 window.IOT_OPERATORS = ['Admin', 'นพดล']; // รายชื่อผู้ดำเนินการสำเร็จรูป แก้/เพิ่มชื่อได้ตรงนี้
 window.IOT_VALVE_SIZES = ['1/2 นิ้ว', '1 นิ้ว', '2 นิ้ว']; // ขนาดวาล์วพื้นฐาน (เพิ่มเองได้ผ่านหน้าเว็บ)
 window.IOT_WATER_SOURCES = ['บ่อน้ำ', 'ถังเก็บน้ำ', 'บ่อบาดาล', 'ไม่มีแหล่งน้ำ']; // แหล่งน้ำพื้นฐาน (เพิ่มเองได้)
@@ -721,13 +779,7 @@ function iotPlanRowHtml(p, i) {
       <td>${p.subdistrict || '-'}</td>
       <td>
         <select class="plan-status-select status-${status}" onchange="this.className='plan-status-select status-'+this.value; this.closest('tr').className='plan-row-'+this.value; updateIotPlanField('${p.id}','status',this.value)">
-          <option value="pending" ${status === 'pending' ? 'selected' : ''}>รอติดตั้ง</option>
-          <option value="not_contacted" ${status === 'not_contacted' ? 'selected' : ''}>ยังไม่ติดต่อ</option>
-          <option value="survey" ${status === 'survey' ? 'selected' : ''}>นัดดูหน้างาน</option>
-          <option value="site_not_ready" ${status === 'site_not_ready' ? 'selected' : ''}>หน้างานไม่พร้อม</option>
-          <option value="ready" ${status === 'ready' ? 'selected' : ''}>พร้อมติดตั้ง</option>
-          <option value="done" ${status === 'done' ? 'selected' : ''}>ติดตั้งแล้ว</option>
-          <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>สละสิทธิ์</option>
+          ${iotPlanStatusOptionsHtml(status)}
         </select>
       </td>
       <td>
@@ -997,7 +1049,7 @@ function applyBulkIotPlanFinalize() {
   const changed = [];
   checked.forEach(cb => {
     const entry = iotInstallPlan.find(p => p.id === cb.getAttribute('data-id'));
-    if (entry) { entry.planFinalized = true; changed.push(entry); }
+    if (entry) { entry.planFinalized = true; markIotPlanLocalEdit(entry); changed.push(entry); }
   });
   saveIotPlanToStorage();
   renderIotPlanTable();
@@ -1011,6 +1063,7 @@ function unfinalizeIotPlanEntry(id) {
   const entry = iotInstallPlan.find(p => p.id === id);
   if (!entry) return;
   entry.planFinalized = false;
+  markIotPlanLocalEdit(entry);
   saveIotPlanToStorage();
   renderIotPlanTable();
   syncIotPlanEntriesToSupabase([entry]);
@@ -1030,7 +1083,7 @@ function unfinalizeIotPlanGroup(province, district, evt) {
     return true;
   });
   if (!entries.length) return;
-  entries.forEach(p => { p.planFinalized = false; });
+  entries.forEach(p => { p.planFinalized = false; markIotPlanLocalEdit(p); });
   saveIotPlanToStorage();
   renderIotPlanTable();
   syncIotPlanEntriesToSupabase(entries);
@@ -1290,7 +1343,7 @@ function updateIotPlanField(id, field, value) {
   if (field === 'boxType' && value === 'no_button') {
     entry.paymentStatus = ''; // ตู้ไม่มีปุ่มกด ไม่ต้องเก็บเงิน เลยล้างค่าที่เคยเลือกไว้ (ถ้ามี)
   }
-  entry._localTouchedAt = Date.now();   // กันข้อมูลจากเซิร์ฟเวอร์ที่ยังเก่ากว่ามาทับ (ดู syncIotPlanFromSupabase)
+  markIotPlanLocalEdit(entry);   // กันข้อมูลจากเซิร์ฟเวอร์ที่ยังเก่ากว่ามาทับ (ดู syncIotPlanFromSupabase)
   saveIotPlanToStorage();
   if (field === 'status' || field === 'installDate' || field === 'installTime' || field === 'boxType') {
     // สถานะ/วันที่เปลี่ยนอาจทำให้แถวนี้หลุดจากตัวกรองที่เลือกอยู่ และวันที่ติดตั้งเปลี่ยนต้องอัปเดตเครื่องหมาย /− ในแถวทันที
@@ -1318,6 +1371,7 @@ async function removeIotPlanEntry(id) {
   });
   // ลบทุกแถวที่เป็นคนเดียวกัน (กันกรณีมีแถวซ้ำ id ต่างกัน ที่ทำให้ชื่อเด้งกลับหลังรีเฟรช)
   iotInstallPlan = iotInstallPlan.filter(p => !(p.id === id || (nid && p.nationalId === nid)));
+  markIotPlanDeleted(nid);
   saveIotPlanToStorage();
   renderIotPlanTable();
   refreshIotPeoplePanel();
@@ -1338,6 +1392,7 @@ async function clearIotPlan() {
   const confirmed = await showConfirmModal('ต้องการล้างรายการแผนติดตั้ง IoT ทั้งหมดหรือไม่? ข้อมูลจะหายจากเบราว์เซอร์นี้ทันที');
   if (!confirmed) return;
   const idsToDelete = iotInstallPlan.map(p => p.id);
+  iotInstallPlan.forEach(p => markIotPlanDeleted(p.nationalId));
   iotInstallPlan = [];
   saveIotPlanToStorage();
   renderIotPlanTable();
@@ -1380,7 +1435,7 @@ function switchIotPlanView(view) {
 // ===================== โหมดโทรนัด (แอดมินบนคอม): ซ้าย=คิวคนยังไม่นัด · ขวา=ฟอร์มถามครบทุกหัวข้อ =====================
 window.iotCallSelectedNid = null;
 window.iotCallFilter = { province: '', district: '', subdistrict: '', search: '' };
-window.IOT_CALL_DOT = { pending: '#C9A227', not_contacted: '#B4B2A9', survey: '#378ADD', site_not_ready: '#EF9F27', ready: '#1D9E75', done: '#639922', cancelled: '#E24B4A' };
+window.IOT_CALL_DOT = { pending: '#C9A227', not_contacted: '#B4B2A9', survey: '#378ADD', site_not_ready: '#EF9F27', ready: '#1D9E75', done_pending_docs: '#8FA83C', done: '#639922', cancelled: '#E24B4A' };
 function _callEsc(s) { return (s || '').replace(/"/g, '&quot;'); }
 
 // expose ฟังก์ชันของโมดูลนี้ให้ inline handlers และโมดูลอื่นเรียกผ่าน window ได้
@@ -1395,6 +1450,7 @@ Object.assign(window, {
   applyIotPlanFilters, onIotPlanFilterProvinceChange, onIotPlanFilterDistrictChange, populateIotPlanBulkOperatorOptions, updateIotPlanBulkSelectedCount, toggleSelectAllIotPlanRows,
   applyBulkIotPlanOperator, applyBulkIotPlanFinalize, unfinalizeIotPlanEntry, unfinalizeIotPlanGroup, getFilteredIotPlanFinalized, populateIotPlanFinalizedFilterOptions,
   onIotPlanFinalizedFilterProvinceChange, onIotPlanFinalizedFilterDistrictChange, renderIotPlanFinalizedSection, renderIotPlanTable, scheduleRealtimeIotPlanRefresh, setupIotPlanRealtimeSync,
+  markIotPlanLocalEdit, markIotPlanDeleted,
   scheduleIotPlanEntrySync, updateIotPlanTimePart, updateIotPlanField, removeIotPlanEntry, removePersonFromIotPlanByNid, clearIotPlan,
   filterIotPlanByScheduled, switchIotPlanView, _callEsc,
 });
